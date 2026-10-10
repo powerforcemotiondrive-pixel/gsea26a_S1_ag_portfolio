@@ -496,28 +496,40 @@
       color: #047857;
     }
 
-    /* Print Styles */
+    /* Clean Print Styles for PDF */
     @media print {
-      body { 
-        background: white !important; 
-        color: black !important; 
-        padding: 0 !important; 
+      @page {
+        size: A4 portrait;
+        margin: 15mm;
       }
-      .no-print { display: none !important; }
-      .print-only { display: block !important; }
-      .entry-card { 
-        page-break-inside: avoid; 
-        border: 1px solid #cbd5e1 !important; 
-        background: white !important; 
-        color: black !important;
-        box-shadow: none !important;
-        margin-bottom: 1rem !important; 
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
-      .entry-card * {
-        color: black !important;
+      /* Hide all interactive elements */
+      body > *:not(#printSection) {
+        display: none !important;
       }
-      .entry-card .font-bold {
-        color: #7f1734 !important;
+      /* Show ONLY the clean print section */
+      #printSection {
+        display: block !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+      .print-entry-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        background: #ffffff;
+        color: #000000;
       }
     }
   </style>
@@ -766,6 +778,9 @@
     </div>
 
   </div>
+
+  <!-- Dedicated Clean PDF Print Section (Populated dynamically during print) -->
+  <div id="printSection" class="hidden"></div>
 
   <script>
     // =========================================================================
@@ -1227,12 +1242,7 @@
 
       feed.className = "space-y-4 text-left";
 
-      feed.innerHTML = `
-        <div class="print-only hidden mb-4 pb-2 border-b border-[var(--card-border)] text-left">
-          <h2 class="text-lg font-bold text-[var(--text-heading)] text-left">${escapeHtml(currentStudentName)} — General English Portfolio Dossier</h2>
-          <p class="text-xs text-[var(--text-muted)] text-left">GSEA Semester 1 General English Portfolio • 17 Sessions • 4 Modules • Formative Evaluation Record</p>
-        </div>
-      ` + filtered.map(log => {
+      feed.innerHTML = filtered.map(log => {
         const evalRating = log.evalRating || log.formativeRating || log.evalPrepRating || log.rating1 || "";
         const toeicRating = log.toeicRating || log.toeicPrepRating || log.rating2 || "";
 
@@ -1273,13 +1283,9 @@
       updateSessionAvailability();
     }
 
-    function generatePDF() {
-      if (!currentLoadedLogs || currentLoadedLogs.length === 0) {
-        showStatus("Please authenticate and load your portfolio entries before generating a PDF.", true);
-        const sel = document.getElementById("studentSelect");
-        if (sel) sel.focus();
-        return;
-      }
+    function populatePrintSection() {
+      const printSec = document.getElementById("printSection");
+      if (!printSec) return;
 
       const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "Student");
 
@@ -1287,11 +1293,6 @@
       const filtered = activeModuleFilter === "All"
         ? currentLoadedLogs.slice()
         : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
-
-      if (filtered.length === 0) {
-        showStatus(`No entries found for ${activeModuleFilter} to generate a PDF. Switch to "All Modules" or choose another module.`, true);
-        return;
-      }
 
       // Sort logs chronologically by Module and Session
       const sortedLogs = filtered.slice().sort((a, b) => {
@@ -1309,497 +1310,83 @@
         return getSesNum(a.session) - getSesNum(b.session);
       });
 
-      // Calculate statistics
-      let evalTotal = 0, evalCount = 0;
-      let toeicTotal = 0, toeicCount = 0;
-      sortedLogs.forEach(l => {
-        const ev = parseFloat(l.evalRating || l.formativeRating || l.evalPrepRating || l.rating1);
-        if (!isNaN(ev)) { evalTotal += ev; evalCount++; }
-        const to = parseFloat(l.toeicRating || l.toeicPrepRating || l.rating2);
-        if (!isNaN(to)) { toeicTotal += to; toeicCount++; }
-      });
-      const avgEval = evalCount > 0 ? (evalTotal / evalCount).toFixed(1) : "N/A";
-      const avgToeic = toeicCount > 0 ? (toeicTotal / toeicCount).toFixed(1) : "N/A";
+      let html = `
+        <div style="margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #000000;">
+          <h1 style="font-size: 20px; font-weight: bold; margin: 0; color: #000000;">${escapeHtml(studentName)}</h1>
+        </div>
+      `;
 
-      const nowStr = new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-
-      const scopeTitle = activeModuleFilter === "All" ? "Complete Portfolio (All Modules)" : `${activeModuleFilter} Dossier`;
-
-      // Build cards HTML
-      const cardsHtml = sortedLogs.map(log => {
+      sortedLogs.forEach(log => {
         const evalRating = log.evalRating || log.formativeRating || log.evalPrepRating || log.rating1 || "";
         const toeicRating = log.toeicRating || log.toeicPrepRating || log.rating2 || "";
 
-        return `
-          <div class="pdf-card">
-            <div class="pdf-card-header">
-              <div class="pdf-card-title">
-                <span class="session-badge">${escapeHtml(log.session)}</span>
-                <span class="module-badge">${escapeHtml(log.module)}</span>
+        html += `
+          <div class="print-entry-card" style="page-break-inside: avoid; break-inside: avoid; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; margin-bottom: 14px; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
+              <div style="font-size: 13.5px; font-weight: bold; color: #7f1734;">
+                ${escapeHtml(log.module)} — ${escapeHtml(log.session)}
               </div>
-              <span class="timestamp">${escapeHtml(log.timestamp || '')}</span>
+              ${log.timestamp ? `<div style="font-size: 11px; color: #64748b;">${escapeHtml(log.timestamp)}</div>` : ''}
             </div>
 
-            <div class="pdf-ratings-row">
-              <div class="rating-box">
-                <span class="rating-label">Module 1 Formative Eval Prep:</span>
-                <span class="rating-score">${evalRating ? escapeHtml(evalRating) + (String(evalRating).includes('/10') ? '' : ' / 10') : 'Not rated'}</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 11px;">
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 4px;">
+                <strong>Module 1 Formative Eval Prep:</strong> ${evalRating ? escapeHtml(evalRating) + (String(evalRating).includes('/10') ? '' : ' / 10') : 'Not rated'}
               </div>
-              <div class="rating-box">
-                <span class="rating-label">TOEIC Test Prep:</span>
-                <span class="rating-score">${toeicRating ? escapeHtml(toeicRating) + (String(toeicRating).includes('/10') ? '' : ' / 10') : 'Not rated'}</span>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 4px;">
+                <strong>TOEIC Test Prep:</strong> ${toeicRating ? escapeHtml(toeicRating) + (String(toeicRating).includes('/10') ? '' : ' / 10') : 'Not rated'}
               </div>
             </div>
 
-            <div class="pdf-fields">
-              <div class="field-item">
-                <div class="field-name">Key Vocabulary:</div>
-                <div class="field-value">${escapeHtml(log.vocab || 'None logged')}</div>
-              </div>
-              <div class="field-item">
-                <div class="field-name">Lesson Review:</div>
-                <div class="field-value">${escapeHtml(log.contentReview || 'None logged')}</div>
-              </div>
-              <div class="field-item">
-                <div class="field-name">Work On Next:</div>
-                <div class="field-value">${escapeHtml(log.workOn || 'None logged')}</div>
-              </div>
-              <div class="field-item">
-                <div class="field-name">Formative Evaluation Value:</div>
-                <div class="field-value">${escapeHtml(log.evalHelp || 'None logged')}</div>
-              </div>
-              <div class="field-item">
-                <div class="field-name">TOEIC Prep:</div>
-                <div class="field-value">${escapeHtml(log.toeicPrep || 'None logged')}</div>
-              </div>
+            <div style="font-size: 11.5px; line-height: 1.5; color: #1e293b;">
+              <p style="margin: 0 0 5px 0;"><strong>Key Vocabulary:</strong> ${escapeHtml(log.vocab || 'None logged')}</p>
+              <p style="margin: 0 0 5px 0;"><strong>Lesson Review:</strong> ${escapeHtml(log.contentReview || 'None logged')}</p>
+              <p style="margin: 0 0 5px 0;"><strong>Work On Next:</strong> ${escapeHtml(log.workOn || 'None logged')}</p>
+              <p style="margin: 0 0 5px 0;"><strong>Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp || 'None logged')}</p>
+              <p style="margin: 0;"><strong>TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep || 'None logged')}</p>
             </div>
           </div>
         `;
-      }).join("");
+      });
 
-      const docTitle = `${studentName}_GSEA_English_Portfolio_Logs`;
+      printSec.innerHTML = html;
+    }
 
-      const pdfHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>${escapeHtml(docTitle)}</title>
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 12mm 14mm 14mm 14mm;
-    }
-    * {
-      box-sizing: border-box;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #1e293b;
-      background-color: #f8fafc;
-      font-size: 11.5px;
-      line-height: 1.45;
-    }
-    .screen-toolbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: #7f1734;
-      color: #ffffff;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-    }
-    .screen-toolbar .title {
-      font-weight: 700;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .screen-toolbar .hint {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-    .screen-toolbar .actions {
-      display: flex;
-      gap: 8px;
-    }
-    .btn-action {
-      background: #ffffff;
-      color: #7f1734;
-      border: none;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .btn-action:hover {
-      background: #f1f5f9;
-    }
-    .btn-close {
-      background: rgba(255,255,255,0.18);
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,0.35);
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .btn-close:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    .container {
-      max-width: 820px;
-      margin: 20px auto;
-      background: #ffffff;
-      padding: 30px 36px;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    }
-    .header-banner {
-      border-bottom: 3px solid #7f1734;
-      padding-bottom: 14px;
-      margin-bottom: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .header-title-box h1 {
-      margin: 0;
-      font-size: 18px;
-      color: #7f1734;
-      font-weight: 800;
-      letter-spacing: -0.2px;
-    }
-    .header-title-box .inst-sub {
-      font-size: 11px;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-top: 2px;
-    }
-    .header-title-box .doc-sub {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 3px;
-    }
-    .header-meta {
-      text-align: right;
-      font-size: 10.5px;
-      color: #475569;
-      line-height: 1.5;
-    }
-    .header-meta strong {
-      color: #1e293b;
-    }
-    .student-badge {
-      display: inline-block;
-      background: #7f1734;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 12px;
-      padding: 2px 10px;
-      border-radius: 4px;
-      margin-bottom: 3px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 20px;
-    }
-    .stat-box {
-      text-align: center;
-    }
-    .stat-label {
-      font-size: 10px;
-      color: #64748b;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .stat-val {
-      font-size: 15px;
-      font-weight: 800;
-      color: #7f1734;
-      margin-top: 1px;
-    }
-    .pdf-card {
-      page-break-inside: avoid;
-      break-inside: avoid;
-      border: 1px solid #cbd5e1;
-      border-left: 4px solid #7f1734;
-      border-radius: 6px;
-      padding: 12px 15px;
-      margin-bottom: 14px;
-      background: #ffffff;
-    }
-    .pdf-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-    }
-    .session-badge {
-      font-size: 13px;
-      font-weight: 800;
-      color: #7f1734;
-      margin-right: 6px;
-    }
-    .module-badge {
-      font-size: 10.5px;
-      background: #f1f5f9;
-      color: #475569;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-    .timestamp {
-      font-size: 10px;
-      color: #94a3b8;
-      font-family: monospace;
-    }
-    .pdf-ratings-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .rating-box {
-      background: #fdf2f4;
-      border: 1px solid #fecdd3;
-      border-radius: 5px;
-      padding: 5px 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .rating-label {
-      font-size: 10.5px;
-      color: #8f1738;
-      font-weight: 600;
-    }
-    .rating-score {
-      font-size: 11px;
-      font-weight: 800;
-      color: #7f1734;
-      background: #ffffff;
-      padding: 1px 6px;
-      border-radius: 4px;
-      border: 1px solid #fecdd3;
-    }
-    .pdf-fields {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field-item {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-    .field-name {
-      font-weight: 700;
-      font-size: 10.5px;
-      color: #1e293b;
-    }
-    .field-value {
-      color: #334155;
-      font-size: 11px;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-    .signoff-box {
-      page-break-inside: avoid;
-      break-inside: avoid;
-      margin-top: 24px;
-      border: 1px dashed #94a3b8;
-      border-radius: 8px;
-      padding: 14px 18px;
-      background: #fafaf9;
-    }
-    .signoff-title {
-      font-size: 11.5px;
-      font-weight: 800;
-      color: #7f1734;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    .signoff-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-      align-items: end;
-      margin-top: 14px;
-    }
-    .signoff-line {
-      border-bottom: 1px solid #64748b;
-      height: 24px;
-    }
-    .signoff-label {
-      font-size: 9.5px;
-      color: #64748b;
-      margin-top: 3px;
-    }
-    @media print {
-      body {
-        background-color: #ffffff !important;
+    function generatePDF() {
+      if (!currentLoadedLogs || currentLoadedLogs.length === 0) {
+        showStatus("Please authenticate and load your portfolio entries before generating a PDF.", true);
+        const sel = document.getElementById("studentSelect");
+        if (sel) sel.focus();
+        return;
       }
-      .no-print {
-        display: none !important;
+
+      const filtered = activeModuleFilter === "All"
+        ? currentLoadedLogs.slice()
+        : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
+
+      if (filtered.length === 0) {
+        showStatus(`No entries found for ${activeModuleFilter} to generate a PDF. Switch to "All Modules" or choose another module.`, true);
+        return;
       }
-      .container {
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
+
+      populatePrintSection();
+
+      const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "Student");
+      const prevTitle = document.title;
+      document.title = `${studentName}_Portfolio_Entries`;
+
+      window.print();
+
+      setTimeout(() => {
+        document.title = prevTitle;
+      }, 1000);
     }
-  </style>
-</head>
-<body>
-  <div class="screen-toolbar no-print">
-    <div class="title">
-      <span>📄</span>
-      <span>GSEA Portfolio Dossier — \${escapeHtml(studentName)}</span>
-      <span class="hint">(\${escapeHtml(scopeTitle)} • \${sortedLogs.length} entries)</span>
-    </div>
-    <div class="actions">
-      <button class="btn-action" onclick="window.print()">
-        <span>🖨️</span> Save as PDF / Print
-      </button>
-      <button class="btn-close" onclick="window.close()">✕ Close</button>
-    </div>
-  </div>
 
-  <div class="container">
-    <div class="header-banner">
-      <div class="header-title-box">
-        <h1>General English Learning Portfolio</h1>
-        <div class="inst-sub">École Nationale de l'Aviation Civile (ENAC) • GSEA</div>
-        <div class="doc-sub">Semester 1 Dossier • 17 Sessions • 4 Modules • Formative Evaluation Record</div>
-      </div>
-      <div class="header-meta">
-        <div><span class="student-badge">\${escapeHtml(studentName)}</span></div>
-        <div><strong>Scope:</strong> \${escapeHtml(scopeTitle)}</div>
-        <div><strong>Generated:</strong> \${escapeHtml(nowStr)}</div>
-        <div><strong>Entries:</strong> \${sortedLogs.length} completed session(s)</div>
-      </div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-label">Logged Entries</div>
-        <div class="stat-val">\${sortedLogs.length} / 17</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Avg Formative Eval Prep</div>
-        <div class="stat-val">\${avgEval}\${avgEval !== 'N/A' ? ' / 10' : ''}</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Avg TOEIC Test Prep</div>
-        <div class="stat-val">\${avgToeic}\${avgToeic !== 'N/A' ? ' / 10' : ''}</div>
-      </div>
-    </div>
-
-    \${cardsHtml}
-
-    <div class="signoff-box">
-      <div class="signoff-title">Tutor / Teacher Evaluation Sign-Off</div>
-      <p style="margin: 0; font-size: 10.5px; color: #475569;">
-        This document represents the authenticated learning reflection dossier for GSEA Semester 1 General English. Reviewed and verified for formative assessment:
-      </p>
-      <div class="signoff-grid">
-        <div>
-          <div class="signoff-line"></div>
-          <div class="signoff-label">Tutor Formative Assessment Feedback & Comments</div>
-        </div>
-        <div>
-          <div class="signoff-line"></div>
-          <div class="signoff-label">Tutor Signature & Date</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        window.print();
-      }, 350);
+    window.addEventListener("beforeprint", () => {
+      if (currentLoadedLogs && currentLoadedLogs.length > 0) {
+        populatePrintSection();
+      }
     });
-  <\/script>
-</body>
-</html>`;
-
-      let printWin = null;
-      try {
-        printWin = window.open("", "_blank");
-      } catch (err) {
-        printWin = null;
-      }
-
-      if (printWin && printWin.document) {
-        printWin.document.open();
-        printWin.document.write(pdfHtml);
-        printWin.document.close();
-      } else {
-        // Fallback: Invisible iframe technique (100% immune to popup blockers in Moodle/LMS)
-        let printFrame = document.getElementById("pdfPrintFrame");
-        if (!printFrame) {
-          printFrame = document.createElement("iframe");
-          printFrame.id = "pdfPrintFrame";
-          printFrame.style.position = "fixed";
-          printFrame.style.right = "0";
-          printFrame.style.bottom = "0";
-          printFrame.style.width = "0";
-          printFrame.style.height = "0";
-          printFrame.style.border = "0";
-          printFrame.style.visibility = "hidden";
-          document.body.appendChild(printFrame);
-        }
-        const doc = printFrame.contentDocument || printFrame.contentWindow.document;
-        doc.open();
-        doc.write(pdfHtml);
-        doc.close();
-        setTimeout(() => {
-          try {
-            printFrame.contentWindow.focus();
-            printFrame.contentWindow.print();
-          } catch (e) {
-            window.print();
-          }
-        }, 400);
-      }
-    }
 
     async function submitLog(e) {
       e.preventDefault();
