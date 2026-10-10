@@ -234,6 +234,16 @@
       color: var(--input-text);
       padding: 0.5rem;
     }
+    select.form-input option:disabled {
+      color: #64748b !important;
+      background-color: rgba(255, 255, 255, 0.04);
+      font-style: italic;
+      cursor: not-allowed;
+    }
+    [data-theme="light"] select.form-input option:disabled {
+      color: #94a3b8 !important;
+      background-color: #f1f5f9;
+    }
 
     /* Claret Buttons */
     .btn-claret {
@@ -580,7 +590,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="field-label">Module</label>
-          <select id="moduleSelect" required class="form-input">
+          <select id="moduleSelect" onchange="updateSessionAvailability()" required class="form-input">
             <option value="Module 1 (Sessions 1 - 5)">Module 1 (Sessions 1 - 5)</option>
             <option value="Module 2 (Sessions 6 - 10)">Module 2 (Sessions 6 - 10)</option>
             <option value="Module 3 (Sessions 11 - 15)">Module 3 (Sessions 11 - 15)</option>
@@ -597,6 +607,10 @@
             <option value="FORMATIVE EVALUATION">FORMATIVE EVALUATION</option>
           </select>
         </div>
+      </div>
+
+      <!-- Module Completion Protection Banner -->
+      <div id="moduleCompletedBanner" class="hidden text-xs p-3.5 rounded-xl border border-amber-500/40 bg-amber-950/20 text-amber-200 flex items-center gap-2.5">
       </div>
 
       <div>
@@ -1056,6 +1070,106 @@
       return mod.includes(targetFilter.toLowerCase());
     }
 
+    // Module Key Helper
+    function getModuleKey(moduleVal) {
+      const str = String(moduleVal || "").toLowerCase();
+      if (str.includes("module 1") || str.includes("m1") || str === "1") return "Module 1";
+      if (str.includes("module 2") || str.includes("m2") || str === "2") return "Module 2";
+      if (str.includes("module 3") || str.includes("m3") || str === "3") return "Module 3";
+      if (str.includes("module 4") || str.includes("m4") || str === "4" || str.includes("revision")) return "Module 4";
+      return moduleVal;
+    }
+
+    // Protection System: Check if a specific session is already logged
+    function isSessionCompleted(moduleVal, sessionVal) {
+      if (!currentLoadedLogs || !currentLoadedLogs.length) return false;
+      const targetModKey = getModuleKey(moduleVal);
+      const targetSession = String(sessionVal || "").trim().toLowerCase();
+
+      return currentLoadedLogs.some(log => {
+        if (!matchesModule(log.module, targetModKey)) return false;
+
+        const logSession = String(log.session || "").trim().toLowerCase();
+        if (!logSession) return false;
+
+        if (logSession === targetSession) return true;
+
+        if (targetSession.includes("formative") && logSession.includes("formative")) return true;
+
+        const logNum = logSession.replace(/\D/g, "");
+        const targetNum = targetSession.replace(/\D/g, "");
+        if (logNum && targetNum && logNum === targetNum && !logSession.includes("formative") && !targetSession.includes("formative")) {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
+    // Grey out and disable completed session options in the dropdown
+    function updateSessionAvailability() {
+      const modSelect = document.getElementById("moduleSelect");
+      const sesSelect = document.getElementById("sessionSelect");
+      if (!modSelect || !sesSelect) return;
+
+      const selectedMod = modSelect.value;
+      const options = sesSelect.options;
+      let hasAvailable = false;
+      let firstAvailableValue = null;
+
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i];
+        if (!opt.dataset.baseValue) {
+          opt.dataset.baseValue = opt.value;
+        }
+        const baseVal = opt.dataset.baseValue;
+        const completed = isSessionCompleted(selectedMod, baseVal);
+
+        if (completed) {
+          opt.disabled = true;
+          opt.innerText = `${baseVal} (✓ Completed)`;
+          opt.classList.add("text-slate-500", "italic");
+        } else {
+          opt.disabled = false;
+          opt.innerText = baseVal;
+          opt.classList.remove("text-slate-500", "italic");
+          if (!firstAvailableValue) {
+            firstAvailableValue = baseVal;
+          }
+          hasAvailable = true;
+        }
+      }
+
+      // If current selection is disabled, auto-advance to first uncompleted session
+      if (sesSelect.selectedOptions[0] && sesSelect.selectedOptions[0].disabled) {
+        if (firstAvailableValue) {
+          sesSelect.value = firstAvailableValue;
+        }
+      }
+
+      const banner = document.getElementById("moduleCompletedBanner");
+      const submitBtn = document.getElementById("btnSubmit");
+
+      if (!hasAvailable && currentLoadedLogs.length > 0) {
+        if (banner) {
+          banner.classList.remove("hidden");
+          banner.innerHTML = `<span>🛡️</span> <div><strong>Module Completed:</strong> All sessions for <strong>${escapeHtml(selectedMod)}</strong> have already been submitted and locked. Select another module to submit new entries.</div>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+          submitBtn.innerText = "All Sessions in this Module Completed";
+        }
+      } else {
+        if (banner) banner.classList.add("hidden");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          submitBtn.innerText = "Submit Portfolio Entry";
+        }
+      }
+    }
+
     function setModuleFilter(mod) {
       activeModuleFilter = mod;
       const pills = document.querySelectorAll(".filter-pill");
@@ -1147,6 +1261,8 @@
         </div>
       `;
       }).reverse().join("");
+
+      updateSessionAvailability();
     }
 
     async function submitLog(e) {
@@ -1200,6 +1316,14 @@
         toeicPrep: payload.toeicPrep,
         toeicRating: payload.toeicRating
       };
+
+      // Protection System: prevent submitting an already completed session
+      if (isSessionCompleted(payload.module, payload.session)) {
+        showStatus(`Protection Alert: ${escapeHtml(payload.session)} for ${escapeHtml(payload.module)} is already completed. Duplicate entries are blocked.`, true);
+        btn.innerText = "Submit Portfolio Entry";
+        btn.disabled = false;
+        return;
+      }
 
       try {
         const hasConfiguredEntries = Object.values(GOOGLE_FORM_ENTRIES).some(val => val && !val.includes("XXXXXXX"));
@@ -1381,6 +1505,26 @@
       setModuleFilter("All");
 
       resetFormInputs();
+
+      // Reset session dropdown options to initial enabled state
+      const sesSelect = document.getElementById("sessionSelect");
+      if (sesSelect) {
+        for (let i = 0; i < sesSelect.options.length; i++) {
+          const opt = sesSelect.options[i];
+          const base = opt.dataset.baseValue || opt.value;
+          opt.disabled = false;
+          opt.innerText = base;
+          opt.classList.remove("text-slate-500", "italic");
+        }
+      }
+      const banner = document.getElementById("moduleCompletedBanner");
+      if (banner) banner.classList.add("hidden");
+      const submitBtn = document.getElementById("btnSubmit");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        submitBtn.innerText = "Submit Portfolio Entry";
+      }
 
       showStatus("Signed out successfully. Choose your name and enter your PIN to sign in again.", false);
       setTimeout(() => {
