@@ -1261,6 +1261,7 @@
             setModuleFilter("All");
             showStatus(result.message || "Portfolio entry submitted successfully!", false);
             resetFormInputs();
+            setConnectionStatus(true, "Live");
             // Silently re-sync with Google Sheet in background to confirm server timestamps
             setTimeout(() => fetchHistory({ silent: true }), 600);
           } else {
@@ -1268,6 +1269,7 @@
           }
         }
       } catch (err) {
+        setConnectionStatus(false, "Disconnected");
         showStatus("Submission failed. Check network or server configuration.", true);
       } finally {
         btn.innerText = "Submit Portfolio Entry";
@@ -1329,8 +1331,10 @@
       }
     });
 
-    // Auto-restore session from sessionStorage on page reload
+    // Auto-restore session from sessionStorage on page reload & check connection
     window.addEventListener("DOMContentLoaded", () => {
+      checkConnection();
+
       const savedStudent = sessionStorage.getItem("gsea_student");
       const savedPin = sessionStorage.getItem("gsea_pin");
       if (savedStudent && savedPin) {
