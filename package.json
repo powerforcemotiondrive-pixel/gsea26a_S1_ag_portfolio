@@ -1,0 +1,26 @@
+{
+  "name": "semester1_aasportfolio",
+  "version": "1.0.0",
+  "description": "GSEA English Learning Portfolio",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx @tailwindcss/cli -i ./src/input.css -o ./output.css --minify",
+    "build:dev": "npx @tailwindcss/cli -i ./src/input.css -o ./output.css",
+    "watch": "npx @tailwindcss/cli -i ./src/input.css -o ./output.css --watch",
+    "dev": "npx @tailwindcss/cli -i ./src/input.css -o ./output.css --watch",
+    "package:moodle": "zip -r moodle_portfolio_package.zip imsmanifest.xml gsea26a_aas_portfolio.html output.css index.html"
+  },
+  "keywords": [
+    "gsea",
+    "portfolio",
+    "moodle",
+    "tailwindcss"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
