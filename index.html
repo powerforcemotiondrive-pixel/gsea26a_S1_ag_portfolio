@@ -1,16 +1,894 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GSEA English Learning Portfolio</title>
-  <meta http-equiv="refresh" content="0; url=gsea26a_aas_portfolio.html">
-  <script>
-    window.location.replace("gsea26a_aas_portfolio.html");
-  </script>
+  <link rel="stylesheet" href="output.css">
+  <style>
+    :root {
+      /* Graphite & Claret Dark Palette (Default) */
+      --bg-canvas: #15181e;
+      --ambient-claret-top: rgba(127, 23, 52, 0.38);
+      --ambient-claret-bottom: rgba(127, 23, 52, 0.16);
+      --ambient-claret-side: rgba(127, 23, 52, 0.10);
+      --mesh-dot: rgba(255, 255, 255, 0.07);
+      --mesh-line: rgba(255, 255, 255, 0.035);
+      --mesh-diag: rgba(255, 255, 255, 0.018);
+      
+      --box-bg: #20242c;
+      --box-border: #313745;
+      --card-bg: #242933;
+      --card-border: #343b4a;
+      
+      --input-bg: #181b22;
+      --input-border: #363d4c;
+      --input-text: #f0f3f8;
+      
+      --text-main: #dce1eb;
+      --text-muted: #959ead;
+      --text-heading: #ffffff;
+      
+      --claret-primary: #7f1734;
+      --claret-hover: #961b3e;
+      --claret-dark: #580e21;
+      --claret-light: #f08ba2;
+      --claret-badge-bg: rgba(127, 23, 52, 0.24);
+      --claret-badge-text: #f28da5;
+      --claret-badge-border: rgba(127, 23, 52, 0.45);
+      
+      --box-shadow: 
+        0 22px 38px -10px rgba(0, 0, 0, 0.78),
+        0 10px 18px -4px rgba(0, 0, 0, 0.52),
+        0 2px 8px 0 rgba(127, 23, 52, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      
+      --card-shadow: 
+        0 14px 26px -6px rgba(0, 0, 0, 0.68),
+        0 6px 12px -2px rgba(0, 0, 0, 0.46),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    [data-theme="light"] {
+      /* Graphite & Claret Light Palette */
+      --bg-canvas: #eaecef;
+      --ambient-claret-top: rgba(127, 23, 52, 0.18);
+      --ambient-claret-bottom: rgba(127, 23, 52, 0.08);
+      --ambient-claret-side: rgba(127, 23, 52, 0.05);
+      --mesh-dot: rgba(30, 35, 45, 0.08);
+      --mesh-line: rgba(30, 35, 45, 0.04);
+      --mesh-diag: rgba(30, 35, 45, 0.02);
+      
+      --box-bg: #ffffff;
+      --box-border: #d4d8e2;
+      --card-bg: #ffffff;
+      --card-border: #d8dce6;
+      
+      --input-bg: #ffffff;
+      --input-border: #cbcfda;
+      --input-text: #171a21;
+      
+      --text-main: #2b303b;
+      --text-muted: #5f6777;
+      --text-heading: #12151a;
+      
+      --claret-primary: #7f1734;
+      --claret-hover: #961b3e;
+      --claret-dark: #580e21;
+      --claret-light: #7f1734;
+      --claret-badge-bg: rgba(127, 23, 52, 0.10);
+      --claret-badge-text: #7f1734;
+      --claret-badge-border: rgba(127, 23, 52, 0.28);
+      
+      --box-shadow: 
+        0 20px 36px -10px rgba(24, 28, 38, 0.16),
+        0 10px 18px -4px rgba(24, 28, 38, 0.10),
+        0 2px 8px 0 rgba(127, 23, 52, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.90);
+      
+      --card-shadow: 
+        0 14px 26px -6px rgba(24, 28, 38, 0.12),
+        0 6px 12px -2px rgba(24, 28, 38, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    }
+
+    /* Mesh Textured Background */
+    body {
+      background-color: var(--bg-canvas);
+      background-image:
+        radial-gradient(ellipse 85% 55% at 50% -10%, var(--ambient-claret-top) 0%, transparent 70%),
+        radial-gradient(circle 750px at 95% 90%, var(--ambient-claret-bottom) 0%, transparent 60%),
+        radial-gradient(circle 500px at 5% 50%, var(--ambient-claret-side) 0%, transparent 50%),
+        radial-gradient(var(--mesh-dot) 1.2px, transparent 1.2px),
+        linear-gradient(var(--mesh-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--mesh-line) 1px, transparent 1px),
+        linear-gradient(45deg, var(--mesh-diag) 1px, transparent 1px),
+        linear-gradient(-45deg, var(--mesh-diag) 1px, transparent 1px);
+      background-size: 
+        100% 100%, 
+        100% 100%, 
+        100% 100%, 
+        16px 16px, 
+        24px 24px, 
+        24px 24px, 
+        16px 16px, 
+        16px 16px;
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Drop Shadow Boxes */
+    .drop-shadow-box {
+      background-color: var(--box-bg);
+      border: 1px solid var(--box-border);
+      border-radius: 1rem;
+      box-shadow: var(--box-shadow);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .drop-shadow-box:hover {
+      box-shadow: 
+        0 26px 44px -10px rgba(0, 0, 0, 0.82),
+        0 12px 22px -4px rgba(0, 0, 0, 0.55),
+        0 3px 10px 0 rgba(127, 23, 52, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    [data-theme="light"] .drop-shadow-box:hover {
+      box-shadow: 
+        0 24px 42px -10px rgba(24, 28, 38, 0.20),
+        0 12px 22px -4px rgba(24, 28, 38, 0.14),
+        0 3px 10px 0 rgba(127, 23, 52, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    }
+
+    /* Header Banner */
+    .header-banner {
+      background: linear-gradient(135deg, #78152e 0%, #540d1e 60%, #3e0915 100%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 1rem;
+      box-shadow: 
+        0 22px 38px -10px rgba(0, 0, 0, 0.8),
+        0 10px 20px -4px rgba(120, 21, 46, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+    .header-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    /* Entry Cards in History */
+    .entry-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--claret-primary) !important;
+      border-radius: 0.75rem;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.25s ease;
+    }
+    .entry-card:hover {
+      transform: translateY(-2px);
+      border-left-color: var(--claret-hover) !important;
+      box-shadow: 
+        0 18px 32px -6px rgba(0, 0, 0, 0.76),
+        0 8px 16px -3px rgba(127, 23, 52, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09);
+    }
+    [data-theme="light"] .entry-card:hover {
+      box-shadow: 
+        0 18px 30px -6px rgba(24, 28, 38, 0.16),
+        0 8px 14px -3px rgba(127, 23, 52, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    }
+
+    /* Form Inputs */
+    .form-input {
+      width: 100%;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--input-text);
+      border-radius: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.875rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+    }
+    .form-input:focus {
+      border-color: var(--claret-hover);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(127, 23, 52, 0.35);
+    }
+    .form-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+    select.form-input option {
+      background-color: var(--box-bg);
+      color: var(--input-text);
+    }
+
+    /* Claret Buttons */
+    .btn-claret {
+      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
+      color: #ffffff;
+      border: 1px solid #9c2243;
+      box-shadow: 0 8px 18px -4px rgba(127, 23, 52, 0.52), 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-claret:hover {
+      background: linear-gradient(135deg, #961b3e 0%, #70132b 100%);
+      box-shadow: 0 10px 22px -3px rgba(150, 27, 62, 0.62), 0 3px 6px rgba(0, 0, 0, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-claret:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #871637 0%, #610d23 100%);
+      color: #ffffff;
+      border: 1px solid #a62046;
+      box-shadow: 0 10px 22px -4px rgba(135, 22, 55, 0.56), 0 3px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #9c1b40 0%, #74102b 100%);
+      box-shadow: 0 12px 26px -3px rgba(156, 27, 64, 0.66), 0 4px 8px rgba(0, 0, 0, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-print {
+      background: rgba(30, 8, 14, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.15s ease;
+    }
+    .btn-print:hover {
+      background: rgba(50, 12, 23, 0.85);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    /* Badges & Accents */
+    .badge-claret {
+      background-color: var(--claret-badge-bg);
+      color: var(--claret-badge-text);
+      border: 1px solid var(--claret-badge-border);
+    }
+
+    /* Rating Scale Buttons */
+    .rating-btn {
+      padding: 0.35rem 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 0.375rem;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+      text-align: center;
+      cursor: pointer;
+    }
+    .rating-btn:hover {
+      border-color: var(--claret-hover);
+      color: var(--text-heading);
+    }
+    .rating-btn.active {
+      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
+      border-color: #9c2243;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(127, 23, 52, 0.4);
+    }
+
+    .section-title {
+      color: var(--claret-badge-text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      background-color: var(--claret-primary);
+      box-shadow: 0 0 6px rgba(127, 23, 52, 0.6);
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.375rem;
+    }
+
+    /* Status Notifications */
+    .status-error {
+      background-color: rgba(75, 12, 26, 0.5);
+      border: 1px solid rgba(225, 29, 72, 0.4);
+      color: #fca5a5;
+    }
+    .status-success {
+      background-color: rgba(16, 55, 35, 0.5);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #6ee7b7;
+    }
+    [data-theme="light"] .status-error {
+      background-color: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #be123c;
+    }
+    [data-theme="light"] .status-success {
+      background-color: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+    }
+
+    /* Print Styles */
+    @media print {
+      body { 
+        background: white !important; 
+        color: black !important; 
+        padding: 0 !important; 
+      }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .entry-card { 
+        page-break-inside: avoid; 
+        border: 1px solid #cbd5e1 !important; 
+        border-left: 4px solid #7f1734 !important;
+        background: white !important; 
+        color: black !important;
+        box-shadow: none !important;
+        margin-bottom: 1rem !important; 
+      }
+      .entry-card * {
+        color: black !important;
+      }
+      .entry-card .font-bold {
+        color: #7f1734 !important;
+      }
+    }
+  </style>
 </head>
-<body style="background-color: #15181e; color: #dce1eb; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;">
-  <p>Loading <a href="gsea26a_aas_portfolio.html" style="color: #f08ba2; text-decoration: underline;">GSEA English Learning Portfolio</a>...</p>
+<body class="p-4 md:p-8 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header Banner -->
+    <div class="header-banner p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+      <div class="flex items-center gap-3.5">
+        <!-- Pen Badge Icon -->
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
+          <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <path d="m15 5 4 4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span>GSEA English Learning Portfolio</span>
+          </h1>
+          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 3 Modules • Formative Assessment Dossier</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
+          <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+        </button>
+        <button onclick="window.print()" id="btnPrint" type="button" class="hidden no-print btn-print text-white text-xs font-semibold px-4 py-2 rounded-lg transition items-center gap-2">
+          🖨️ Print Portfolio for Tutorial
+        </button>
+      </div>
+    </div>
+
+    <!-- Student Authentication Panel -->
+    <div class="no-print drop-shadow-box p-6">
+      <h2 class="section-title mb-4">1. Student Authentication</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="field-label">Student Name</label>
+          <select id="studentSelect" class="form-input">
+            <option value="">-- Choose Name --</option>
+            <option value="Dave">Dave</option>
+            <option value="Nick">Nick</option>
+            <option value="Ali">Ali</option>
+            <option value="Alice">Alice</option>
+            <option value="Mathilde">Mathilde</option>
+            <option value="Rose">Rose</option>
+            <option value="Fred">Fred</option>
+            <option value="Billy">Billy</option>
+            <option value="Kelly">Kelly</option>
+            <option value="Chris">Chris</option>
+            <option value="Neil">Neil</option>
+            <option value="Mike">Mike</option>
+            <option value="Micky">Micky</option>
+            <option value="Alex">Alex</option>
+            <option value="Liam">Liam</option>
+            <option value="Xavier">Xavier</option>
+            <option value="Pete">Pete</option>
+            <option value="Yael">Yael</option>
+            <option value="Harry">Harry</option>
+            <option value="Rick">Rick</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">4-Digit Security PIN</label>
+          <input type="password" id="studentPin" maxlength="6" placeholder="••••" class="form-input">
+        </div>
+        <div>
+          <button onclick="fetchHistory()" id="btnLoad" type="button" class="w-full btn-claret font-medium py-2.5 px-4 rounded-lg text-sm transition">
+            Load My Portfolio
+          </button>
+        </div>
+      </div>
+      <div id="authStatus" class="hidden text-xs mt-3.5 px-3.5 py-2.5 rounded-lg border"></div>
+    </div>
+
+    <!-- Submission Form -->
+    <form id="portfolioForm" onsubmit="submitLog(event)" class="no-print drop-shadow-box p-6 space-y-4">
+      <div class="border-b border-[var(--box-border)] pb-3 mb-2">
+        <h2 class="section-title">2. New Session Entry</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="field-label">Module</label>
+          <select id="moduleSelect" required class="form-input">
+            <option value="Module 1">Module 1 (Sessions 1–4)</option>
+            <option value="Module 2">Module 2 (Sessions 5–8)</option>
+            <option value="Module 3">Module 3 (Sessions 9–12)</option>
+            <option value="Consolidation / Revision">Consolidation / Revision (Sessions 13–17)</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Session Number</label>
+          <select id="sessionSelect" required class="form-input">
+            <option value="Session 1">Session 1</option>
+            <option value="Session 2">Session 2</option>
+            <option value="Session 3">Session 3</option>
+            <option value="Session 4">Session 4</option>
+            <option value="Session 5">Session 5</option>
+            <option value="Session 6">Session 6</option>
+            <option value="Session 7">Session 7</option>
+            <option value="Session 8">Session 8</option>
+            <option value="Session 9">Session 9</option>
+            <option value="Session 10">Session 10</option>
+            <option value="Session 11">Session 11</option>
+            <option value="Session 12">Session 12</option>
+            <option value="Session 13">Session 13</option>
+            <option value="Session 14">Session 14</option>
+            <option value="Session 15">Session 15</option>
+            <option value="Session 16">Session 16</option>
+            <option value="Session 17">Session 17</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label">Key vocabulary learnt</label>
+        <input type="text" id="vocab" required placeholder="e.g. taxiway clearance, runway incursion, nautical miles, altimeter" class="form-input">
+      </div>
+
+      <div>
+        <label class="field-label">Lesson content review (What I learnt in this session)</label>
+        <textarea id="contentReview" rows="2" required placeholder="Brief summary of activities and communication tasks completed..." class="form-input"></textarea>
+      </div>
+
+      <div>
+        <label class="field-label">What I need to work on following this session</label>
+        <textarea id="workOn" rows="2" required placeholder="Pronunciation, grammar, speed, listening comprehension points..." class="form-input"></textarea>
+      </div>
+
+      <div>
+        <label class="field-label">How will this help me with my formative evaluation?</label>
+        <textarea id="evalHelp" rows="2" required placeholder="Relevance to upcoming 30-min evaluation tutorials..." class="form-input"></textarea>
+      </div>
+
+      <!-- Rating Scale 1: Module 1 Formative Evaluation Preparedness -->
+      <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <label for="evalRating" class="field-label mb-0 text-slate-100 font-semibold">
+            How well prepared do you think you are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+          </label>
+          <span id="evalRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+            7 / 10
+          </span>
+        </div>
+        
+        <input type="range" id="evalRating" min="1" max="10" value="7" step="1" 
+               oninput="syncRating('evalRating', this.value)" 
+               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#8f1738] bg-[#333946]">
+        
+        <div class="grid grid-cols-10 gap-1 sm:gap-1.5" id="evalRatingPills">
+          <button type="button" onclick="setRating('evalRating', 1)" class="rating-btn" data-val="1">1</button>
+          <button type="button" onclick="setRating('evalRating', 2)" class="rating-btn" data-val="2">2</button>
+          <button type="button" onclick="setRating('evalRating', 3)" class="rating-btn" data-val="3">3</button>
+          <button type="button" onclick="setRating('evalRating', 4)" class="rating-btn" data-val="4">4</button>
+          <button type="button" onclick="setRating('evalRating', 5)" class="rating-btn" data-val="5">5</button>
+          <button type="button" onclick="setRating('evalRating', 6)" class="rating-btn" data-val="6">6</button>
+          <button type="button" onclick="setRating('evalRating', 7)" class="rating-btn active" data-val="7">7</button>
+          <button type="button" onclick="setRating('evalRating', 8)" class="rating-btn" data-val="8">8</button>
+          <button type="button" onclick="setRating('evalRating', 9)" class="rating-btn" data-val="9">9</button>
+          <button type="button" onclick="setRating('evalRating', 10)" class="rating-btn" data-val="10">10</button>
+        </div>
+        <div class="flex justify-between text-[11px] text-[var(--text-muted)] px-0.5">
+          <span>1 = Not prepared at all</span>
+          <span>5 = Moderate</span>
+          <span>10 = Fully prepared</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label">What I have done for TOEIC prep this week</label>
+        <input type="text" id="toeicPrep" required placeholder="e.g. 30 Part 4 listening items, ETS practice test vocabulary review" class="form-input">
+      </div>
+
+      <!-- Rating Scale 2: TOEIC Test Preparedness -->
+      <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <label for="toeicRating" class="field-label mb-0 text-slate-100 font-semibold">
+            How well prepared do you think you currently are for your TOEIC test? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+          </label>
+          <span id="toeicRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+            7 / 10
+          </span>
+        </div>
+        
+        <input type="range" id="toeicRating" min="1" max="10" value="7" step="1" 
+               oninput="syncRating('toeicRating', this.value)" 
+               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#8f1738] bg-[#333946]">
+        
+        <div class="grid grid-cols-10 gap-1 sm:gap-1.5" id="toeicRatingPills">
+          <button type="button" onclick="setRating('toeicRating', 1)" class="rating-btn" data-val="1">1</button>
+          <button type="button" onclick="setRating('toeicRating', 2)" class="rating-btn" data-val="2">2</button>
+          <button type="button" onclick="setRating('toeicRating', 3)" class="rating-btn" data-val="3">3</button>
+          <button type="button" onclick="setRating('toeicRating', 4)" class="rating-btn" data-val="4">4</button>
+          <button type="button" onclick="setRating('toeicRating', 5)" class="rating-btn" data-val="5">5</button>
+          <button type="button" onclick="setRating('toeicRating', 6)" class="rating-btn" data-val="6">6</button>
+          <button type="button" onclick="setRating('toeicRating', 7)" class="rating-btn active" data-val="7">7</button>
+          <button type="button" onclick="setRating('toeicRating', 8)" class="rating-btn" data-val="8">8</button>
+          <button type="button" onclick="setRating('toeicRating', 9)" class="rating-btn" data-val="9">9</button>
+          <button type="button" onclick="setRating('toeicRating', 10)" class="rating-btn" data-val="10">10</button>
+        </div>
+        <div class="flex justify-between text-[11px] text-[var(--text-muted)] px-0.5">
+          <span>1 = Not prepared at all</span>
+          <span>5 = Moderate</span>
+          <span>10 = Fully prepared</span>
+        </div>
+      </div>
+
+      <button type="submit" id="btnSubmit" class="w-full btn-submit font-semibold py-2.5 rounded-lg text-sm transition">
+        Save Portfolio Entry
+      </button>
+    </form>
+
+    <!-- Student Portfolio History Section -->
+    <div class="space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="section-title text-sm">3. Logged Entries History</h2>
+        <span id="entryCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 entries</span>
+      </div>
+
+      <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]">
+        Please authenticate above to view your saved portfolio entries.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // BACKEND INTEGRATION: GOOGLE FORMS (SUBMISSIONS) & APPS SCRIPT (AUTH/LOGS)
+    // =========================================================================
+
+    // 1. Google Apps Script Web App URL:
+    // Used for PIN Authentication & Reading History Logs (Read-only GET requests, zero lock issues)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTLwfC7nf-cKowaVT8wu9cwiMHVCBIQ1OwBNW4d5TUP3734450YVTpc4De25KSCeFb/exec";
+
+    // 2. Google Form Submission URL (Eliminates write-lock/concurrency collisions):
+    const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLScNpCfTcMx5oUQe0CMldXdtcyuJ4nZ3bEya-H8C5x-yGCWOOw/formResponse";
+
+    // 3. Google Form Field Mapping (Entry IDs from your Google Form "Get pre-filled link"):
+    const GOOGLE_FORM_ENTRIES = {
+      student: "entry.XXXXXXX",        // Student Name
+      pin: "entry.XXXXXXX",            // 4-Digit Security PIN
+      module: "entry.XXXXXXX",         // Module
+      session: "entry.XXXXXXX",        // Session Number
+      vocab: "entry.XXXXXXX",          // Key vocabulary learnt
+      contentReview: "entry.XXXXXXX",  // Lesson content review
+      workOn: "entry.XXXXXXX",         // What I need to work on following this session
+      evalHelp: "entry.XXXXXXX",       // How will this help me with formative evaluation?
+      evalRating: "entry.XXXXXXX",     // Module 1 formative evaluation preparedness (out of 10)
+      toeicPrep: "entry.XXXXXXX",      // What I have done for TOEIC prep this week
+      toeicRating: "entry.XXXXXXX"     // TOEIC test preparedness (out of 10)
+    };
+
+    // Theme Management (Dark Mode / Light Mode)
+    function initTheme() {
+      const saved = localStorage.getItem("gsea_portfolio_theme");
+      if (saved === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+        updateThemeUI("light");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        updateThemeUI("dark");
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("gsea_portfolio_theme", next);
+      updateThemeUI(next);
+    }
+
+    function updateThemeUI(theme) {
+      const icon = document.getElementById("themeIcon");
+      const text = document.getElementById("themeText");
+      if (icon && text) {
+        if (theme === "light") {
+          icon.innerText = "☀️";
+          text.innerText = "Light Mode";
+        } else {
+          icon.innerText = "🌙";
+          text.innerText = "Dark Mode";
+        }
+      }
+    }
+
+    // Rating Scales Management
+    function setRating(id, val) {
+      const slider = document.getElementById(id);
+      if (slider) {
+        slider.value = val;
+        syncRating(id, val);
+      }
+    }
+
+    function syncRating(id, val) {
+      const badge = document.getElementById(id + "Badge");
+      if (badge) badge.innerText = val + " / 10";
+      const container = document.getElementById(id + "Pills");
+      if (container) {
+        const btns = container.querySelectorAll(".rating-btn");
+        btns.forEach(btn => {
+          if (btn.getAttribute("data-val") === String(val)) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+      }
+    }
+
+    initTheme();
+
+    function showStatus(msg, isError) {
+      const box = document.getElementById("authStatus");
+      box.className = isError 
+        ? "text-xs mt-3.5 px-3.5 py-2.5 rounded-lg border status-error" 
+        : "text-xs mt-3.5 px-3.5 py-2.5 rounded-lg border status-success";
+      box.innerText = msg;
+      box.classList.remove("hidden");
+    }
+
+    async function fetchHistory() {
+      const student = document.getElementById("studentSelect").value;
+      const pin = document.getElementById("studentPin").value.trim();
+
+      if (!student || !pin) {
+        showStatus("Please select your name and enter your 4-digit PIN.", true);
+        return;
+      }
+
+      const btn = document.getElementById("btnLoad");
+      btn.innerText = "Loading...";
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(`${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}`);
+        const data = await response.json();
+
+        if (!data.success) {
+          showStatus(data.message, true);
+          document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(data.message)}</p>`;
+          document.getElementById("btnPrint").classList.add("hidden");
+          document.getElementById("btnPrint").classList.remove("flex");
+        } else {
+          showStatus(`Authentication verified. ${data.logs.length} record(s) loaded.`, false);
+          document.getElementById("btnPrint").classList.remove("hidden");
+          document.getElementById("btnPrint").classList.add("flex");
+          renderLogs(data.logs, student);
+        }
+      } catch (err) {
+        showStatus("Could not connect to the database. Verify your internet connection or script deployment.", true);
+      } finally {
+        btn.innerText = "Load My Portfolio";
+        btn.disabled = false;
+      }
+    }
+
+    function renderLogs(logs, studentName) {
+      const feed = document.getElementById("logsFeed");
+      const count = document.getElementById("entryCount");
+      count.innerText = `${logs.length} / 17 entries`;
+
+      if (!logs.length) {
+        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
+        return;
+      }
+
+      feed.innerHTML = `
+        <div class="print-only hidden mb-4 pb-2 border-b border-[var(--card-border)]">
+          <h2 class="text-lg font-bold text-[var(--text-heading)]">${escapeHtml(studentName)} — English Portfolio Dossier</h2>
+          <p class="text-xs text-[var(--text-muted)]">GSEA English Programme • Total Sessions Logged: ${logs.length}</p>
+        </div>
+      ` + logs.map(log => {
+        const evalRating = log.evalRating || log.formativeRating || log.evalPrepRating || log.rating1 || "";
+        const toeicRating = log.toeicRating || log.toeicPrepRating || log.rating2 || "";
+
+        return `
+        <div class="entry-card p-5 space-y-3 mb-4">
+          <div class="flex justify-between items-center border-b border-[var(--card-border)] pb-2.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-[var(--claret-light)] text-base">${escapeHtml(log.session)}</span>
+              <span class="text-xs badge-claret px-2 py-0.5 rounded-md font-medium">(${escapeHtml(log.module)})</span>
+            </div>
+            <span class="text-xs text-[var(--text-muted)] font-mono">${escapeHtml(log.timestamp)}</span>
+          </div>
+
+          <!-- Self-Assessment Ratings (Visible to Student & Teacher) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 pb-1">
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)]">
+              <span class="text-xs text-[var(--text-muted)] font-medium">Module 1 Formative Eval Prep:</span>
+              <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${evalRating ? escapeHtml(evalRating) + (String(evalRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)]">
+              <span class="text-xs text-[var(--text-muted)] font-medium">TOEIC Test Prep:</span>
+              <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${toeicRating ? escapeHtml(toeicRating) + (String(toeicRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
+            </div>
+          </div>
+
+          <div class="text-xs space-y-2 text-[var(--text-main)]">
+            <p><strong class="text-[var(--text-heading)] font-semibold">Key Vocabulary:</strong> ${escapeHtml(log.vocab)}</p>
+            <p><strong class="text-[var(--text-heading)] font-semibold">Lesson Review:</strong> ${escapeHtml(log.contentReview)}</p>
+            <p><strong class="text-[var(--text-heading)] font-semibold">Work On Next:</strong> ${escapeHtml(log.workOn)}</p>
+            <p><strong class="text-[var(--text-heading)] font-semibold">Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp)}</p>
+            <p><strong class="text-[var(--text-heading)] font-semibold">TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep)}</p>
+          </div>
+        </div>
+      `;
+      }).reverse().join("");
+    }
+
+    async function submitLog(e) {
+      e.preventDefault();
+      const student = document.getElementById("studentSelect").value;
+      const pin = document.getElementById("studentPin").value.trim();
+
+      if (!student || !pin) {
+        showStatus("Please select your name and enter your PIN above before submitting.", true);
+        return;
+      }
+
+      const btn = document.getElementById("btnSubmit");
+      btn.innerText = "Submitting...";
+      btn.disabled = true;
+
+      const evalVal = document.getElementById("evalRating").value;
+      const toeicVal = document.getElementById("toeicRating").value;
+
+      const payload = {
+        student,
+        pin,
+        module: document.getElementById("moduleSelect").value,
+        session: document.getElementById("sessionSelect").value,
+        vocab: document.getElementById("vocab").value,
+        contentReview: document.getElementById("contentReview").value,
+        workOn: document.getElementById("workOn").value,
+        evalHelp: document.getElementById("evalHelp").value,
+        toeicPrep: document.getElementById("toeicPrep").value,
+        evalRating: evalVal,
+        formativeRating: evalVal,
+        toeicRating: toeicVal,
+        toeicPrepRating: toeicVal
+      };
+
+      try {
+        const hasConfiguredEntries = Object.values(GOOGLE_FORM_ENTRIES).some(val => val && !val.includes("XXXXXXX"));
+
+        // --- ROUTE 1: GOOGLE FORMS SUBMISSION (Zero Concurrency / Zero Locking Collisions) ---
+        if (GOOGLE_FORM_ACTION_URL && !GOOGLE_FORM_ACTION_URL.includes("YOUR_FORM_ID") && hasConfiguredEntries) {
+          const formBody = new URLSearchParams();
+          if (GOOGLE_FORM_ENTRIES.student) formBody.append(GOOGLE_FORM_ENTRIES.student, payload.student);
+          if (GOOGLE_FORM_ENTRIES.pin) formBody.append(GOOGLE_FORM_ENTRIES.pin, payload.pin);
+          if (GOOGLE_FORM_ENTRIES.module) formBody.append(GOOGLE_FORM_ENTRIES.module, payload.module);
+          if (GOOGLE_FORM_ENTRIES.session) formBody.append(GOOGLE_FORM_ENTRIES.session, payload.session);
+          if (GOOGLE_FORM_ENTRIES.vocab) formBody.append(GOOGLE_FORM_ENTRIES.vocab, payload.vocab);
+          if (GOOGLE_FORM_ENTRIES.contentReview) formBody.append(GOOGLE_FORM_ENTRIES.contentReview, payload.contentReview);
+          if (GOOGLE_FORM_ENTRIES.workOn) formBody.append(GOOGLE_FORM_ENTRIES.workOn, payload.workOn);
+          if (GOOGLE_FORM_ENTRIES.evalHelp) formBody.append(GOOGLE_FORM_ENTRIES.evalHelp, payload.evalHelp);
+          if (GOOGLE_FORM_ENTRIES.evalRating) formBody.append(GOOGLE_FORM_ENTRIES.evalRating, payload.evalRating);
+          if (GOOGLE_FORM_ENTRIES.toeicPrep) formBody.append(GOOGLE_FORM_ENTRIES.toeicPrep, payload.toeicPrep);
+          if (GOOGLE_FORM_ENTRIES.toeicRating) formBody.append(GOOGLE_FORM_ENTRIES.toeicRating, payload.toeicRating);
+
+          await fetch(GOOGLE_FORM_ACTION_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formBody.toString()
+          });
+
+          showStatus("Session log submitted successfully via Google Forms!", false);
+          resetFormInputs();
+          // Allow linked Google Sheet a brief moment to register the new row before refreshing history
+          setTimeout(fetchHistory, 1600);
+        } else {
+          // --- ROUTE 2: APPS SCRIPT WEB APP FALLBACK ---
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            showStatus("Session log submitted successfully!", false);
+            resetFormInputs();
+            fetchHistory();
+          } else {
+            showStatus(result.message, true);
+          }
+        }
+      } catch (err) {
+        showStatus("Submission failed. Check network or server configuration.", true);
+      } finally {
+        btn.innerText = "Save Portfolio Entry";
+        btn.disabled = false;
+      }
+    }
+
+    function resetFormInputs() {
+      document.getElementById("vocab").value = "";
+      document.getElementById("contentReview").value = "";
+      document.getElementById("workOn").value = "";
+      document.getElementById("evalHelp").value = "";
+      document.getElementById("toeicPrep").value = "";
+      document.getElementById("evalRating").value = 7;
+      syncRating("evalRating", 7);
+      document.getElementById("toeicRating").value = 7;
+      syncRating("toeicRating", 7);
+    }
+
+    function escapeHtml(string) {
+      return String(string || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
 </body>
 </html>
-

@@ -27,11 +27,9 @@
     </organization>
   </organizations>
   <resources>
-    <resource identifier="RES-GSEA-PORTFOLIO" type="webcontent" href="gsea26a_aas_portfolio.html">
-      <file href="gsea26a_aas_portfolio.html"/>
-      <file href="output.css"/>
+    <resource identifier="RES-GSEA-PORTFOLIO" type="webcontent" href="index.html">
       <file href="index.html"/>
+      <file href="output.css"/>
     </resource>
   </resources>
 </manifest>
-

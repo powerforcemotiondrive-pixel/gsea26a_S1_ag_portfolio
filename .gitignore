@@ -1,4 +1,41 @@
+# Dependencies
 node_modules/
-.DS_Store
+.pnp
+.pnp.js
+
+# Build and Distribution artifacts
+dist/
+build/
+*.zip
 moodle_portfolio_package.zip
 
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.log
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor directories
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+
+# Environment variables & local overrides
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
