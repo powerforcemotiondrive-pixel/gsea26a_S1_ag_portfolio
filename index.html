@@ -363,6 +363,36 @@
       animation: spinAnimation 0.8s linear infinite;
     }
 
+    /* Live / Disconnected Indicator Dot */
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      display: inline-block;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+    .dot-live {
+      background-color: #10b981;
+      box-shadow: 0 0 8px #10b981, 0 0 2px #34d399;
+      animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .dot-disconnected {
+      background-color: #ef4444;
+      box-shadow: 0 0 8px #ef4444, 0 0 2px #f87171;
+      animation: none;
+    }
+    @keyframes livePulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.45;
+        transform: scale(0.9);
+      }
+    }
+
     /* Badges & Accents */
     .badge-claret {
       background-color: var(--claret-badge-bg);
@@ -491,6 +521,11 @@
         </div>
       </div>
       <div class="flex items-center gap-2.5">
+        <!-- Live / Disconnected Indicator Light -->
+        <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
+          <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
+          <span id="connectionText" class="tracking-wide">Live</span>
+        </div>
         <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
           <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
         </button>
@@ -807,6 +842,64 @@
       box.classList.remove("hidden");
     }
 
+    // Live / Disconnected Connection Light Management
+    function setConnectionStatus(isLive, customText = null) {
+      const badge = document.getElementById("connectionStatusBadge");
+      const light = document.getElementById("connectionLight");
+      const text = document.getElementById("connectionText");
+      if (!badge || !light || !text) return;
+
+      if (isLive) {
+        light.className = "status-dot dot-live";
+        text.innerText = customText || "Live";
+        badge.title = "Database Connection: Live (Google Sheets online)";
+        badge.classList.remove("border-rose-400/50", "text-rose-200");
+        badge.classList.add("border-white/20", "text-white");
+      } else {
+        light.className = "status-dot dot-disconnected";
+        text.innerText = customText || "Disconnected";
+        badge.title = "Database Connection: Disconnected (Click to re-test)";
+        badge.classList.remove("border-white/20", "text-white");
+        badge.classList.add("border-rose-400/50", "text-rose-200");
+      }
+    }
+
+    async function checkConnection(manual = false) {
+      const text = document.getElementById("connectionText");
+      if (manual && text) text.innerText = "Checking...";
+
+      if (!navigator.onLine) {
+        setConnectionStatus(false, "Disconnected");
+        return;
+      }
+
+      try {
+        const pingUrl = `${SCRIPT_URL}?_ping=${Date.now()}`;
+        const res = await fetch(pingUrl, {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache"
+          }
+        });
+        const textRes = await res.text();
+        let json;
+        try { json = JSON.parse(textRes); } catch(e) {}
+
+        if (json && json.success) {
+          setConnectionStatus(true, "Live");
+        } else {
+          setConnectionStatus(false, "Disconnected");
+        }
+      } catch (err) {
+        setConnectionStatus(false, "Disconnected");
+      }
+    }
+
+    window.addEventListener("online", () => checkConnection());
+    window.addEventListener("offline", () => setConnectionStatus(false, "Disconnected"));
+
     let isFetchingHistory = false;
     let autoSyncTimer = null;
     let currentLoadedLogs = [];
@@ -913,9 +1006,11 @@
 
           updateSyncIndicator();
           renderLogs(data.logs, student);
+          setConnectionStatus(true, "Live");
           startAutoSync();
         }
       } catch (err) {
+        setConnectionStatus(false, "Disconnected");
         console.error("Fetch network/CORS error:", err);
         if (!silent) {
           showStatus(`
