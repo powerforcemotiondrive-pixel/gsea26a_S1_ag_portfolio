@@ -314,6 +314,27 @@
       border-color: rgba(255, 255, 255, 0.45);
     }
 
+    /* Live Refresh Button & Spin Animation */
+    .btn-refresh {
+      background: var(--input-bg);
+      border: 1px solid var(--box-border);
+      color: var(--text-heading);
+      cursor: pointer;
+    }
+    .btn-refresh:hover {
+      background: var(--card-bg);
+      border-color: var(--claret-hover);
+      color: var(--claret-light);
+    }
+    @keyframes spinAnimation {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-icon {
+      display: inline-block;
+      animation: spinAnimation 0.8s linear infinite;
+    }
+
     /* Badges & Accents */
     .badge-claret {
       background-color: var(--claret-badge-bg);
@@ -537,7 +558,7 @@
       <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <label for="evalRating" class="field-label mb-0 text-slate-100 font-semibold">
-            How well prepared do you think you CURRENTLY are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+            How well prepared do you think you currently are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
           </label>
           <span id="evalRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
             7 / 10
@@ -607,15 +628,26 @@
       </div>
 
       <button type="submit" id="btnSubmit" class="w-full btn-submit font-semibold h-11 py-2.5 rounded-lg text-sm transition flex items-center justify-center">
-        Save Portfolio Entry
+        Submit Portfolio Entry
       </button>
     </form>
 
     <!-- Student Portfolio History Section -->
     <div class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <h2 class="section-title text-sm">3. Logged Entries History</h2>
-        <span id="entryCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 entries</span>
+        <div class="flex items-center gap-2">
+          <h2 class="section-title text-sm m-0">3. Logged Entries History</h2>
+          <span id="entryCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 entries</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="syncIndicator" class="text-[11px] text-[var(--text-muted)] flex items-center gap-1.5 hidden">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="syncTime">Synced just now</span>
+          </span>
+          <button type="button" onclick="fetchHistory()" id="btnRefresh" title="Check database for latest records" class="btn-refresh text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition">
+            <span id="refreshIcon">🔄</span> Refresh History
+          </button>
+        </div>
       </div>
 
       <!-- Module Selector Bar (Filter History by Module) -->
@@ -745,23 +777,47 @@
       box.classList.remove("hidden");
     }
 
-    async function fetchHistory() {
+    let isFetchingHistory = false;
+    let autoSyncTimer = null;
+    let currentLoadedLogs = [];
+    let currentStudentName = "";
+    let activeModuleFilter = "All";
+
+    async function fetchHistory(options = {}) {
+      const silent = options && options.silent === true;
       const student = document.getElementById("studentSelect").value;
       const pin = document.getElementById("studentPin").value.trim();
 
       if (!student || !pin) {
-        showStatus("Please select your name and enter your 4-digit PIN.", true);
+        if (!silent) showStatus("Please select your name and enter your 4-digit PIN.", true);
         return;
       }
 
-      const btn = document.getElementById("btnLoad");
-      btn.innerText = "Loading...";
-      btn.disabled = true;
+      if (isFetchingHistory) return;
+      isFetchingHistory = true;
 
-      const requestUrl = `${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}`;
+      const btn = document.getElementById("btnLoad");
+      const refreshIcon = document.getElementById("refreshIcon");
+
+      if (!silent) {
+        btn.innerText = "Loading...";
+        btn.disabled = true;
+      }
+      if (refreshIcon) refreshIcon.classList.add("spin-icon");
+
+      // Robust Cache-Buster: guarantees fresh database read across Moodle iframes & all browsers
+      const cacheBuster = `_t=${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const requestUrl = `${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}&${cacheBuster}`;
 
       try {
-        const response = await fetch(requestUrl);
+        const response = await fetch(requestUrl, {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache"
+          }
+        });
         const text = await response.text();
         let data;
 
@@ -769,78 +825,113 @@
           data = JSON.parse(text);
         } catch (jsonErr) {
           console.error("Server returned non-JSON response:", text);
-          if (text.includes("accounts.google.com") || text.includes("ServiceLogin") || text.includes("Sign in")) {
-            showStatus(`
-              <div class="space-y-1.5">
-                <div class="font-bold text-rose-300 flex items-center gap-1.5">
-                  <span>🔒</span> Google Sign-In Required (Permission Block)
+          if (!silent) {
+            if (text.includes("accounts.google.com") || text.includes("ServiceLogin") || text.includes("Sign in")) {
+              showStatus(`
+                <div class="space-y-1.5">
+                  <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                    <span>🔒</span> Google Sign-In Required (Permission Block)
+                  </div>
+                  <p>Google redirected this request to a login screen. In Google Apps Script, the Web App must be deployed with <strong>Who has access: Anyone</strong>.</p>
+                  <div class="pt-1">
+                    <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
+                      Open Direct Test Link in New Tab &rarr;
+                    </a>
+                  </div>
                 </div>
-                <p>Google redirected this request to a login screen. In Google Apps Script, the Web App must be deployed with <strong>Who has access: Anyone</strong>.</p>
-                <div class="pt-1">
-                  <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
-                    Open Direct Test Link in New Tab &rarr;
-                  </a>
+              `, true, true);
+            } else {
+              showStatus(`
+                <div class="space-y-1.5">
+                  <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                    <span>⚠️</span> Apps Script Error (Returned HTML instead of JSON)
+                  </div>
+                  <p>The script encountered a server error. Verify your Google Sheet tabs (<strong>Students</strong> and <strong>Form Responses</strong>) and inspect the <em>Executions</em> tab in Apps Script.</p>
+                  <div class="pt-1">
+                    <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
+                      Open Direct Test Link in New Tab &rarr;
+                    </a>
+                  </div>
                 </div>
-              </div>
-            `, true, true);
-          } else {
-            showStatus(`
-              <div class="space-y-1.5">
-                <div class="font-bold text-rose-300 flex items-center gap-1.5">
-                  <span>⚠️</span> Apps Script Error (Returned HTML instead of JSON)
-                </div>
-                <p>The script encountered a server error. Verify your Google Sheet tabs (<strong>Students</strong> and <strong>PortfolioLogs</strong>) and inspect the <em>Executions</em> tab in Apps Script.</p>
-                <div class="pt-1">
-                  <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
-                    Open Direct Test Link in New Tab &rarr;
-                  </a>
-                </div>
-              </div>
-            `, true, true);
+              `, true, true);
+            }
           }
           return;
         }
 
         if (!data.success) {
-          showStatus(data.message, true);
-          document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(data.message)}</p>`;
-          document.getElementById("btnPrint").classList.add("hidden");
-          document.getElementById("btnPrint").classList.remove("flex");
+          if (!silent) {
+            showStatus(data.message, true);
+            document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(data.message)}</p>`;
+            document.getElementById("btnPrint").classList.add("hidden");
+            document.getElementById("btnPrint").classList.remove("flex");
+          }
         } else {
-          showStatus(`Authentication verified. ${data.logs.length} record(s) loaded.`, false);
+          // Persist verified credentials for auto-reloading
+          sessionStorage.setItem("gsea_student", student);
+          sessionStorage.setItem("gsea_pin", pin);
+
+          if (!silent) {
+            showStatus(`Authentication verified. ${data.logs.length} record(s) loaded.`, false);
+          }
           document.getElementById("btnPrint").classList.remove("hidden");
           document.getElementById("btnPrint").classList.add("flex");
+
+          updateSyncIndicator();
           renderLogs(data.logs, student);
+          startAutoSync();
         }
       } catch (err) {
         console.error("Fetch network/CORS error:", err);
-        showStatus(`
-          <div class="space-y-2">
-            <div class="font-bold text-rose-300 flex items-center gap-1.5">
-              <span>⚠️</span> Could not connect to database (Network / CORS Block)
+        if (!silent) {
+          showStatus(`
+            <div class="space-y-2">
+              <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                <span>⚠️</span> Could not connect to database (Network / CORS Block)
+              </div>
+              <p class="leading-relaxed">The browser could not reach your Google Apps Script endpoint. This almost always occurs when:</p>
+              <ol class="list-decimal pl-5 space-y-1 text-[11px] text-slate-300">
+                <li><strong>"Who has access"</strong> in Apps Script is not set to <strong>"Anyone"</strong> (Google redirects to sign-in, triggering CORS).</li>
+                <li>A new version was not deployed after updating code (Deploy &gt; Manage deployments &gt; Version: New version).</li>
+                <li>Permissions were not authorized (run <code>testConnection</code> in Apps Script editor once).</li>
+              </ol>
+              <div class="pt-1">
+                <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-950/70 border border-rose-500/40 text-amber-300 hover:text-white font-medium text-xs transition">
+                  <span>🔗</span> Click to test your Script URL directly in a new tab &rarr;
+                </a>
+              </div>
             </div>
-            <p class="leading-relaxed">The browser could not reach your Google Apps Script endpoint. This almost always occurs when:</p>
-            <ol class="list-decimal pl-5 space-y-1 text-[11px] text-slate-300">
-              <li><strong>"Who has access"</strong> in Apps Script is not set to <strong>"Anyone"</strong> (Google redirects to sign-in, triggering CORS).</li>
-              <li>A new version was not deployed after updating code (Deploy &gt; Manage deployments &gt; Version: New version).</li>
-              <li>Permissions were not authorized (run <code>testConnectionAndSheets</code> in Apps Script editor once).</li>
-            </ol>
-            <div class="pt-1">
-              <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-950/70 border border-rose-500/40 text-amber-300 hover:text-white font-medium text-xs transition">
-                <span>🔗</span> Click to test your Script URL directly in a new tab &rarr;
-              </a>
-            </div>
-          </div>
-        `, true, true);
+          `, true, true);
+        }
       } finally {
-        btn.innerText = "Load My Portfolio";
-        btn.disabled = false;
+        isFetchingHistory = false;
+        if (!silent) {
+          btn.innerText = "Load My Portfolio";
+          btn.disabled = false;
+        }
+        if (refreshIcon) refreshIcon.classList.remove("spin-icon");
       }
     }
 
-    let currentLoadedLogs = [];
-    let currentStudentName = "";
-    let activeModuleFilter = "All";
+    function matchesModule(logModule, targetFilter) {
+      if (targetFilter === "All") return true;
+      const mod = String(logModule || "").trim().toLowerCase();
+      if (!mod) return false;
+
+      if (targetFilter === "Module 1") {
+        return mod.includes("module 1") || mod.includes("mod 1") || mod.includes("m1") || mod === "1" || mod.startsWith("1 ");
+      }
+      if (targetFilter === "Module 2") {
+        return mod.includes("module 2") || mod.includes("mod 2") || mod.includes("m2") || mod === "2" || mod.startsWith("2 ");
+      }
+      if (targetFilter === "Module 3") {
+        return mod.includes("module 3") || mod.includes("mod 3") || mod.includes("m3") || mod === "3" || mod.startsWith("3 ");
+      }
+      if (targetFilter === "Module 4") {
+        return mod.includes("module 4") || mod.includes("mod 4") || mod.includes("m4") || mod === "4" || mod.startsWith("4 ") || mod.includes("revision") || mod.includes("final fe") || mod.includes("consolidation");
+      }
+      return mod.includes(targetFilter.toLowerCase());
+    }
 
     function setModuleFilter(mod) {
       activeModuleFilter = mod;
@@ -861,7 +952,7 @@
     }
 
     function renderLogs(logs, studentName) {
-      if (logs !== undefined) currentLoadedLogs = logs;
+      if (logs !== undefined) currentLoadedLogs = Array.isArray(logs) ? logs.slice() : [];
       if (studentName !== undefined) currentStudentName = studentName;
 
       const feed = document.getElementById("logsFeed");
@@ -877,13 +968,7 @@
       // Filter entries based on selected Module
       const filtered = activeModuleFilter === "All"
         ? currentLoadedLogs
-        : currentLoadedLogs.filter(log => {
-            const mod = String(log.module || "").toLowerCase();
-            if (activeModuleFilter === "Module 4") {
-              return mod.includes("module 4") || mod.includes("revision") || mod.includes("consolidation");
-            }
-            return mod.includes(activeModuleFilter.toLowerCase());
-          });
+        : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
 
       count.innerText = activeModuleFilter === "All"
         ? `${currentLoadedLogs.length} / 17 entries`
@@ -948,11 +1033,12 @@
 
       if (!student || !pin) {
         showStatus("Please select your name and enter your PIN above before submitting.", true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
       const btn = document.getElementById("btnSubmit");
-      btn.innerText = "Submitting...";
+      btn.innerText = "Submitting Entry...";
       btn.disabled = true;
 
       const evalVal = document.getElementById("evalRating").value;
@@ -974,10 +1060,28 @@
         toeicPrepRating: toeicVal
       };
 
+      // Optimistic Entry: instantly visible to the user without delay
+      const now = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      const optimisticTs = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+      const optimisticEntry = {
+        timestamp: optimisticTs,
+        module: payload.module,
+        session: payload.session,
+        vocab: payload.vocab,
+        contentReview: payload.contentReview,
+        workOn: payload.workOn,
+        evalHelp: payload.evalHelp,
+        evalRating: payload.evalRating,
+        toeicPrep: payload.toeicPrep,
+        toeicRating: payload.toeicRating
+      };
+
       try {
         const hasConfiguredEntries = Object.values(GOOGLE_FORM_ENTRIES).some(val => val && !val.includes("XXXXXXX"));
 
-        // --- ROUTE 1: GOOGLE FORMS SUBMISSION (Zero Concurrency / Zero Locking Collisions) ---
+        // --- ROUTE 1: GOOGLE FORMS SUBMISSION ---
         if (GOOGLE_FORM_ACTION_URL && !GOOGLE_FORM_ACTION_URL.includes("YOUR_FORM_ID") && hasConfiguredEntries) {
           const formBody = new URLSearchParams();
           if (GOOGLE_FORM_ENTRIES.student) formBody.append(GOOGLE_FORM_ENTRIES.student, payload.student);
@@ -995,23 +1099,23 @@
           await fetch(GOOGLE_FORM_ACTION_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: formBody.toString()
           });
 
-          showStatus("Session log submitted successfully via Google Forms!", false);
+          // Optimistically append to history array & reset filter to All Modules
+          currentLoadedLogs.push(optimisticEntry);
+          setModuleFilter("All");
+          showStatus("Portfolio entry submitted successfully via Google Forms!", false);
           resetFormInputs();
-          // Allow linked Google Sheet a brief moment to register the new row before refreshing history
-          setTimeout(fetchHistory, 1600);
+          // Silently re-sync with Google Sheet in background
+          setTimeout(() => fetchHistory({ silent: true }), 1500);
+
         } else {
           // --- ROUTE 2: APPS SCRIPT WEB APP DIRECT SUBMISSION ---
           const response = await fetch(SCRIPT_URL, {
             method: "POST",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8"
-            },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
           });
           const text = await response.text();
@@ -1019,13 +1123,17 @@
           try {
             result = JSON.parse(text);
           } catch(e) {
-            result = { success: true, message: "Session log submitted successfully!" };
+            result = { success: true, message: "Portfolio entry submitted successfully!" };
           }
 
           if (result.success) {
-            showStatus(result.message || "Session log submitted successfully!", false);
+            // Optimistically append to history array & reset filter to All Modules
+            currentLoadedLogs.push(optimisticEntry);
+            setModuleFilter("All");
+            showStatus(result.message || "Portfolio entry submitted successfully!", false);
             resetFormInputs();
-            fetchHistory();
+            // Silently re-sync with Google Sheet in background to confirm server timestamps
+            setTimeout(() => fetchHistory({ silent: true }), 600);
           } else {
             showStatus(result.message || "Submission was not processed.", true);
           }
@@ -1033,7 +1141,7 @@
       } catch (err) {
         showStatus("Submission failed. Check network or server configuration.", true);
       } finally {
-        btn.innerText = "Save Portfolio Entry";
+        btn.innerText = "Submit Portfolio Entry";
         btn.disabled = false;
       }
     }
@@ -1049,6 +1157,63 @@
       document.getElementById("toeicRating").value = 7;
       syncRating("toeicRating", 7);
     }
+
+    function startAutoSync() {
+      if (autoSyncTimer) clearInterval(autoSyncTimer);
+      // Auto-refresh background polling every 25 seconds
+      autoSyncTimer = setInterval(() => {
+        const student = document.getElementById("studentSelect").value;
+        const pin = document.getElementById("studentPin").value.trim();
+        if (student && pin) {
+          fetchHistory({ silent: true });
+        }
+      }, 25000);
+    }
+
+    function updateSyncIndicator() {
+      const ind = document.getElementById("syncIndicator");
+      const timeSpan = document.getElementById("syncTime");
+      if (ind && timeSpan) {
+        ind.classList.remove("hidden");
+        const now = new Date();
+        const pad = n => String(n).padStart(2, "0");
+        timeSpan.innerText = `Synced ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      }
+    }
+
+    // Auto-update history when user switches tabs or returns to Moodle iframe
+    window.addEventListener("focus", () => {
+      const student = document.getElementById("studentSelect").value;
+      const pin = document.getElementById("studentPin").value.trim();
+      if (student && pin && currentLoadedLogs.length) {
+        fetchHistory({ silent: true });
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        const student = document.getElementById("studentSelect").value;
+        const pin = document.getElementById("studentPin").value.trim();
+        if (student && pin && currentLoadedLogs.length) {
+          fetchHistory({ silent: true });
+        }
+      }
+    });
+
+    // Auto-restore session from sessionStorage on page reload
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedStudent = sessionStorage.getItem("gsea_student");
+      const savedPin = sessionStorage.getItem("gsea_pin");
+      if (savedStudent && savedPin) {
+        const select = document.getElementById("studentSelect");
+        const pinInput = document.getElementById("studentPin");
+        if (select && pinInput) {
+          select.value = savedStudent;
+          pinInput.value = savedPin;
+          fetchHistory({ silent: false });
+        }
+      }
+    });
 
     function escapeHtml(string) {
       return String(string || "")

@@ -11,7 +11,7 @@ function testConnection() {
 
   Logger.log("Spreadsheet: " + ss.getName());
   Logger.log("Students tab: " + (studentsSheet ? "FOUND (" + studentsSheet.getLastRow() + " rows)" : "NOT FOUND"));
-  Logger.log("Responses tab: " + (logsSheet ? "FOUND (" + logsSheet.getName() + ")" : "NOT FOUND"));
+  Logger.log("Responses tab: " + (logsSheet ? "FOUND (" + logsSheet.getName() + ", " + logsSheet.getLastRow() + " rows)" : "NOT FOUND"));
 }
 
 function doGet(e) {
@@ -20,15 +20,16 @@ function doGet(e) {
     var pin = (e && e.parameter && e.parameter.pin) ? String(e.parameter.pin).trim() : "";
 
     if (!student || !pin) {
-      return jsonOut({ success: true, message: "GSEA Portfolio Web App is active." });
+      return jsonOut({ success: true, message: "GSEA Portfolio Web App is active and ready." });
     }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    SpreadsheetApp.flush(); // Commit pending writes so latest data is immediately readable
 
     // 1. PIN Authentication
     var studentsSheet = ss.getSheetByName("Students");
     if (!studentsSheet) {
-      return jsonOut({ success: false, message: "Sheet tab 'Students' not found." });
+      return jsonOut({ success: false, message: "Sheet tab 'Students' not found in database." });
     }
 
     var students = studentsSheet.getDataRange().getValues();
@@ -47,8 +48,8 @@ function doGet(e) {
       }
     }
 
-    if (!found) return jsonOut({ success: false, message: "Student '" + student + "' not found in Students list." });
-    if (!authorized) return jsonOut({ success: false, message: "Incorrect PIN for " + student + "." });
+    if (!found) return jsonOut({ success: false, message: "Student '" + student + "' not found in registered students list." });
+    if (!authorized) return jsonOut({ success: false, message: "Incorrect PIN for " + student + ". Please verify your 4-digit code." });
 
     // 2. Fetch Form Responses
     var logsSheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
@@ -56,18 +57,53 @@ function doGet(e) {
     var logs = [];
 
     if (data.length > 1) {
-      var h = data[0].map(function(item) { return String(item || "").toLowerCase(); });
-      var cTs  = getCol(h, ["time", "date", "horodateur"], 0);
-      var cSt  = getCol(h, ["student", "name", "nom"], 1);
-      var cMod = getCol(h, ["module"], 2);
-      var cSes = getCol(h, ["session"], 3);
-      var cVoc = getCol(h, ["vocab", "word", "lexique"], 4);
-      var cRev = getCol(h, ["review", "content", "learnt"], 5);
-      var cWrk = getCol(h, ["work on", "need to"], 6);
-      var cEvH = getCol(h, ["formative", "eval", "help"], 7);
-      var cEvR = getCol(h, ["formative", "module", "rate", "rating", "prepared", "10"], 8);
-      var cToP = getCol(h, ["toeic prep", "toeic"], 9);
-      var cToR = getCol(h, ["toeic", "rate", "rating", "prepared", "10"], 10);
+      var rawHeaders = data[0].map(function(item) { return String(item || "").trim().toLowerCase(); });
+      
+      // Determine if column 2 is PIN
+      var hasPinCol = false;
+      for (var hIdx = 0; hIdx < rawHeaders.length; hIdx++) {
+        if (rawHeaders[hIdx].indexOf("pin") !== -1) {
+          hasPinCol = true;
+          break;
+        }
+      }
+      if (!hasPinCol && data.length > 1) {
+        var sampleCol2 = String(data[1][2] || "").trim();
+        if (/^\d{4}$/.test(sampleCol2)) {
+          hasPinCol = true;
+        }
+      }
+
+      // Column Mappings with Disambiguation & Fallbacks
+      var cTs  = findCol(rawHeaders, ["time", "date", "horodateur"], 0);
+      var cSt  = findCol(rawHeaders, ["student", "nom", "name"], 1);
+      
+      // Module column must match "module" but NOT "rate", "rating", "prepared", "how well", "10", "eval"
+      var cMod = findModuleCol(rawHeaders, hasPinCol ? 3 : 2);
+
+      // Session column
+      var cSes = findCol(rawHeaders, ["session"], hasPinCol ? 4 : 3);
+
+      // Key vocabulary learnt
+      var cVoc = findCol(rawHeaders, ["vocab", "word", "lexique"], hasPinCol ? 5 : 4);
+
+      // Lesson content review
+      var cRev = findCol(rawHeaders, ["review", "learnt", "lesson content", "content"], hasPinCol ? 6 : 5);
+
+      // What I need to work on
+      var cWrk = findCol(rawHeaders, ["work on", "need to work", "following this session", "work"], hasPinCol ? 7 : 6);
+
+      // How will this help me with formative evaluation?
+      var cEvH = findEvalHelpCol(rawHeaders, hasPinCol ? 8 : 7);
+
+      // Module 1 formative evaluation preparedness rating (out of 10)
+      var cEvR = findEvalRatingCol(rawHeaders, hasPinCol ? 9 : 8);
+
+      // TOEIC prep this week
+      var cToP = findToeicPrepCol(rawHeaders, hasPinCol ? 10 : 9);
+
+      // TOEIC test preparedness rating (out of 10)
+      var cToR = findToeicRatingCol(rawHeaders, hasPinCol ? 11 : 10);
 
       for (var r = 1; r < data.length; r++) {
         var row = data[r];
@@ -79,10 +115,19 @@ function doGet(e) {
             ts = Utilities.formatDate(row[cTs], Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm");
           }
 
+          var modVal = String(row[cMod] || "").trim();
+          var sesVal = String(row[cSes] || "").trim();
+
+          // Self-healing: if modVal captured a PIN and sesVal contains "Module", automatically fix offset
+          if (/^\d{4}$/.test(modVal) && /module/i.test(sesVal)) {
+            modVal = sesVal;
+            sesVal = String(row[cSes + 1] || "").trim();
+          }
+
           logs.push({
             timestamp: ts,
-            module: String(row[cMod] || ""),
-            session: String(row[cSes] || ""),
+            module: modVal,
+            session: sesVal,
             vocab: String(row[cVoc] || ""),
             contentReview: String(row[cRev] || ""),
             workOn: String(row[cWrk] || ""),
@@ -95,7 +140,12 @@ function doGet(e) {
       }
     }
 
-    return jsonOut({ success: true, student: student, logs: logs });
+    return jsonOut({
+      success: true,
+      student: student,
+      logs: logs,
+      serverTime: Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm:ss")
+    });
 
   } catch (err) {
     return jsonOut({ success: false, message: "Server Error: " + err.message });
@@ -104,9 +154,38 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    var d = JSON.parse(e.postData.contents);
+    var contents = e.postData ? e.postData.contents : "";
+    var d = {};
+    if (contents) {
+      try {
+        d = JSON.parse(contents);
+      } catch (pe) {
+        d = e.parameter || {};
+      }
+    } else if (e.parameter) {
+      d = e.parameter;
+    }
+
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+
+    // Auto-create standard headers if sheet is empty
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "Timestamp",
+        "Student",
+        "PIN",
+        "Module",
+        "Session",
+        "Key vocabulary learnt",
+        "Lesson content review (What I learnt in this session)",
+        "What I need to work on following this session",
+        "How will this help me with my formative evaluation?",
+        "How well prepared do you think you currently are for your module 1 formative evaluation? (Rate out of 10)",
+        "What have you done in terms of TOEIC preparation this week? Please give examples from Global Exam.",
+        "How well prepared do you think you currently are for your TOEIC test? (Rate out of 10)"
+      ]);
+    }
 
     sheet.appendRow([
       new Date(),
@@ -123,16 +202,90 @@ function doPost(e) {
       d.toeicRating || d.toeicPrepRating || ""
     ]);
 
-    return jsonOut({ success: true, message: "Saved successfully." });
+    // Commit write immediately to Google Sheets so subsequent GET reads find the new row
+    SpreadsheetApp.flush();
+
+    return jsonOut({
+      success: true,
+      message: "Session entry recorded successfully.",
+      timestamp: Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm")
+    });
   } catch (err) {
     return jsonOut({ success: false, message: "Save failed: " + err.message });
   }
 }
 
-function getCol(headers, words, fallback) {
+// ----------------------------------------------------------------------------
+// DISAMBIGUATION HELPERS
+// ----------------------------------------------------------------------------
+
+function findCol(headers, words, fallback) {
   for (var i = 0; i < headers.length; i++) {
     for (var w = 0; w < words.length; w++) {
       if (headers[i].indexOf(words[w]) !== -1) return i;
+    }
+  }
+  return fallback;
+}
+
+function findModuleCol(headers, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    // Must contain "module", but NOT be the preparedness rating question
+    if (h.indexOf("module") !== -1 &&
+        h.indexOf("rate") === -1 &&
+        h.indexOf("rating") === -1 &&
+        h.indexOf("prepared") === -1 &&
+        h.indexOf("10") === -1 &&
+        h.indexOf("how well") === -1) {
+      return i;
+    }
+  }
+  return fallback;
+}
+
+function findEvalHelpCol(headers, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    if ((h.indexOf("eval") !== -1 || h.indexOf("formative") !== -1) &&
+        (h.indexOf("help") !== -1 || h.indexOf("aide") !== -1)) {
+      return i;
+    }
+  }
+  return fallback;
+}
+
+function findEvalRatingCol(headers, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    if ((h.indexOf("eval") !== -1 || h.indexOf("formative") !== -1 || h.indexOf("prepared") !== -1) &&
+        (h.indexOf("rate") !== -1 || h.indexOf("rating") !== -1 || h.indexOf("10") !== -1 || h.indexOf("scale") !== -1)) {
+      return i;
+    }
+  }
+  return fallback;
+}
+
+function findToeicPrepCol(headers, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    if (h.indexOf("toeic") !== -1 &&
+        (h.indexOf("prep") !== -1 || h.indexOf("global") !== -1 || h.indexOf("week") !== -1 || h.indexOf("done") !== -1) &&
+        h.indexOf("rate") === -1 &&
+        h.indexOf("rating") === -1 &&
+        h.indexOf("10") === -1) {
+      return i;
+    }
+  }
+  return fallback;
+}
+
+function findToeicRatingCol(headers, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    var h = headers[i];
+    if (h.indexOf("toeic") !== -1 &&
+        (h.indexOf("rate") !== -1 || h.indexOf("rating") !== -1 || h.indexOf("prepared") !== -1 || h.indexOf("10") !== -1)) {
+      return i;
     }
   }
   return fallback;
@@ -142,4 +295,3 @@ function jsonOut(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
