@@ -635,9 +635,6 @@
         <button type="button" onclick="setModuleFilter('Module 4')" id="btnFilterM4" class="filter-pill">
           Module 4
         </button>
-        <button type="button" onclick="setModuleFilter('Formative Evaluation')" id="btnFilterFE" class="filter-pill">
-          Formative Evaluation
-        </button>
       </div>
 
       <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]">
@@ -855,8 +852,7 @@
         "Module 1": "btnFilterM1",
         "Module 2": "btnFilterM2",
         "Module 3": "btnFilterM3",
-        "Module 4": "btnFilterM4",
-        "Formative Evaluation": "btnFilterFE"
+        "Module 4": "btnFilterM4"
       };
       const activeBtn = document.getElementById(btnMap[mod]);
       if (activeBtn) activeBtn.classList.add("active");
@@ -878,15 +874,11 @@
         return;
       }
 
-      // Filter entries based on selected Module / Formative Evaluation
+      // Filter entries based on selected Module
       const filtered = activeModuleFilter === "All"
         ? currentLoadedLogs
         : currentLoadedLogs.filter(log => {
             const mod = String(log.module || "").toLowerCase();
-            const ses = String(log.session || "").toLowerCase();
-            if (activeModuleFilter === "Formative Evaluation") {
-              return ses.includes("formative") || ses.includes("eval") || mod.includes("final fe") || mod.includes("formative");
-            }
             if (activeModuleFilter === "Module 4") {
               return mod.includes("module 4") || mod.includes("revision") || mod.includes("consolidation");
             }
