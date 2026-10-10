@@ -172,14 +172,13 @@
       text-align: left !important;
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-left: 4px solid var(--claret-primary) !important;
       border-radius: 0.75rem;
       box-shadow: var(--card-shadow);
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.25s ease;
     }
     .entry-card:hover {
       transform: translateY(-2px);
-      border-left-color: var(--claret-hover) !important;
+      border-color: var(--claret-hover);
       box-shadow: 
         0 18px 32px -6px rgba(0, 0, 0, 0.76),
         0 8px 16px -3px rgba(127, 23, 52, 0.26),
@@ -267,6 +266,35 @@
     }
     .btn-submit:active {
       transform: translateY(0);
+    }
+
+    /* Sign Out Button */
+    .btn-signout {
+      background: var(--input-bg);
+      border: 1px solid var(--box-border);
+      color: var(--text-heading);
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-signout:hover {
+      background: rgba(143, 23, 56, 0.18);
+      border-color: var(--claret-hover);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .btn-signout:active {
+      transform: translateY(0);
+    }
+    [data-theme="light"] .btn-signout {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
+    [data-theme="light"] .btn-signout:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #991b1b;
     }
 
     /* Module Filter Pills in Section 3 */
@@ -428,7 +456,6 @@
       .entry-card { 
         page-break-inside: avoid; 
         border: 1px solid #cbd5e1 !important; 
-        border-left: 4px solid #7f1734 !important;
         background: white !important; 
         color: black !important;
         box-shadow: none !important;
@@ -497,9 +524,12 @@
           <label class="field-label">4-Digit Security PIN</label>
           <input type="password" id="studentPin" maxlength="6" placeholder="••••" class="form-input">
         </div>
-        <div>
-          <button onclick="fetchHistory()" id="btnLoad" type="button" class="w-full btn-claret font-medium h-11 px-4 rounded-lg text-sm transition flex items-center justify-center">
-            Load My Portfolio
+        <div class="grid grid-cols-2 gap-2.5">
+          <button onclick="fetchHistory()" id="btnLoad" type="button" class="w-full btn-claret font-semibold h-11 px-2 rounded-lg text-sm transition flex items-center justify-center">
+            Load
+          </button>
+          <button onclick="signOut()" id="btnSignOut" type="button" class="w-full btn-signout font-semibold h-11 px-2 rounded-lg text-sm transition flex items-center justify-center">
+            Sign Out
           </button>
         </div>
       </div>
