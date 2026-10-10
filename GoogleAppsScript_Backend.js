@@ -1,222 +1,144 @@
-/**
- * ============================================================================
- * GSEA ENGLISH LEARNING PORTFOLIO — GOOGLE APPS SCRIPT BACKEND
- * ============================================================================
- * 
- * Instructions:
- * 1. Open your Google Spreadsheet (where your Google Form is linked).
- * 2. Ensure you have two sheets:
- *    - "Students": Column A = Student Name, Column B = 4-Digit Security PIN
- *    - "Form Responses 1": Automatically created when linking your Google Form
- * 3. Go to "Extensions" > "Apps Script".
- * 4. Replace any existing code in Code.gs with this entire file.
- * 5. Click "Deploy" > "New deployment".
- * 6. Select Type: "Web app".
- * 7. Set:
- *    - Execute as: "Me"
- *    - Who has access: "Anyone" (required for student portfolio access)
- * 8. Copy the Web App URL and paste it into index.html as SCRIPT_URL.
- */
+// ============================================================================
+// GSEA ENGLISH LEARNING PORTFOLIO — APPS SCRIPT BACKEND
+// Spreadsheet: GSEA_English_Portfolio_DB
+// Tabs: "Students" & "Form Responses"
+// ============================================================================
 
-// ============================================================================
-// 1. GET REQUEST: STUDENT AUTHENTICATION & FETCHING PORTFOLIO LOGS
-// ============================================================================
+function testConnection() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var studentsSheet = ss.getSheetByName("Students");
+  var logsSheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+
+  Logger.log("Spreadsheet: " + ss.getName());
+  Logger.log("Students tab: " + (studentsSheet ? "FOUND (" + studentsSheet.getLastRow() + " rows)" : "NOT FOUND"));
+  Logger.log("Responses tab: " + (logsSheet ? "FOUND (" + logsSheet.getName() + ")" : "NOT FOUND"));
+}
+
 function doGet(e) {
   try {
-    const student = (e.parameter.student || "").trim();
-    const pin = (e.parameter.pin || "").trim();
+    var student = (e && e.parameter && e.parameter.student) ? String(e.parameter.student).trim() : "";
+    var pin = (e && e.parameter && e.parameter.pin) ? String(e.parameter.pin).trim() : "";
 
     if (!student || !pin) {
-      return jsonResponse({
-        success: false,
-        message: "Please provide both Student Name and 4-digit PIN."
-      });
+      return jsonOut({ success: true, message: "GSEA Portfolio Web App is active." });
     }
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // --- STEP A: VERIFY PIN IN 'Students' SHEET ---
-    const studentsSheet = ss.getSheetByName("Students");
+    // 1. PIN Authentication
+    var studentsSheet = ss.getSheetByName("Students");
     if (!studentsSheet) {
-      return jsonResponse({
-        success: false,
-        message: "Sheet 'Students' not found. Please ensure Column A has names and Column B has PINs."
-      });
+      return jsonOut({ success: false, message: "Sheet tab 'Students' not found." });
     }
 
-    const studentsData = studentsSheet.getDataRange().getValues();
-    let isAuthorized = false;
+    var students = studentsSheet.getDataRange().getValues();
+    var authorized = false;
+    var found = false;
 
-    for (let i = 1; i < studentsData.length; i++) {
-      const rowName = String(studentsData[i][0] || "").trim();
-      const rowPin = String(studentsData[i][1] || "").trim();
+    for (var i = 1; i < students.length; i++) {
+      var sName = String(students[i][0] || "").trim();
+      var sPin = String(students[i][1] != null ? students[i][1] : "").trim();
+      if (/^\d{1,3}$/.test(sPin) && pin.length === 4) sPin = sPin.padStart(4, "0");
 
-      if (rowName.toLowerCase() === student.toLowerCase()) {
-        if (rowPin === pin) {
-          isAuthorized = true;
-        }
+      if (sName.toLowerCase() === student.toLowerCase()) {
+        found = true;
+        if (sPin === pin) authorized = true;
         break;
       }
     }
 
-    if (!isAuthorized) {
-      return jsonResponse({
-        success: false,
-        message: "Authentication failed. The PIN entered does not match our records for " + student + "."
-      });
-    }
+    if (!found) return jsonOut({ success: false, message: "Student '" + student + "' not found in Students list." });
+    if (!authorized) return jsonOut({ success: false, message: "Incorrect PIN for " + student + "." });
 
-    // --- STEP B: FETCH LOGS FROM GOOGLE FORM RESPONSES SHEET ---
-    // Look for the Form Responses sheet (usually "Form Responses 1" or sheet with "Responses")
-    let logsSheet = ss.getSheetByName("Form Responses 1");
-    if (!logsSheet) {
-      const allSheets = ss.getSheets();
-      for (let s of allSheets) {
-        const name = s.getName().toLowerCase();
-        if (name.includes("response") || name.includes("réponse") || name.includes("logs")) {
-          logsSheet = s;
-          break;
-        }
-      }
-    }
-    if (!logsSheet) {
-      // Fallback to second sheet or first sheet
-      logsSheet = ss.getSheets().length > 1 ? ss.getSheets()[1] : ss.getSheets()[0];
-    }
+    // 2. Fetch Form Responses
+    var logsSheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+    var data = logsSheet.getDataRange().getValues();
+    var logs = [];
 
-    const logsData = logsSheet.getDataRange().getValues();
-    if (logsData.length <= 1) {
-      return jsonResponse({
-        success: true,
-        logs: []
-      });
-    }
+    if (data.length > 1) {
+      var h = data[0].map(function(item) { return String(item || "").toLowerCase(); });
+      var cTs  = getCol(h, ["time", "date", "horodateur"], 0);
+      var cSt  = getCol(h, ["student", "name", "nom"], 1);
+      var cMod = getCol(h, ["module"], 2);
+      var cSes = getCol(h, ["session"], 3);
+      var cVoc = getCol(h, ["vocab", "word", "lexique"], 4);
+      var cRev = getCol(h, ["review", "content", "learnt"], 5);
+      var cWrk = getCol(h, ["work on", "need to"], 6);
+      var cEvH = getCol(h, ["formative", "eval", "help"], 7);
+      var cEvR = getCol(h, ["formative", "module", "rate", "rating", "prepared", "10"], 8);
+      var cToP = getCol(h, ["toeic prep", "toeic"], 9);
+      var cToR = getCol(h, ["toeic", "rate", "rating", "prepared", "10"], 10);
 
-    // Dynamic Header Column Mapping (case-insensitive fuzzy matching)
-    const headers = logsData[0].map(h => String(h || "").trim().toLowerCase());
-    
-    const colTimestamp = headers.findIndex(h => h.includes("timestamp") || h.includes("horodateur"));
-    const colStudent   = headers.findIndex(h => h.includes("student") || h.includes("name"));
-    const colModule    = headers.findIndex(h => h.includes("module"));
-    const colSession   = headers.findIndex(h => h.includes("session"));
-    const colVocab     = headers.findIndex(h => h.includes("vocab"));
-    const colReview    = headers.findIndex(h => h.includes("content") || h.includes("learnt") || h.includes("review"));
-    const colWorkOn    = headers.findIndex(h => h.includes("work on") || h.includes("need to"));
-    const colEvalHelp  = headers.findIndex(h => h.includes("formative") && (h.includes("eval") || h.includes("help") || h.includes("tutorial")));
-    const colEvalRate  = headers.findIndex(h => (h.includes("rating") || h.includes("rate") || h.includes("prepared")) && (h.includes("module") || h.includes("formative")));
-    const colToeicPrep = headers.findIndex(h => h.includes("toeic prep") || (h.includes("toeic") && !h.includes("rating") && !h.includes("rate") && !h.includes("prepared")));
-    const colToeicRate = headers.findIndex(h => (h.includes("rating") || h.includes("rate") || h.includes("prepared")) && h.includes("toeic"));
+      for (var r = 1; r < data.length; r++) {
+        var row = data[r];
+        var rowStudent = String(row[cSt] || "").trim();
 
-    const logs = [];
-
-    for (let r = 1; r < logsData.length; r++) {
-      const row = logsData[r];
-      const rowStudent = colStudent !== -1 ? String(row[colStudent] || "").trim() : "";
-
-      if (rowStudent.toLowerCase() === student.toLowerCase()) {
-        let tsString = "";
-        if (colTimestamp !== -1 && row[colTimestamp]) {
-          try {
-            tsString = Utilities.formatDate(new Date(row[colTimestamp]), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm");
-          } catch (e) {
-            tsString = String(row[colTimestamp]);
+        if (rowStudent.toLowerCase() === student.toLowerCase()) {
+          var ts = row[cTs] ? String(row[cTs]) : "";
+          if (row[cTs] instanceof Date) {
+            ts = Utilities.formatDate(row[cTs], Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm");
           }
-        }
 
-        logs.push({
-          timestamp: tsString,
-          module: colModule !== -1 ? String(row[colModule] || "") : "",
-          session: colSession !== -1 ? String(row[colSession] || "") : "",
-          vocab: colVocab !== -1 ? String(row[colVocab] || "") : "",
-          contentReview: colReview !== -1 ? String(row[colReview] || "") : "",
-          workOn: colWorkOn !== -1 ? String(row[colWorkOn] || "") : "",
-          evalHelp: colEvalHelp !== -1 ? String(row[colEvalHelp] || "") : "",
-          evalRating: colEvalRate !== -1 ? String(row[colEvalRate] || "") : "",
-          toeicPrep: colToeicPrep !== -1 ? String(row[colToeicPrep] || "") : "",
-          toeicRating: colToeicRate !== -1 ? String(row[colToeicRate] || "") : ""
-        });
+          logs.push({
+            timestamp: ts,
+            module: String(row[cMod] || ""),
+            session: String(row[cSes] || ""),
+            vocab: String(row[cVoc] || ""),
+            contentReview: String(row[cRev] || ""),
+            workOn: String(row[cWrk] || ""),
+            evalHelp: String(row[cEvH] || ""),
+            evalRating: String(row[cEvR] || ""),
+            toeicPrep: String(row[cToP] || ""),
+            toeicRating: String(row[cToR] || "")
+          });
+        }
       }
     }
 
-    return jsonResponse({
-      success: true,
-      logs: logs
-    });
+    return jsonOut({ success: true, student: student, logs: logs });
 
-  } catch (error) {
-    return jsonResponse({
-      success: false,
-      message: "Server Error: " + error.message
-    });
+  } catch (err) {
+    return jsonOut({ success: false, message: "Server Error: " + err.message });
   }
 }
 
-// ============================================================================
-// 2. POST REQUEST (OPTIONAL FALLBACK WITH LOCKSERVICE CONCURRENCY CONTROL)
-// ============================================================================
 function doPost(e) {
-  // LockService prevents concurrency race conditions and write locks
-  const lock = LockService.getScriptLock();
-  
   try {
-    // Wait up to 30 seconds for concurrent requests to queue cleanly
-    lock.waitLock(30000);
+    var d = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
 
-    const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    // Verify PIN
-    const studentsSheet = ss.getSheetByName("Students");
-    if (studentsSheet) {
-      const studentsData = studentsSheet.getDataRange().getValues();
-      let valid = false;
-      for (let i = 1; i < studentsData.length; i++) {
-        if (String(studentsData[i][0]).trim().toLowerCase() === String(data.student).trim().toLowerCase()) {
-          if (String(studentsData[i][1]).trim() === String(data.pin).trim()) {
-            valid = true;
-          }
-          break;
-        }
-      }
-      if (!valid) {
-        return jsonResponse({ success: false, message: "Invalid PIN." });
-      }
-    }
-
-    let targetSheet = ss.getSheetByName("Form Responses 1") || ss.getSheetByName("Logs") || ss.getSheets()[0];
-
-    targetSheet.appendRow([
+    sheet.appendRow([
       new Date(),
-      data.student || "",
-      data.pin || "",
-      data.module || "",
-      data.session || "",
-      data.vocab || "",
-      data.contentReview || "",
-      data.workOn || "",
-      data.evalHelp || "",
-      data.evalRating || data.formativeRating || "",
-      data.toeicPrep || "",
-      data.toeicRating || data.toeicPrepRating || ""
+      d.student || "",
+      d.pin || "",
+      d.module || "",
+      d.session || "",
+      d.vocab || "",
+      d.contentReview || "",
+      d.workOn || "",
+      d.evalHelp || "",
+      d.evalRating || d.formativeRating || "",
+      d.toeicPrep || "",
+      d.toeicRating || d.toeicPrepRating || ""
     ]);
 
-    return jsonResponse({
-      success: true,
-      message: "Entry saved successfully."
-    });
-
-  } catch (error) {
-    return jsonResponse({
-      success: false,
-      message: "Submission error: " + error.message
-    });
-  } finally {
-    lock.releaseLock();
+    return jsonOut({ success: true, message: "Saved successfully." });
+  } catch (err) {
+    return jsonOut({ success: false, message: "Save failed: " + err.message });
   }
 }
 
-// Helper: JSON response with proper CORS headers
-function jsonResponse(obj) {
+function getCol(headers, words, fallback) {
+  for (var i = 0; i < headers.length; i++) {
+    for (var w = 0; w < words.length; w++) {
+      if (headers[i].indexOf(words[w]) !== -1) return i;
+    }
+  }
+  return fallback;
+}
+
+function jsonOut(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }

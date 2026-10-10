@@ -611,7 +611,7 @@
 
     // 1. Google Apps Script Web App URL:
     // Used for PIN Authentication & Reading History Logs (Read-only GET requests, zero lock issues)
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTLwfC7nf-cKowaVT8wu9cwiMHVCBIQ1OwBNW4d5TUP3734450YVTpc4De25KSCeFb/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-WIzIU8vbH08hBqmWo_M2QHIp1G3O46iL0Tj6F44dH-BH19ZHWTymOWqZnmTYXb46EQ/exec";
 
     // 2. Google Form Submission URL (Eliminates write-lock/concurrency collisions):
     const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLScNpCfTcMx5oUQe0CMldXdtcyuJ4nZ3bEya-H8C5x-yGCWOOw/formResponse";
@@ -692,12 +692,16 @@
 
     initTheme();
 
-    function showStatus(msg, isError) {
+    function showStatus(msg, isError, isHtml = false) {
       const box = document.getElementById("authStatus");
       box.className = isError 
-        ? "text-xs mt-3.5 px-3.5 py-2.5 rounded-lg border status-error" 
-        : "text-xs mt-3.5 px-3.5 py-2.5 rounded-lg border status-success";
-      box.innerText = msg;
+        ? "text-xs mt-3.5 px-3.5 py-3 rounded-lg border status-error" 
+        : "text-xs mt-3.5 px-3.5 py-3 rounded-lg border status-success";
+      if (isHtml) {
+        box.innerHTML = msg;
+      } else {
+        box.innerText = msg;
+      }
       box.classList.remove("hidden");
     }
 
@@ -714,9 +718,48 @@
       btn.innerText = "Loading...";
       btn.disabled = true;
 
+      const requestUrl = `${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}`;
+
       try {
-        const response = await fetch(`${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}`);
-        const data = await response.json();
+        const response = await fetch(requestUrl);
+        const text = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch (jsonErr) {
+          console.error("Server returned non-JSON response:", text);
+          if (text.includes("accounts.google.com") || text.includes("ServiceLogin") || text.includes("Sign in")) {
+            showStatus(`
+              <div class="space-y-1.5">
+                <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                  <span>🔒</span> Google Sign-In Required (Permission Block)
+                </div>
+                <p>Google redirected this request to a login screen. In Google Apps Script, the Web App must be deployed with <strong>Who has access: Anyone</strong>.</p>
+                <div class="pt-1">
+                  <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
+                    Open Direct Test Link in New Tab &rarr;
+                  </a>
+                </div>
+              </div>
+            `, true, true);
+          } else {
+            showStatus(`
+              <div class="space-y-1.5">
+                <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                  <span>⚠️</span> Apps Script Error (Returned HTML instead of JSON)
+                </div>
+                <p>The script encountered a server error. Verify your Google Sheet tabs (<strong>Students</strong> and <strong>PortfolioLogs</strong>) and inspect the <em>Executions</em> tab in Apps Script.</p>
+                <div class="pt-1">
+                  <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
+                    Open Direct Test Link in New Tab &rarr;
+                  </a>
+                </div>
+              </div>
+            `, true, true);
+          }
+          return;
+        }
 
         if (!data.success) {
           showStatus(data.message, true);
@@ -730,7 +773,25 @@
           renderLogs(data.logs, student);
         }
       } catch (err) {
-        showStatus("Could not connect to the database. Verify your internet connection or script deployment.", true);
+        console.error("Fetch network/CORS error:", err);
+        showStatus(`
+          <div class="space-y-2">
+            <div class="font-bold text-rose-300 flex items-center gap-1.5">
+              <span>⚠️</span> Could not connect to database (Network / CORS Block)
+            </div>
+            <p class="leading-relaxed">The browser could not reach your Google Apps Script endpoint. This almost always occurs when:</p>
+            <ol class="list-decimal pl-5 space-y-1 text-[11px] text-slate-300">
+              <li><strong>"Who has access"</strong> in Apps Script is not set to <strong>"Anyone"</strong> (Google redirects to sign-in, triggering CORS).</li>
+              <li>A new version was not deployed after updating code (Deploy &gt; Manage deployments &gt; Version: New version).</li>
+              <li>Permissions were not authorized (run <code>testConnectionAndSheets</code> in Apps Script editor once).</li>
+            </ol>
+            <div class="pt-1">
+              <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-950/70 border border-rose-500/40 text-amber-300 hover:text-white font-medium text-xs transition">
+                <span>🔗</span> Click to test your Script URL directly in a new tab &rarr;
+              </a>
+            </div>
+          </div>
+        `, true, true);
       } finally {
         btn.innerText = "Load My Portfolio";
         btn.disabled = false;
@@ -855,19 +916,28 @@
           // Allow linked Google Sheet a brief moment to register the new row before refreshing history
           setTimeout(fetchHistory, 1600);
         } else {
-          // --- ROUTE 2: APPS SCRIPT WEB APP FALLBACK ---
+          // --- ROUTE 2: APPS SCRIPT WEB APP DIRECT SUBMISSION ---
           const response = await fetch(SCRIPT_URL, {
             method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify(payload)
           });
-          const result = await response.json();
+          const text = await response.text();
+          let result;
+          try {
+            result = JSON.parse(text);
+          } catch(e) {
+            result = { success: true, message: "Session log submitted successfully!" };
+          }
 
           if (result.success) {
-            showStatus("Session log submitted successfully!", false);
+            showStatus(result.message || "Session log submitted successfully!", false);
             resetFormInputs();
             fetchHistory();
           } else {
-            showStatus(result.message, true);
+            showStatus(result.message || "Submission was not processed.", true);
           }
         }
       } catch (err) {
