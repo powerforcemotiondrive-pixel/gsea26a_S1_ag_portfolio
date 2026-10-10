@@ -878,10 +878,7 @@
         const res = await fetch(pingUrl, {
           method: "GET",
           cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache"
-          }
+          redirect: "follow"
         });
         const textRes = await res.text();
         let json;
@@ -936,10 +933,7 @@
         const response = await fetch(requestUrl, {
           method: "GET",
           cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache"
-          }
+          redirect: "follow"
         });
         const text = await response.text();
         let data;
@@ -1242,10 +1236,11 @@
 
         } else {
           // --- ROUTE 2: APPS SCRIPT WEB APP DIRECT SUBMISSION ---
+          // Plain string body without custom headers to avoid CORS OPTIONS preflights
           const response = await fetch(SCRIPT_URL, {
             method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            redirect: "follow"
           });
           const text = await response.text();
           let result;
