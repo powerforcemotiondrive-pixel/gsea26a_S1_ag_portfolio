@@ -876,7 +876,11 @@
                   <div class="font-bold text-rose-300 flex items-center gap-1.5">
                     <span>⚠️</span> Apps Script Error (Returned HTML instead of JSON)
                   </div>
-                  <p>The script encountered a server error. Verify your Google Sheet tabs (<strong>Students</strong> and <strong>Form Responses</strong>) and inspect the <em>Executions</em> tab in Apps Script.</p>
+                  <p>Google Apps Script crashed with an unhandled server error (e.g. outdated script with <code>loginUser</code> or tab name mismatch). To resolve:</p>
+                  <ol class="list-decimal pl-5 space-y-1 text-[11px] text-slate-300">
+                    <li>Paste the updated <code>GoogleAppsScript_Backend.js</code> code into your Google Apps Script <code>Code.gs</code> editor.</li>
+                    <li>Click <strong>Deploy &gt; Manage deployments &gt; Edit (pencil) &gt; Version: New version &gt; Deploy</strong>.</li>
+                  </ol>
                   <div class="pt-1">
                     <a href="${requestUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] underline font-semibold text-amber-300 hover:text-amber-200">
                       Open Direct Test Link in New Tab &rarr;
@@ -936,7 +940,7 @@
       } finally {
         isFetchingHistory = false;
         if (!silent) {
-          btn.innerText = "Load My Portfolio";
+          btn.innerText = "Load";
           btn.disabled = false;
         }
         if (refreshIcon) refreshIcon.classList.remove("spin-icon");
@@ -1244,6 +1248,54 @@
         }
       }
     });
+
+    // Sign Out & clear active session
+    function signOut() {
+      const studentSelect = document.getElementById("studentSelect");
+      const pinInput = document.getElementById("studentPin");
+      if (studentSelect) studentSelect.value = "";
+      if (pinInput) pinInput.value = "";
+
+      sessionStorage.removeItem("gsea_student");
+      sessionStorage.removeItem("gsea_pin");
+
+      if (autoSyncTimer) {
+        clearInterval(autoSyncTimer);
+        autoSyncTimer = null;
+      }
+
+      currentLoadedLogs = [];
+      currentStudentName = "";
+      activeModuleFilter = "All";
+
+      const printBtn = document.getElementById("btnPrint");
+      if (printBtn) {
+        printBtn.classList.add("hidden");
+        printBtn.classList.remove("flex");
+      }
+      const syncInd = document.getElementById("syncIndicator");
+      if (syncInd) syncInd.classList.add("hidden");
+
+      const feed = document.getElementById("logsFeed");
+      if (feed) {
+        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
+        feed.innerHTML = "Please authenticate above to view your saved portfolio entries.";
+      }
+
+      const count = document.getElementById("entryCount");
+      if (count) count.innerText = "0 entries";
+      setModuleFilter("All");
+
+      resetFormInputs();
+
+      showStatus("Signed out successfully. Choose your name and enter your PIN to sign in again.", false);
+      setTimeout(() => {
+        const box = document.getElementById("authStatus");
+        if (box && box.innerText.includes("Signed out")) {
+          box.classList.add("hidden");
+        }
+      }, 3500);
+    }
 
     function escapeHtml(string) {
       return String(string || "")

@@ -1,17 +1,30 @@
 // ============================================================================
 // GSEA ENGLISH LEARNING PORTFOLIO — APPS SCRIPT BACKEND
 // Spreadsheet: GSEA_English_Portfolio_DB
-// Tabs: "Students" & "Form Responses"
+// Compatible with sheet tab names:
+// - "Form Responses", "Form Responses 1", "PortfolioLogs", "Portfolio Logs"
+// - "Students"
 // ============================================================================
 
 function testConnection() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var studentsSheet = ss.getSheetByName("Students");
-  var logsSheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+  var studentsSheet = getStudentsSheet(ss);
+  var logsSheet = getLogsSheet(ss);
 
+  Logger.log("=== GSEA DATABASE DIAGNOSTIC ===");
   Logger.log("Spreadsheet: " + ss.getName());
-  Logger.log("Students tab: " + (studentsSheet ? "FOUND (" + studentsSheet.getLastRow() + " rows)" : "NOT FOUND"));
-  Logger.log("Responses tab: " + (logsSheet ? "FOUND (" + logsSheet.getName() + ", " + logsSheet.getLastRow() + " rows)" : "NOT FOUND"));
+  Logger.log("Students tab: " + (studentsSheet ? "FOUND '" + studentsSheet.getName() + "' (" + studentsSheet.getLastRow() + " rows)" : "NOT FOUND"));
+  Logger.log("Logs tab: " + (logsSheet ? "FOUND '" + logsSheet.getName() + "' (" + logsSheet.getLastRow() + " rows)" : "NOT FOUND"));
+  
+  if (studentsSheet && studentsSheet.getLastRow() > 1) {
+    var sampleStudent = studentsSheet.getRange(2, 1).getValue();
+    Logger.log("Sample Student in DB: " + sampleStudent);
+  }
+}
+
+// Backwards compatibility alias for older script calls
+function loginUser(student, pin) {
+  return doGet({ parameter: { student: student, pin: pin } });
 }
 
 function doGet(e) {
@@ -27,9 +40,9 @@ function doGet(e) {
     SpreadsheetApp.flush(); // Commit pending writes so latest data is immediately readable
 
     // 1. PIN Authentication
-    var studentsSheet = ss.getSheetByName("Students");
+    var studentsSheet = getStudentsSheet(ss);
     if (!studentsSheet) {
-      return jsonOut({ success: false, message: "Sheet tab 'Students' not found in database." });
+      return jsonOut({ success: false, message: "Database error: 'Students' tab not found in spreadsheet." });
     }
 
     var students = studentsSheet.getDataRange().getValues();
@@ -51,8 +64,12 @@ function doGet(e) {
     if (!found) return jsonOut({ success: false, message: "Student '" + student + "' not found in registered students list." });
     if (!authorized) return jsonOut({ success: false, message: "Incorrect PIN for " + student + ". Please verify your 4-digit code." });
 
-    // 2. Fetch Form Responses
-    var logsSheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+    // 2. Fetch Form Responses / PortfolioLogs
+    var logsSheet = getLogsSheet(ss);
+    if (!logsSheet) {
+      return jsonOut({ success: false, message: "Database error: Responses tab ('Form Responses' or 'PortfolioLogs') not found." });
+    }
+
     var data = logsSheet.getDataRange().getValues();
     var logs = [];
 
@@ -167,7 +184,11 @@ function doPost(e) {
     }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName("Form Responses") || ss.getSheetByName("Form Responses 1") || ss.getSheets()[0];
+    var sheet = getLogsSheet(ss);
+
+    if (!sheet) {
+      return jsonOut({ success: false, message: "Save failed: Responses sheet tab not found." });
+    }
 
     // Auto-create standard headers if sheet is empty
     if (sheet.getLastRow() === 0) {
@@ -213,6 +234,68 @@ function doPost(e) {
   } catch (err) {
     return jsonOut({ success: false, message: "Save failed: " + err.message });
   }
+}
+
+// ----------------------------------------------------------------------------
+// SMART SHEET LOCATORS (Tolerates Any Tab Name: Form Responses, PortfolioLogs, etc.)
+// ----------------------------------------------------------------------------
+
+function getLogsSheet(ss) {
+  var candidates = [
+    "Form Responses",
+    "Form Responses 1",
+    "PortfolioLogs",
+    "Portfolio Logs",
+    "Form_Responses",
+    "Portfolio_Logs",
+    "Responses",
+    "Logs",
+    "Réponses au formulaire 1"
+  ];
+
+  for (var i = 0; i < candidates.length; i++) {
+    var s = ss.getSheetByName(candidates[i]);
+    if (s) return s;
+  }
+
+  // Case-insensitive & partial match
+  var all = ss.getSheets();
+  for (var i = 0; i < all.length; i++) {
+    var nameLower = all[i].getName().trim().toLowerCase();
+    if (nameLower.indexOf("response") !== -1 ||
+        nameLower.indexOf("log") !== -1 ||
+        nameLower.indexOf("form") !== -1 ||
+        nameLower.indexOf("réponse") !== -1) {
+      return all[i];
+    }
+  }
+
+  // Any sheet that is not Students
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].getName().toLowerCase().indexOf("student") === -1) {
+      return all[i];
+    }
+  }
+
+  return all.length > 1 ? all[1] : all[0];
+}
+
+function getStudentsSheet(ss) {
+  var candidates = ["Students", "Student", "Élèves", "Users"];
+  for (var i = 0; i < candidates.length; i++) {
+    var s = ss.getSheetByName(candidates[i]);
+    if (s) return s;
+  }
+
+  var all = ss.getSheets();
+  for (var i = 0; i < all.length; i++) {
+    var nameLower = all[i].getName().trim().toLowerCase();
+    if (nameLower.indexOf("student") !== -1 || nameLower.indexOf("élève") !== -1) {
+      return all[i];
+    }
+  }
+
+  return ss.getSheetByName("Students") || all[0];
 }
 
 // ----------------------------------------------------------------------------
