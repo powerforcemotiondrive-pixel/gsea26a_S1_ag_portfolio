@@ -539,9 +539,6 @@
         <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
           <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
         </button>
-        <button onclick="window.print()" id="btnPrint" type="button" class="hidden no-print btn-print text-white text-xs font-semibold px-4 py-2 rounded-lg transition items-center gap-2">
-          🖨️ Print Portfolio for Tutorial
-        </button>
       </div>
     </div>
 
@@ -998,8 +995,6 @@
           if (!silent) {
             showStatus(data.message, true);
             document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(data.message)}</p>`;
-            document.getElementById("btnPrint").classList.add("hidden");
-            document.getElementById("btnPrint").classList.remove("flex");
           }
         } else {
           // Persist verified credentials for auto-reloading
@@ -1009,8 +1004,6 @@
           if (!silent) {
             showStatus(`Authentication verified. ${data.logs.length} record(s) loaded.`, false);
           }
-          document.getElementById("btnPrint").classList.remove("hidden");
-          document.getElementById("btnPrint").classList.add("flex");
 
           updateSyncIndicator();
           renderLogs(data.logs, student);
@@ -1486,11 +1479,6 @@
       currentStudentName = "";
       activeModuleFilter = "All";
 
-      const printBtn = document.getElementById("btnPrint");
-      if (printBtn) {
-        printBtn.classList.add("hidden");
-        printBtn.classList.remove("flex");
-      }
       const syncInd = document.getElementById("syncIndicator");
       if (syncInd) syncInd.classList.add("hidden");
 
