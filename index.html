@@ -143,17 +143,27 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.95);
     }
 
-    /* Header Banner */
+    /* Header Banner (Sticky with Soft Diffused Rounded Shadow) */
     .header-banner {
       background: linear-gradient(135deg, #78152e 0%, #540d1e 60%, #3e0915 100%);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 1rem;
       box-shadow: 
-        0 22px 38px -10px rgba(0, 0, 0, 0.8),
-        0 10px 20px -4px rgba(120, 21, 46, 0.4),
+        0 10px 25px -4px rgba(0, 0, 0, 0.30),
+        0 4px 10px -2px rgba(120, 21, 46, 0.20),
         inset 0 1px 0 rgba(255, 255, 255, 0.22);
-      position: relative;
+      position: sticky;
+      top: 0.75rem;
+      z-index: 40;
       overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: box-shadow 0.25s ease;
+    }
+    [data-theme="light"] .header-banner {
+      box-shadow: 
+        0 10px 22px -4px rgba(120, 21, 46, 0.16),
+        0 4px 10px -2px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
     }
     .header-banner::before {
       content: "";
@@ -364,24 +374,12 @@
       box-shadow: 0 2px 8px rgba(143, 23, 56, 0.15);
     }
 
-    /* Sticky Header Container (Header stays visible at all times with boxes scrolling behind) */
-    .sticky-header-wrapper {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background-color: var(--bg-canvas);
-      padding-top: 0.75rem;
-      padding-bottom: 0.5rem;
-      margin-top: -0.75rem;
-      transition: background-color 0.25s ease;
-    }
-
     /* Checklist Card & Item Styles */
     .checklist-card {
       background: var(--box-bg);
       border: 1px solid var(--box-border);
       border-radius: 0.75rem;
-      padding: 0.75rem;
+      padding: 0.7rem 0.65rem;
       transition: all 0.2s ease;
     }
     .checklist-card:hover {
@@ -391,11 +389,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.35rem;
-      padding: 0.4rem 0.35rem;
-      border-radius: 0.5rem;
+      gap: 0.25rem;
+      padding: 0.35rem 0.15rem;
+      border-radius: 0.4rem;
       font-size: 0.75rem;
       font-weight: 700;
+      min-width: 0;
+      box-sizing: border-box;
       transition: all 0.2s ease;
       user-select: none;
     }
@@ -416,15 +416,16 @@
       opacity: 0.65;
     }
     .checklist-box-icon {
-      width: 1.15rem;
-      height: 1.15rem;
-      border-radius: 0.25rem;
+      width: 0.95rem;
+      height: 0.95rem;
+      border-radius: 0.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       font-weight: 900;
       line-height: 1;
+      flex-shrink: 0;
       transition: all 0.2s ease;
     }
     .checklist-item.completed .checklist-box-icon {
@@ -613,36 +614,34 @@
   </style>
 </head>
 <body class="p-4 md:p-8 font-sans">
-  <div class="max-w-4xl mx-auto space-y-6">
+  <div class="max-w-5xl mx-auto space-y-6">
 
-    <!-- Sticky Header Wrapper (Remains visible at all times with all boxes scrolling behind it) -->
-    <div class="sticky-header-wrapper">
-      <div class="header-banner p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative z-10">
-        <div class="flex items-center gap-3.5">
-          <!-- Pen Badge Icon -->
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
-            <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-              <path d="m15 5 4 4"/>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-              <span>GSEA Semester 1 General English Portfolio</span>
-            </h1>
-            <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
-          </div>
+    <!-- Header Banner (Sticky: remains visible at all times with all boxes scrolling behind it) -->
+    <div class="header-banner p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative z-40">
+      <div class="flex items-center gap-3.5">
+        <!-- Pen Badge Icon -->
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
+          <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <path d="m15 5 4 4"/>
+          </svg>
         </div>
-        <div class="flex items-center gap-2.5">
-          <!-- Live / Disconnected Indicator Light -->
-          <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
-            <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
-            <span id="connectionText" class="tracking-wide">Live</span>
-          </div>
-          <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
-            <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
-          </button>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span>GSEA Semester 1 General English Portfolio</span>
+          </h1>
+          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
         </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <!-- Live / Disconnected Indicator Light -->
+        <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
+          <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
+          <span id="connectionText" class="tracking-wide">Live</span>
+        </div>
+        <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
+          <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+        </button>
       </div>
     </div>
 
@@ -1322,7 +1321,7 @@
           }
 
           return `
-            <div class="checklist-item ${isDone ? 'completed' : 'pending'} flex-1 min-w-[34px] cursor-pointer" onclick="setModuleFilter('${mod.key}')" title="${escapeHtml(mod.fullName)} - Session ${ses.label}: ${isDone ? 'Completed ✓ (Click to filter)' : 'Pending'}">
+            <div class="checklist-item ${isDone ? 'completed' : 'pending'} cursor-pointer" onclick="setModuleFilter('${mod.key}')" title="${escapeHtml(mod.fullName)} - Session ${ses.label}: ${isDone ? 'Completed ✓ (Click to filter)' : 'Pending'}">
               <span class="checklist-box-icon" aria-hidden="true">${isDone ? '✓' : ''}</span>
               <span>${ses.label}</span>
             </div>
@@ -1340,7 +1339,7 @@
                 ${modCompleted}/${mod.sessions.length}
               </span>
             </div>
-            <div class="flex items-center gap-1.5 pt-0.5">
+            <div class="grid grid-cols-5 gap-1 pt-0.5 w-full">
               ${itemsHtml}
             </div>
           </div>
