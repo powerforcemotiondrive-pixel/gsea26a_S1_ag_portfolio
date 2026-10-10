@@ -10,19 +10,19 @@
     <imsmd:lom>
       <imsmd:general>
         <imsmd:title>
-          <imsmd:langstring xml:lang="en">GSEA English Learning Portfolio</imsmd:langstring>
+          <imsmd:langstring xml:lang="en">GSEA Semester 1 General English Portfolio</imsmd:langstring>
         </imsmd:title>
         <imsmd:description>
-          <imsmd:langstring xml:lang="en">17 Sessions • 3 Modules • Formative Assessment Dossier</imsmd:langstring>
+          <imsmd:langstring xml:lang="en">17 Sessions • 4 Modules • Formative Evaluation Record</imsmd:langstring>
         </imsmd:description>
       </imsmd:general>
     </imsmd:lom>
   </metadata>
   <organizations default="ORG-GSEA-PORTFOLIO">
     <organization identifier="ORG-GSEA-PORTFOLIO" structure="hierarchical">
-      <title>GSEA English Learning Portfolio</title>
+      <title>GSEA Semester 1 General English Portfolio</title>
       <item identifier="ITEM-GSEA-PORTFOLIO" identifierref="RES-GSEA-PORTFOLIO">
-        <title>GSEA English Learning Portfolio</title>
+        <title>GSEA Semester 1 General English Portfolio</title>
       </item>
     </organization>
   </organizations>

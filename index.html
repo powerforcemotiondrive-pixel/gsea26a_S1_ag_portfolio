@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GSEA English Learning Portfolio</title>
+  <title>GSEA Semester 1 General English Portfolio</title>
   <link rel="stylesheet" href="output.css">
   <style>
     :root {
@@ -169,6 +169,7 @@
 
     /* Entry Cards in History */
     .entry-card {
+      text-align: left !important;
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--claret-primary) !important;
@@ -266,6 +267,38 @@
     }
     .btn-submit:active {
       transform: translateY(0);
+    }
+
+    /* Module Filter Pills in Section 3 */
+    .filter-pill {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.35rem 0.8rem;
+      border-radius: 0.5rem;
+      color: var(--text-muted);
+      background-color: transparent;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+    .filter-pill:hover {
+      color: var(--text-heading);
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+    [data-theme="light"] .filter-pill:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    .filter-pill.active {
+      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
+      color: #ffffff !important;
+      border-color: #9c2243;
+      font-weight: 600;
+      box-shadow: 0 4px 12px -2px rgba(127, 23, 52, 0.45);
+    }
+    [data-theme="light"] .filter-pill.active {
+      background: linear-gradient(135deg, #8f1738 0%, #70132b 100%);
+      color: #ffffff !important;
+      border-color: #a82042;
     }
 
     .btn-print {
@@ -404,9 +437,9 @@
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>GSEA English Learning Portfolio</span>
+            <span>GSEA Semester 1 General English Portfolio</span>
           </h1>
-          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 3 Modules • Formative Assessment Dossier</p>
+          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
         </div>
       </div>
       <div class="flex items-center gap-2.5">
@@ -462,10 +495,10 @@
         <div>
           <label class="field-label">Module</label>
           <select id="moduleSelect" required class="form-input">
-            <option value="Module 1">Module 1 (Sessions 1–4)</option>
-            <option value="Module 2">Module 2 (Sessions 5–8)</option>
-            <option value="Module 3">Module 3 (Sessions 9–12)</option>
-            <option value="Consolidation / Revision">Consolidation / Revision (Sessions 13–17)</option>
+            <option value="Module 1 (Sessions 1 - 5)">Module 1 (Sessions 1 - 5)</option>
+            <option value="Module 2 (Sessions 6 - 10)">Module 2 (Sessions 6 - 10)</option>
+            <option value="Module 3 (Sessions 11 - 15)">Module 3 (Sessions 11 - 15)</option>
+            <option value="Module 4 (Revision + Final FE)">Module 4 (Revision + Final FE)</option>
           </select>
         </div>
         <div>
@@ -475,26 +508,14 @@
             <option value="Session 2">Session 2</option>
             <option value="Session 3">Session 3</option>
             <option value="Session 4">Session 4</option>
-            <option value="Session 5">Session 5</option>
-            <option value="Session 6">Session 6</option>
-            <option value="Session 7">Session 7</option>
-            <option value="Session 8">Session 8</option>
-            <option value="Session 9">Session 9</option>
-            <option value="Session 10">Session 10</option>
-            <option value="Session 11">Session 11</option>
-            <option value="Session 12">Session 12</option>
-            <option value="Session 13">Session 13</option>
-            <option value="Session 14">Session 14</option>
-            <option value="Session 15">Session 15</option>
-            <option value="Session 16">Session 16</option>
-            <option value="Session 17">Session 17</option>
+            <option value="FORMATIVE EVALUATION">FORMATIVE EVALUATION</option>
           </select>
         </div>
       </div>
 
       <div>
         <label class="field-label">Key vocabulary learnt</label>
-        <input type="text" id="vocab" required placeholder="e.g. taxiway clearance, runway incursion, nautical miles, altimeter" class="form-input">
+        <input type="text" id="vocab" required placeholder="e.g. sustainability, carbon footprint, renewable energy, biodiversity, climate change" class="form-input">
       </div>
 
       <div>
@@ -516,7 +537,7 @@
       <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <label for="evalRating" class="field-label mb-0 text-slate-100 font-semibold">
-            How well prepared do you think you are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+            How well prepared do you think you CURRENTLY are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
           </label>
           <span id="evalRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
             7 / 10
@@ -547,8 +568,8 @@
       </div>
 
       <div>
-        <label class="field-label">What I have done for TOEIC prep this week</label>
-        <input type="text" id="toeicPrep" required placeholder="e.g. 30 Part 4 listening items, ETS practice test vocabulary review" class="form-input">
+        <label class="field-label">What have you done in terms of TOEIC preparation this week? Please give examples from Global Exam.</label>
+        <textarea id="toeicPrep" rows="2" required placeholder="e.g. 2 Global Exam listening tests (Parts 1-4), 45 Part 5 grammar exercises, Mini-exam score 840..." class="form-input"></textarea>
       </div>
 
       <!-- Rating Scale 2: TOEIC Test Preparedness -->
@@ -592,9 +613,31 @@
 
     <!-- Student Portfolio History Section -->
     <div class="space-y-4">
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h2 class="section-title text-sm">3. Logged Entries History</h2>
         <span id="entryCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 entries</span>
+      </div>
+
+      <!-- Module Selector Bar (Filter History by Module) -->
+      <div id="moduleFilterBar" class="no-print flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[var(--box-bg)] border border-[var(--box-border)] shadow-sm">
+        <button type="button" onclick="setModuleFilter('All')" id="btnFilterAll" class="filter-pill active">
+          All Modules
+        </button>
+        <button type="button" onclick="setModuleFilter('Module 1')" id="btnFilterM1" class="filter-pill">
+          Module 1
+        </button>
+        <button type="button" onclick="setModuleFilter('Module 2')" id="btnFilterM2" class="filter-pill">
+          Module 2
+        </button>
+        <button type="button" onclick="setModuleFilter('Module 3')" id="btnFilterM3" class="filter-pill">
+          Module 3
+        </button>
+        <button type="button" onclick="setModuleFilter('Module 4')" id="btnFilterM4" class="filter-pill">
+          Module 4
+        </button>
+        <button type="button" onclick="setModuleFilter('Formative Evaluation')" id="btnFilterFE" class="filter-pill">
+          Formative Evaluation
+        </button>
       </div>
 
       <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]">
@@ -798,29 +841,83 @@
       }
     }
 
+    let currentLoadedLogs = [];
+    let currentStudentName = "";
+    let activeModuleFilter = "All";
+
+    function setModuleFilter(mod) {
+      activeModuleFilter = mod;
+      const pills = document.querySelectorAll(".filter-pill");
+      pills.forEach(p => p.classList.remove("active"));
+
+      const btnMap = {
+        "All": "btnFilterAll",
+        "Module 1": "btnFilterM1",
+        "Module 2": "btnFilterM2",
+        "Module 3": "btnFilterM3",
+        "Module 4": "btnFilterM4",
+        "Formative Evaluation": "btnFilterFE"
+      };
+      const activeBtn = document.getElementById(btnMap[mod]);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      renderLogs();
+    }
+
     function renderLogs(logs, studentName) {
+      if (logs !== undefined) currentLoadedLogs = logs;
+      if (studentName !== undefined) currentStudentName = studentName;
+
       const feed = document.getElementById("logsFeed");
       const count = document.getElementById("entryCount");
-      count.innerText = `${logs.length} / 17 entries`;
 
-      if (!logs.length) {
+      if (!currentLoadedLogs.length) {
+        count.innerText = "0 entries";
+        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
         feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
         return;
       }
 
+      // Filter entries based on selected Module / Formative Evaluation
+      const filtered = activeModuleFilter === "All"
+        ? currentLoadedLogs
+        : currentLoadedLogs.filter(log => {
+            const mod = String(log.module || "").toLowerCase();
+            const ses = String(log.session || "").toLowerCase();
+            if (activeModuleFilter === "Formative Evaluation") {
+              return ses.includes("formative") || ses.includes("eval") || mod.includes("final fe") || mod.includes("formative");
+            }
+            if (activeModuleFilter === "Module 4") {
+              return mod.includes("module 4") || mod.includes("revision") || mod.includes("consolidation");
+            }
+            return mod.includes(activeModuleFilter.toLowerCase());
+          });
+
+      count.innerText = activeModuleFilter === "All"
+        ? `${currentLoadedLogs.length} / 17 entries`
+        : `${filtered.length} of ${currentLoadedLogs.length} entries (${activeModuleFilter})`;
+
+      if (!filtered.length) {
+        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
+        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No entries recorded yet for ${escapeHtml(activeModuleFilter)}. Click "All Modules" to view all records.</p>`;
+        return;
+      }
+
+      feed.className = "space-y-4 text-left";
+
       feed.innerHTML = `
-        <div class="print-only hidden mb-4 pb-2 border-b border-[var(--card-border)]">
-          <h2 class="text-lg font-bold text-[var(--text-heading)]">${escapeHtml(studentName)} — English Portfolio Dossier</h2>
-          <p class="text-xs text-[var(--text-muted)]">GSEA English Programme • Total Sessions Logged: ${logs.length}</p>
+        <div class="print-only hidden mb-4 pb-2 border-b border-[var(--card-border)] text-left">
+          <h2 class="text-lg font-bold text-[var(--text-heading)] text-left">${escapeHtml(currentStudentName)} — General English Portfolio Dossier</h2>
+          <p class="text-xs text-[var(--text-muted)] text-left">GSEA Semester 1 General English Portfolio • 17 Sessions • 4 Modules • Formative Evaluation Record</p>
         </div>
-      ` + logs.map(log => {
+      ` + filtered.map(log => {
         const evalRating = log.evalRating || log.formativeRating || log.evalPrepRating || log.rating1 || "";
         const toeicRating = log.toeicRating || log.toeicPrepRating || log.rating2 || "";
 
         return `
-        <div class="entry-card p-5 space-y-3 mb-4">
-          <div class="flex justify-between items-center border-b border-[var(--card-border)] pb-2.5">
-            <div class="flex items-center gap-2 flex-wrap">
+        <div class="entry-card p-5 space-y-3 mb-4 text-left">
+          <div class="flex justify-between items-center border-b border-[var(--card-border)] pb-2.5 text-left">
+            <div class="flex items-center gap-2 flex-wrap text-left">
               <span class="font-bold text-[var(--claret-light)] text-base">${escapeHtml(log.session)}</span>
               <span class="text-xs badge-claret px-2 py-0.5 rounded-md font-medium">(${escapeHtml(log.module)})</span>
             </div>
@@ -828,23 +925,24 @@
           </div>
 
           <!-- Self-Assessment Ratings (Visible to Student & Teacher) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 pb-1">
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)]">
-              <span class="text-xs text-[var(--text-muted)] font-medium">Module 1 Formative Eval Prep:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 pb-1 text-left">
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)] text-left">
+              <span class="text-xs text-[var(--text-muted)] font-medium text-left">Module 1 Formative Eval Prep:</span>
               <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${evalRating ? escapeHtml(evalRating) + (String(evalRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
             </div>
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)]">
-              <span class="text-xs text-[var(--text-muted)] font-medium">TOEIC Test Prep:</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)] text-left">
+              <span class="text-xs text-[var(--text-muted)] font-medium text-left">TOEIC Test Prep:</span>
               <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${toeicRating ? escapeHtml(toeicRating) + (String(toeicRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
             </div>
           </div>
 
-          <div class="text-xs space-y-2 text-[var(--text-main)]">
-            <p><strong class="text-[var(--text-heading)] font-semibold">Key Vocabulary:</strong> ${escapeHtml(log.vocab)}</p>
-            <p><strong class="text-[var(--text-heading)] font-semibold">Lesson Review:</strong> ${escapeHtml(log.contentReview)}</p>
-            <p><strong class="text-[var(--text-heading)] font-semibold">Work On Next:</strong> ${escapeHtml(log.workOn)}</p>
-            <p><strong class="text-[var(--text-heading)] font-semibold">Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp)}</p>
-            <p><strong class="text-[var(--text-heading)] font-semibold">TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep)}</p>
+          <!-- Log Content (Strictly Left Justified) -->
+          <div class="text-xs space-y-2.5 text-left text-[var(--text-main)]">
+            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Key Vocabulary:</strong> ${escapeHtml(log.vocab)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Lesson Review:</strong> ${escapeHtml(log.contentReview)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Work On Next:</strong> ${escapeHtml(log.workOn)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep)}</p>
           </div>
         </div>
       `;
