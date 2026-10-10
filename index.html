@@ -191,7 +191,7 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.95);
     }
 
-    /* Form Inputs */
+    /* Form Inputs & Selects */
     .form-input {
       width: 100%;
       background-color: var(--input-bg);
@@ -200,7 +200,25 @@
       border-radius: 0.5rem;
       padding: 0.625rem 0.75rem;
       font-size: 0.875rem;
+      line-height: 1.5;
+      box-sizing: border-box;
       transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+    }
+    input.form-input,
+    select.form-input {
+      height: 2.75rem; /* 44px uniform height matching buttons */
+      min-height: 2.75rem;
+    }
+    select.form-input {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23959ead' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.25rem 1.25rem;
+      padding-right: 2.5rem;
+      cursor: pointer;
     }
     .form-input:focus {
       border-color: var(--claret-hover);
@@ -214,6 +232,7 @@
     select.form-input option {
       background-color: var(--box-bg);
       color: var(--input-text);
+      padding: 0.5rem;
     }
 
     /* Claret Buttons */
@@ -409,25 +428,15 @@
           <select id="studentSelect" class="form-input">
             <option value="">-- Choose Name --</option>
             <option value="Dave">Dave</option>
-            <option value="Nick">Nick</option>
-            <option value="Ali">Ali</option>
+            <option value="Steve">Steve</option>
             <option value="Alice">Alice</option>
-            <option value="Mathilde">Mathilde</option>
-            <option value="Rose">Rose</option>
-            <option value="Fred">Fred</option>
-            <option value="Billy">Billy</option>
-            <option value="Kelly">Kelly</option>
-            <option value="Chris">Chris</option>
-            <option value="Neil">Neil</option>
             <option value="Mike">Mike</option>
-            <option value="Micky">Micky</option>
-            <option value="Alex">Alex</option>
-            <option value="Liam">Liam</option>
-            <option value="Xavier">Xavier</option>
-            <option value="Pete">Pete</option>
-            <option value="Yael">Yael</option>
+            <option value="Ricky">Ricky</option>
+            <option value="Matt">Matt</option>
             <option value="Harry">Harry</option>
-            <option value="Rick">Rick</option>
+            <option value="Orson">Orson</option>
+            <option value="Mick">Mick</option>
+            <option value="Sally">Sally</option>
           </select>
         </div>
         <div>
@@ -435,7 +444,7 @@
           <input type="password" id="studentPin" maxlength="6" placeholder="••••" class="form-input">
         </div>
         <div>
-          <button onclick="fetchHistory()" id="btnLoad" type="button" class="w-full btn-claret font-medium py-2.5 px-4 rounded-lg text-sm transition">
+          <button onclick="fetchHistory()" id="btnLoad" type="button" class="w-full btn-claret font-medium h-11 px-4 rounded-lg text-sm transition flex items-center justify-center">
             Load My Portfolio
           </button>
         </div>
@@ -576,7 +585,7 @@
         </div>
       </div>
 
-      <button type="submit" id="btnSubmit" class="w-full btn-submit font-semibold py-2.5 rounded-lg text-sm transition">
+      <button type="submit" id="btnSubmit" class="w-full btn-submit font-semibold h-11 py-2.5 rounded-lg text-sm transition flex items-center justify-center">
         Save Portfolio Entry
       </button>
     </form>
