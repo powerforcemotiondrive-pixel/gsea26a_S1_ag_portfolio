@@ -364,6 +364,84 @@
       box-shadow: 0 2px 8px rgba(143, 23, 56, 0.15);
     }
 
+    /* Sticky Header Container (Header stays visible at all times with boxes scrolling behind) */
+    .sticky-header-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-canvas);
+      padding-top: 0.75rem;
+      padding-bottom: 0.5rem;
+      margin-top: -0.75rem;
+      transition: background-color 0.25s ease;
+    }
+
+    /* Checklist Card & Item Styles */
+    .checklist-card {
+      background: var(--box-bg);
+      border: 1px solid var(--box-border);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      transition: all 0.2s ease;
+    }
+    .checklist-card:hover {
+      border-color: var(--card-border);
+    }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.35rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .checklist-item.completed {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #10b981;
+    }
+    [data-theme="light"] .checklist-item.completed {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+    }
+    .checklist-item.pending {
+      background: var(--input-bg);
+      border: 1px solid var(--box-border);
+      color: var(--text-muted);
+      opacity: 0.65;
+    }
+    .checklist-box-icon {
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+    .checklist-item.completed .checklist-box-icon {
+      background: #10b981;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(16, 185, 129, 0.4);
+    }
+    [data-theme="light"] .checklist-item.completed .checklist-box-icon {
+      background: #059669;
+      color: #ffffff;
+    }
+    .checklist-item.pending .checklist-box-icon {
+      border: 1px solid var(--box-border);
+      background: transparent;
+      color: transparent;
+    }
+
     /* Live Refresh Button & Spin Animation */
     .btn-refresh {
       background: var(--input-bg);
@@ -537,32 +615,34 @@
 <body class="p-4 md:p-8 font-sans">
   <div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- Header Banner -->
-    <div class="header-banner p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
-      <div class="flex items-center gap-3.5">
-        <!-- Pen Badge Icon -->
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
-          <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-            <path d="m15 5 4 4"/>
-          </svg>
+    <!-- Sticky Header Wrapper (Remains visible at all times with all boxes scrolling behind it) -->
+    <div class="sticky-header-wrapper">
+      <div class="header-banner p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative z-10">
+        <div class="flex items-center gap-3.5">
+          <!-- Pen Badge Icon -->
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
+            <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+              <path d="m15 5 4 4"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span>GSEA Semester 1 General English Portfolio</span>
+            </h1>
+            <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>GSEA Semester 1 General English Portfolio</span>
-          </h1>
-          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
+        <div class="flex items-center gap-2.5">
+          <!-- Live / Disconnected Indicator Light -->
+          <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
+            <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
+            <span id="connectionText" class="tracking-wide">Live</span>
+          </div>
+          <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
+            <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+          </button>
         </div>
-      </div>
-      <div class="flex items-center gap-2.5">
-        <!-- Live / Disconnected Indicator Light -->
-        <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
-          <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
-          <span id="connectionText" class="tracking-wide">Live</span>
-        </div>
-        <button onclick="toggleTheme()" id="btnTheme" type="button" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Toggle between Dark Mode and Light Mode">
-          <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
-        </button>
       </div>
     </div>
 
@@ -731,6 +811,36 @@
         Submit Portfolio Entry
       </button>
     </form>
+
+    <!-- Portfolio Completion Checklist -->
+    <div id="checklistPanel" class="no-print drop-shadow-box p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--box-border)] pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="section-title text-sm m-0">Portfolio Completion Checklist</h2>
+            <span id="checklistStatusPill" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 / 17 completed</span>
+          </div>
+          <p class="text-xs text-[var(--text-muted)] mt-1.5">
+            You have completed <strong id="checklistPercentText" class="text-[var(--text-heading)] font-bold text-sm">0%</strong> of your portfolio (<span id="checklistCountText">0 of 17 sessions completed</span>).
+          </p>
+        </div>
+        <!-- Visual Progress Bar -->
+        <div class="w-full sm:w-52 flex flex-col gap-1.5 self-end sm:self-center">
+          <div class="flex justify-between items-center text-[11px] text-[var(--text-muted)] font-medium">
+            <span>Overall Progress</span>
+            <span id="checklistProgressBadge" class="font-bold text-[var(--text-heading)]">0%</span>
+          </div>
+          <div class="w-full bg-black/20 dark:bg-black/50 rounded-full h-2.5 border border-[var(--box-border)] overflow-hidden">
+            <div id="checklistProgressBar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checklist Grid: M1 1 2 3 4 5, M2 1 2 3 4 5, M3 1 2 3 4 5, M4 1 2 -->
+      <div id="checklistGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Dynamically populated via updateChecklist() -->
+      </div>
+    </div>
 
     <!-- Student Portfolio History Section -->
     <div class="space-y-4">
@@ -1103,11 +1213,12 @@
       return moduleVal;
     }
 
-    // Protection System: Check if a specific session is already logged
+    // Protection System & Checklist: Check if a specific session is already logged
     function isSessionCompleted(moduleVal, sessionVal) {
       if (!currentLoadedLogs || !currentLoadedLogs.length) return false;
       const targetModKey = getModuleKey(moduleVal);
       const targetSession = String(sessionVal || "").trim().toLowerCase();
+      const targetNum = targetSession.replace(/\D/g, "");
 
       return currentLoadedLogs.some(log => {
         if (!matchesModule(log.module, targetModKey)) return false;
@@ -1117,16 +1228,160 @@
 
         if (logSession === targetSession) return true;
 
-        if (targetSession.includes("formative") && logSession.includes("formative")) return true;
+        // Formative evaluation handling (matches Session 5 or Formative Evaluation)
+        if (targetSession.includes("formative") || targetNum === "5") {
+          if (logSession.includes("formative") || logSession.replace(/\D/g, "") === "5") {
+            return true;
+          }
+        }
+
+        // Module 4 session 2 is Final Formative Evaluation
+        if (targetModKey === "Module 4" && (targetNum === "2" || targetSession.includes("formative"))) {
+          if (logSession.includes("formative") || logSession.replace(/\D/g, "") === "2") {
+            return true;
+          }
+        }
 
         const logNum = logSession.replace(/\D/g, "");
-        const targetNum = targetSession.replace(/\D/g, "");
         if (logNum && targetNum && logNum === targetNum && !logSession.includes("formative") && !targetSession.includes("formative")) {
           return true;
         }
 
         return false;
       });
+    }
+
+    const CHECKLIST_MODULES = [
+      {
+        key: "Module 1",
+        short: "M1",
+        fullName: "Module 1",
+        sessions: [
+          { num: 1, label: "1", query: "Session 1" },
+          { num: 2, label: "2", query: "Session 2" },
+          { num: 3, label: "3", query: "Session 3" },
+          { num: 4, label: "4", query: "Session 4" },
+          { num: 5, label: "5", query: "5" }
+        ]
+      },
+      {
+        key: "Module 2",
+        short: "M2",
+        fullName: "Module 2",
+        sessions: [
+          { num: 1, label: "1", query: "Session 1" },
+          { num: 2, label: "2", query: "Session 2" },
+          { num: 3, label: "3", query: "Session 3" },
+          { num: 4, label: "4", query: "Session 4" },
+          { num: 5, label: "5", query: "5" }
+        ]
+      },
+      {
+        key: "Module 3",
+        short: "M3",
+        fullName: "Module 3",
+        sessions: [
+          { num: 1, label: "1", query: "Session 1" },
+          { num: 2, label: "2", query: "Session 2" },
+          { num: 3, label: "3", query: "Session 3" },
+          { num: 4, label: "4", query: "Session 4" },
+          { num: 5, label: "5", query: "5" }
+        ]
+      },
+      {
+        key: "Module 4",
+        short: "M4",
+        fullName: "Module 4",
+        sessions: [
+          { num: 1, label: "1", query: "Session 1" },
+          { num: 2, label: "2", query: "Session 2" }
+        ]
+      }
+    ];
+
+    function updateChecklist() {
+      const grid = document.getElementById("checklistGrid");
+      const percentText = document.getElementById("checklistPercentText");
+      const countText = document.getElementById("checklistCountText");
+      const statusPill = document.getElementById("checklistStatusPill");
+      const progBadge = document.getElementById("checklistProgressBadge");
+      const progBar = document.getElementById("checklistProgressBar");
+      if (!grid) return;
+
+      let totalCurriculumSessions = 0;
+      let totalCompleted = 0;
+
+      const html = CHECKLIST_MODULES.map(mod => {
+        let modCompleted = 0;
+        const itemsHtml = mod.sessions.map(ses => {
+          totalCurriculumSessions++;
+          const isDone = isSessionCompleted(mod.key, ses.query);
+          if (isDone) {
+            modCompleted++;
+            totalCompleted++;
+          }
+
+          return `
+            <div class="checklist-item ${isDone ? 'completed' : 'pending'} flex-1 min-w-[34px] cursor-pointer" onclick="setModuleFilter('${mod.key}')" title="${escapeHtml(mod.fullName)} - Session ${ses.label}: ${isDone ? 'Completed ✓ (Click to filter)' : 'Pending'}">
+              <span class="checklist-box-icon" aria-hidden="true">${isDone ? '✓' : ''}</span>
+              <span>${ses.label}</span>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="checklist-card flex flex-col justify-between gap-2.5">
+            <div class="flex items-center justify-between border-b border-[var(--box-border)] pb-1.5 cursor-pointer" onclick="setModuleFilter('${mod.key}')" title="Filter history by ${escapeHtml(mod.fullName)}">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-[var(--claret-light)]">${escapeHtml(mod.short)}</span>
+                <span class="text-[11px] text-[var(--text-muted)] font-medium">(${escapeHtml(mod.fullName)})</span>
+              </div>
+              <span class="text-[10px] font-semibold ${modCompleted === mod.sessions.length ? 'text-emerald-400' : 'text-[var(--text-muted)]'}">
+                ${modCompleted}/${mod.sessions.length}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 pt-0.5">
+              ${itemsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      grid.innerHTML = html;
+
+      const pct = totalCurriculumSessions > 0 ? Math.min(100, Math.round((totalCompleted / totalCurriculumSessions) * 100)) : 0;
+
+      if (percentText) {
+        percentText.innerText = `${pct}%`;
+        if (pct === 100) {
+          percentText.className = "text-emerald-400 font-extrabold text-sm";
+        } else if (pct > 0) {
+          percentText.className = "text-emerald-400 font-bold text-sm";
+        } else {
+          percentText.className = "text-[var(--text-heading)] font-bold text-sm";
+        }
+      }
+
+      if (countText) {
+        countText.innerText = `${totalCompleted} of ${totalCurriculumSessions} sessions completed`;
+      }
+
+      if (statusPill) {
+        statusPill.innerText = `${totalCompleted} / ${totalCurriculumSessions} completed`;
+        if (totalCompleted === totalCurriculumSessions && totalCurriculumSessions > 0) {
+          statusPill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+        } else {
+          statusPill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret";
+        }
+      }
+
+      if (progBadge) {
+        progBadge.innerText = `${pct}%`;
+      }
+
+      if (progBar) {
+        progBar.style.width = `${pct}%`;
+      }
     }
 
     // Grey out and disable completed session options in the dropdown
@@ -1222,6 +1477,8 @@
         count.innerText = "0 entries";
         feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
         feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
+        updateSessionAvailability();
+        updateChecklist();
         return;
       }
 
@@ -1281,6 +1538,7 @@
       }).reverse().join("");
 
       updateSessionAvailability();
+      updateChecklist();
     }
 
     function populatePrintSection() {
@@ -1576,6 +1834,7 @@
     // Auto-restore session from sessionStorage on page reload & check connection
     window.addEventListener("DOMContentLoaded", () => {
       checkConnection();
+      updateChecklist();
 
       const savedStudent = sessionStorage.getItem("gsea_student");
       const savedPin = sessionStorage.getItem("gsea_pin");
@@ -1623,6 +1882,7 @@
       setModuleFilter("All");
 
       resetFormInputs();
+      updateChecklist();
 
       // Reset session dropdown options to initial enabled state
       const sesSelect = document.getElementById("sessionSelect");
