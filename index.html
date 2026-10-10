@@ -442,6 +442,38 @@
       background: transparent;
       color: transparent;
     }
+    /* GO and NO GO decision box styles */
+    .checklist-item-decision {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+    }
+    .checklist-item.nogo-active {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      color: #fb7185;
+      opacity: 1;
+    }
+    .checklist-item.nogo-active:hover {
+      background: rgba(244, 63, 94, 0.25);
+      border-color: rgba(244, 63, 94, 0.65);
+    }
+    [data-theme="light"] .checklist-item.nogo-active {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #e11d48;
+      opacity: 1;
+    }
+    .checklist-item.nogo-active .checklist-box-icon {
+      background: #e11d48;
+      border-color: #e11d48;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(225, 29, 72, 0.4);
+    }
+    [data-theme="light"] .checklist-item.nogo-active .checklist-box-icon {
+      background: #e11d48;
+      color: #ffffff;
+    }
 
     /* Live Refresh Button & Spin Animation */
     .btn-refresh {
@@ -630,7 +662,7 @@
           <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
             <span>GSEA Semester 1 General English Portfolio</span>
           </h1>
-          <p class="text-rose-200/90 text-sm mt-1">17 Sessions • 4 Modules • Formative Evaluation Record</p>
+          <p class="text-rose-200/90 text-sm mt-1">15 Sessions • 4 Modules • Formative Evaluation Record</p>
         </div>
       </div>
       <div class="flex items-center gap-2.5">
@@ -817,10 +849,10 @@
         <div>
           <div class="flex items-center gap-2">
             <h2 class="section-title text-sm m-0">Portfolio Completion Checklist</h2>
-            <span id="checklistStatusPill" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 / 17 completed</span>
+            <span id="checklistStatusPill" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 / 15 completed</span>
           </div>
           <p class="text-xs text-[var(--text-muted)] mt-1.5">
-            You have completed <strong id="checklistPercentText" class="text-[var(--text-heading)] font-bold text-sm">0%</strong> of your portfolio (<span id="checklistCountText">0 of 17 sessions completed</span>).
+            You have completed <strong id="checklistPercentText" class="text-[var(--text-heading)] font-bold text-sm">0%</strong> of your portfolio (<span id="checklistCountText">0 of 15 sessions completed</span>).
           </p>
         </div>
         <!-- Visual Progress Bar -->
@@ -1234,7 +1266,21 @@
           }
         }
 
-        // Module 4 session 2 is Final Formative Evaluation
+        // Module 4 decision matching: GO and NO GO
+        if (targetModKey === "Module 4") {
+          if (targetSession === "go") {
+            if (logSession === "go" || (logSession.includes("go") && !logSession.includes("no"))) {
+              return true;
+            }
+          }
+          if (targetSession === "no go" || targetSession === "nogo") {
+            if (logSession.includes("no go") || logSession.includes("nogo")) {
+              return true;
+            }
+          }
+        }
+
+        // Module 4 legacy session 2 is Final Formative Evaluation
         if (targetModKey === "Module 4" && (targetNum === "2" || targetSession.includes("formative"))) {
           if (logSession.includes("formative") || logSession.replace(/\D/g, "") === "2") {
             return true;
@@ -1250,6 +1296,7 @@
       });
     }
 
+    // Core 15 Curriculum Sessions (Module 1, 2, 3: 5 sessions each)
     const CHECKLIST_MODULES = [
       {
         key: "Module 1",
@@ -1286,15 +1333,6 @@
           { num: 4, label: "4", query: "Session 4" },
           { num: 5, label: "5", query: "5" }
         ]
-      },
-      {
-        key: "Module 4",
-        short: "M4",
-        fullName: "Module 4",
-        sessions: [
-          { num: 1, label: "1", query: "Session 1" },
-          { num: 2, label: "2", query: "Session 2" }
-        ]
       }
     ];
 
@@ -1310,7 +1348,8 @@
       let totalCurriculumSessions = 0;
       let totalCompleted = 0;
 
-      const html = CHECKLIST_MODULES.map(mod => {
+      // Render Modules 1, 2, 3 (each out of 5 sessions, total 15)
+      const modulesHtml = CHECKLIST_MODULES.map(mod => {
         let modCompleted = 0;
         const itemsHtml = mod.sessions.map(ses => {
           totalCurriculumSessions++;
@@ -1346,8 +1385,67 @@
         `;
       }).join("");
 
-      grid.innerHTML = html;
+      // Module 4 Decision Card: GO and NO GO
+      const hasLogs = currentLoadedLogs && currentLoadedLogs.length > 0;
+      const m4GoCompleted = isSessionCompleted("Module 4", "GO");
+      const m4NoGoCompleted = isSessionCompleted("Module 4", "NO GO");
 
+      // Evaluation readiness determination:
+      // 1. If explicit Module 4 log exists:
+      //    m4GoCompleted -> GO active
+      //    m4NoGoCompleted -> NO GO active
+      // 2. Otherwise, if user has loaded logs:
+      //    totalCompleted >= 15 -> GO active (100% completion of M1-M3)
+      //    totalCompleted < 15 -> NO GO active
+      // 3. If no logs loaded yet:
+      //    Both boxes pending
+      let isGo = false;
+      let isNoGo = false;
+
+      if (m4GoCompleted) {
+        isGo = true;
+      } else if (m4NoGoCompleted) {
+        isNoGo = true;
+      } else if (hasLogs) {
+        if (totalCompleted >= 15) {
+          isGo = true;
+        } else {
+          isNoGo = true;
+        }
+      }
+
+      let m4BadgeHtml = `<span class="text-[10px] font-semibold text-[var(--text-muted)]">Readiness</span>`;
+      if (isGo) {
+        m4BadgeHtml = `<span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1"><span>✓</span> GO</span>`;
+      } else if (isNoGo) {
+        m4BadgeHtml = `<span class="text-[10px] font-bold text-rose-400 flex items-center gap-1"><span>✕</span> NO GO</span>`;
+      }
+
+      const m4CardHtml = `
+        <div class="checklist-card flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between border-b border-[var(--box-border)] pb-1.5 cursor-pointer" onclick="setModuleFilter('Module 4')" title="Filter history by Module 4">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-xs text-[var(--claret-light)]">M4</span>
+              <span class="text-[11px] text-[var(--text-muted)] font-medium">(Module 4)</span>
+            </div>
+            ${m4BadgeHtml}
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-0.5 w-full">
+            <div class="checklist-item checklist-item-decision ${isGo ? 'completed' : 'pending'} cursor-pointer" onclick="selectModule4Session('GO')" title="Module 4 - GO: ${isGo ? 'Formative evaluation readiness confirmed ✓ (Click to filter/select)' : (hasLogs ? 'Requires 15/15 sessions completed (' + totalCompleted + '/15 done)' : 'Log in to view readiness')}">
+              <span class="checklist-box-icon" aria-hidden="true">${isGo ? '✓' : ''}</span>
+              <span>GO</span>
+            </div>
+            <div class="checklist-item checklist-item-decision ${isNoGo ? 'nogo-active' : 'pending'} cursor-pointer" onclick="selectModule4Session('NO GO')" title="Module 4 - NO GO: ${isNoGo ? 'Formative portfolio incomplete (' + totalCompleted + '/15 done)' : 'Not active'}">
+              <span class="checklist-box-icon" aria-hidden="true">${isNoGo ? '✕' : ''}</span>
+              <span>NO GO</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      grid.innerHTML = modulesHtml + m4CardHtml;
+
+      // Completion Percentage calculated strictly out of the 15 core curriculum sessions
       const pct = totalCurriculumSessions > 0 ? Math.min(100, Math.round((totalCompleted / totalCurriculumSessions) * 100)) : 0;
 
       if (percentText) {
@@ -1383,6 +1481,46 @@
       }
     }
 
+    function selectModule4Session(decision) {
+      setModuleFilter('Module 4');
+      const modSelect = document.getElementById("moduleSelect");
+      if (modSelect) {
+        modSelect.value = "Module 4 (Revision + Final FE)";
+        updateSessionAvailability();
+        const sesSelect = document.getElementById("sessionSelect");
+        if (sesSelect && (decision === "GO" || decision === "NO GO")) {
+          sesSelect.value = decision;
+        }
+      }
+    }
+
+    function syncSessionSelectOptions(selectedMod) {
+      const sesSelect = document.getElementById("sessionSelect");
+      if (!sesSelect) return;
+
+      const isM4 = String(selectedMod || "").toLowerCase().includes("module 4");
+      const currentMode = sesSelect.dataset.mode;
+      const targetMode = isM4 ? "m4" : "standard";
+
+      if (currentMode !== targetMode) {
+        sesSelect.dataset.mode = targetMode;
+        if (isM4) {
+          sesSelect.innerHTML = `
+            <option value="GO">GO</option>
+            <option value="NO GO">NO GO</option>
+          `;
+        } else {
+          sesSelect.innerHTML = `
+            <option value="Session 1">Session 1</option>
+            <option value="Session 2">Session 2</option>
+            <option value="Session 3">Session 3</option>
+            <option value="Session 4">Session 4</option>
+            <option value="FORMATIVE EVALUATION">FORMATIVE EVALUATION</option>
+          `;
+        }
+      }
+    }
+
     // Grey out and disable completed session options in the dropdown
     function updateSessionAvailability() {
       const modSelect = document.getElementById("moduleSelect");
@@ -1390,6 +1528,8 @@
       if (!modSelect || !sesSelect) return;
 
       const selectedMod = modSelect.value;
+      syncSessionSelectOptions(selectedMod);
+
       const options = sesSelect.options;
       let hasAvailable = false;
       let firstAvailableValue = null;
@@ -1882,6 +2022,13 @@
 
       resetFormInputs();
       updateChecklist();
+
+      // Reset module dropdown to Module 1 and sync session options
+      const modSelect = document.getElementById("moduleSelect");
+      if (modSelect) {
+        modSelect.value = "Module 1 (Sessions 1 - 5)";
+      }
+      syncSessionSelectOptions("Module 1");
 
       // Reset session dropdown options to initial enabled state
       const sesSelect = document.getElementById("sessionSelect");
