@@ -588,8 +588,11 @@
 
     <!-- Submission Form -->
     <form id="portfolioForm" onsubmit="submitLog(event)" class="no-print drop-shadow-box p-6 space-y-4">
-      <div class="border-b border-[var(--box-border)] pb-3 mb-2">
+      <div class="border-b border-[var(--box-border)] pb-3 mb-2 flex items-center justify-between">
         <h2 class="section-title">2. New Session Entry</h2>
+        <span id="draftSavedIndicator" class="text-[11px] text-[var(--claret-light)] flex items-center gap-1 hidden">
+          <span>💾</span> Draft auto-saved
+        </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -835,6 +838,7 @@
       if (slider) {
         slider.value = val;
         syncRating(id, val);
+        saveDraft();
       }
     }
 
@@ -852,6 +856,128 @@
           }
         });
       }
+    }
+
+    // =========================================================================
+    // AUTO-DRAFT PROTECTION (SessionStorage Draft Backup Against Reloads/Timeouts)
+    // =========================================================================
+    const DRAFT_STORAGE_KEY = "gsea_portfolio_draft";
+    let draftSavedTimer = null;
+
+    function saveDraft() {
+      try {
+        const student = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+        const draft = {
+          student: student,
+          module: document.getElementById("moduleSelect") ? document.getElementById("moduleSelect").value : "",
+          session: document.getElementById("sessionSelect") ? document.getElementById("sessionSelect").value : "",
+          vocab: document.getElementById("vocab") ? document.getElementById("vocab").value : "",
+          contentReview: document.getElementById("contentReview") ? document.getElementById("contentReview").value : "",
+          workOn: document.getElementById("workOn") ? document.getElementById("workOn").value : "",
+          evalHelp: document.getElementById("evalHelp") ? document.getElementById("evalHelp").value : "",
+          toeicPrep: document.getElementById("toeicPrep") ? document.getElementById("toeicPrep").value : "",
+          evalRating: document.getElementById("evalRating") ? document.getElementById("evalRating").value : "7",
+          toeicRating: document.getElementById("toeicRating") ? document.getElementById("toeicRating").value : "7",
+          savedAt: Date.now()
+        };
+        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+
+        const ind = document.getElementById("draftSavedIndicator");
+        if (ind) {
+          ind.innerHTML = "<span>💾</span> Draft auto-saved";
+          ind.classList.remove("hidden");
+          clearTimeout(draftSavedTimer);
+          draftSavedTimer = setTimeout(() => {
+            ind.classList.add("hidden");
+          }, 2000);
+        }
+      } catch (e) {
+        console.warn("Could not save form draft:", e);
+      }
+    }
+
+    function restoreDraft() {
+      try {
+        const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft) return;
+
+        const hasText = (draft.vocab && draft.vocab.trim()) ||
+                        (draft.contentReview && draft.contentReview.trim()) ||
+                        (draft.workOn && draft.workOn.trim()) ||
+                        (draft.evalHelp && draft.evalHelp.trim()) ||
+                        (draft.toeicPrep && draft.toeicPrep.trim());
+        if (!hasText) return;
+
+        const currentStudent = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+        if (draft.student && currentStudent && draft.student !== currentStudent) {
+          return;
+        }
+
+        if (draft.module && document.getElementById("moduleSelect")) {
+          document.getElementById("moduleSelect").value = draft.module;
+          updateSessionAvailability();
+        }
+        if (draft.session && document.getElementById("sessionSelect")) {
+          document.getElementById("sessionSelect").value = draft.session;
+        }
+        if (draft.vocab && document.getElementById("vocab")) {
+          document.getElementById("vocab").value = draft.vocab;
+        }
+        if (draft.contentReview && document.getElementById("contentReview")) {
+          document.getElementById("contentReview").value = draft.contentReview;
+        }
+        if (draft.workOn && document.getElementById("workOn")) {
+          document.getElementById("workOn").value = draft.workOn;
+        }
+        if (draft.evalHelp && document.getElementById("evalHelp")) {
+          document.getElementById("evalHelp").value = draft.evalHelp;
+        }
+        if (draft.toeicPrep && document.getElementById("toeicPrep")) {
+          document.getElementById("toeicPrep").value = draft.toeicPrep;
+        }
+        if (draft.evalRating && document.getElementById("evalRating")) {
+          document.getElementById("evalRating").value = draft.evalRating;
+          syncRating("evalRating", draft.evalRating);
+        }
+        if (draft.toeicRating && document.getElementById("toeicRating")) {
+          document.getElementById("toeicRating").value = draft.toeicRating;
+          syncRating("toeicRating", draft.toeicRating);
+        }
+
+        const ind = document.getElementById("draftSavedIndicator");
+        if (ind) {
+          ind.innerHTML = "<span>📋</span> Draft restored";
+          ind.classList.remove("hidden");
+          setTimeout(() => { ind.classList.add("hidden"); }, 3000);
+        }
+      } catch (e) {
+        console.warn("Could not restore draft:", e);
+      }
+    }
+
+    function clearDraft() {
+      try {
+        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+        const ind = document.getElementById("draftSavedIndicator");
+        if (ind) ind.classList.add("hidden");
+      } catch (e) {}
+    }
+
+    function initDraftListeners() {
+      const inputIds = ["vocab", "contentReview", "workOn", "evalHelp", "toeicPrep", "moduleSelect", "sessionSelect"];
+      inputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", saveDraft);
+          el.addEventListener("change", saveDraft);
+        }
+      });
+      const evalSlider = document.getElementById("evalRating");
+      if (evalSlider) evalSlider.addEventListener("input", saveDraft);
+      const toeicSlider = document.getElementById("toeicRating");
+      if (toeicSlider) toeicSlider.addEventListener("input", saveDraft);
     }
 
     function showStatus(msg, isError, isHtml = false) {
@@ -899,7 +1025,7 @@
       }
 
       try {
-        const pingUrl = `${SCRIPT_URL}?_ping=${Date.now()}`;
+        const pingUrl = `${SCRIPT_URL}?action=ping&_ping=${Date.now()}`;
         const res = await fetch(pingUrl, {
           method: "GET",
           cache: "no-store",
@@ -950,19 +1076,20 @@
       }
       if (refreshIcon) refreshIcon.classList.add("spin-icon");
 
-      // Robust Cache-Buster: guarantees fresh database read across Moodle iframes & all browsers
+      // Pure GET query avoids CORS OPTIONS preflights in sandboxed Moodle iframes
       const cacheBuster = `_t=${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      const requestUrl = `${SCRIPT_URL}?student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}&${cacheBuster}`;
+      const requestUrl = `${SCRIPT_URL}?action=login&student=${encodeURIComponent(student)}&pin=${encodeURIComponent(pin)}&${cacheBuster}`;
 
+      let text = "";
       try {
         const response = await fetch(requestUrl, {
           method: "GET",
           cache: "no-store",
           redirect: "follow"
         });
-        const text = await response.text();
-        let data;
+        text = await response.text();
 
+        let data;
         try {
           data = JSON.parse(text);
         } catch (jsonErr) {
@@ -988,9 +1115,9 @@
                   <div class="font-bold text-rose-300 flex items-center gap-1.5">
                     <span>⚠️</span> Apps Script Error (Returned HTML instead of JSON)
                   </div>
-                  <p>Google Apps Script crashed with an unhandled server error (e.g. outdated script with <code>loginUser</code> or tab name mismatch). To resolve:</p>
+                  <p>Google Apps Script crashed with an unhandled server error. To resolve:</p>
                   <ol class="list-decimal pl-5 space-y-1 text-[11px] text-slate-300">
-                    <li>Paste the updated <code>GoogleAppsScript_Backend.js</code> code into your Google Apps Script <code>Code.gs</code> editor.</li>
+                    <li>Open <code>GoogleAppsScript_Backend.js</code>, copy all code, and paste into your Apps Script <code>Code.gs</code> editor.</li>
                     <li>Click <strong>Deploy &gt; Manage deployments &gt; Edit (pencil) &gt; Version: New version &gt; Deploy</strong>.</li>
                   </ol>
                   <div class="pt-1">
@@ -1007,11 +1134,12 @@
 
         if (!data.success) {
           if (!silent) {
-            showStatus(data.message, true);
-            document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(data.message)}</p>`;
+            const errMsg = data.error || data.message || "Authentication failed.";
+            showStatus(errMsg, true);
+            document.getElementById("logsFeed").innerHTML = `<p class="text-rose-400 font-medium">${escapeHtml(errMsg)}</p>`;
           }
         } else {
-          // Persist verified credentials for auto-reloading
+          // Persist verified credentials for session retention
           sessionStorage.setItem("gsea_student", student);
           sessionStorage.setItem("gsea_pin", pin);
 
@@ -1023,6 +1151,7 @@
           renderLogs(data.logs, student);
           setConnectionStatus(true, "Live");
           startAutoSync();
+          restoreDraft();
         }
       } catch (err) {
         setConnectionStatus(false, "Disconnected");
@@ -1590,6 +1719,7 @@
       });
 
       printSec.innerHTML = html;
+      return html;
     }
 
     function generatePDF() {
@@ -1609,17 +1739,128 @@
         return;
       }
 
-      populatePrintSection();
-
+      const printHtml = populatePrintSection();
       const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "Student");
+      const filterLabel = activeModuleFilter === "All" ? "All Modules" : activeModuleFilter;
+      const title = `${studentName}_Portfolio_Entries`;
+
+      // Method 1: Clean popup window for SCORM Iframe Isolation
+      let popup = null;
+      try {
+        popup = window.open("", "_blank", "width=850,height=900,menubar=no,status=no,toolbar=no");
+      } catch (e) {
+        popup = null;
+      }
+
+      if (popup && popup.document) {
+        try {
+          popup.document.open();
+          popup.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .no-print-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+    }
+    .no-print-toolbar span {
+      font-size: 13px;
+      font-weight: 500;
+      color: #334155;
+    }
+    .print-btn {
+      background: #7f1734;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .print-btn:hover {
+      background: #9f1c42;
+    }
+    .print-entry-card {
+      page-break-inside: avoid;
+      break-inside: avoid;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: #ffffff;
+      color: #000000;
+    }
+    @media print {
+      body {
+        padding: 0 !important;
+      }
+      .no-print-toolbar {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print-toolbar">
+    <span>GSEA English Portfolio &bull; <strong>${escapeHtml(studentName)}</strong> (${escapeHtml(filterLabel)})</span>
+    <button class="print-btn" onclick="window.print()">
+      <span>🖨️</span> Print / Save PDF
+    </button>
+  </div>
+  ${printHtml}
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.focus();
+        window.print();
+      }, 350);
+    };
+  <\/script>
+</body>
+</html>`);
+          popup.document.close();
+          return;
+        } catch (popupErr) {
+          console.warn("Popup write error:", popupErr);
+        }
+      }
+
+      // Method 2: Fallback to in-frame print if popups are blocked by LMS iframe
       const prevTitle = document.title;
-      document.title = `${studentName}_Portfolio_Entries`;
-
-      window.print();
-
-      setTimeout(() => {
-        document.title = prevTitle;
-      }, 1000);
+      document.title = title;
+      try {
+        window.print();
+      } catch (printErr) {
+        console.warn("window.print() error or blocked by sandbox:", printErr);
+      } finally {
+        setTimeout(() => {
+          document.title = prevTitle;
+        }, 1000);
+      }
     }
 
     window.addEventListener("beforeprint", () => {
@@ -1718,6 +1959,7 @@
           setModuleFilter("All");
           showStatus("Portfolio entry submitted successfully via Google Forms!", false);
           resetFormInputs();
+          clearDraft();
           // Silently re-sync with Google Sheet in background
           setTimeout(() => fetchHistory({ silent: true }), 1500);
 
@@ -1743,6 +1985,7 @@
             setModuleFilter("All");
             showStatus(result.message || "Portfolio entry submitted successfully!", false);
             resetFormInputs();
+            clearDraft();
             setConnectionStatus(true, "Live");
             // Silently re-sync with Google Sheet in background to confirm server timestamps
             setTimeout(() => fetchHistory({ silent: true }), 600);
@@ -1769,18 +2012,21 @@
       syncRating("evalRating", 7);
       document.getElementById("toeicRating").value = 7;
       syncRating("toeicRating", 7);
+      clearDraft();
     }
 
     function startAutoSync() {
       if (autoSyncTimer) clearInterval(autoSyncTimer);
-      // Auto-refresh background polling every 25 seconds
+      // Auto-refresh background polling every 60 seconds when tab is active and visible
       autoSyncTimer = setInterval(() => {
-        const student = document.getElementById("studentSelect").value;
-        const pin = document.getElementById("studentPin").value.trim();
-        if (student && pin) {
-          fetchHistory({ silent: true });
+        if (document.visibilityState === "visible" && !isFetchingHistory) {
+          const student = document.getElementById("studentSelect").value;
+          const pin = document.getElementById("studentPin").value.trim();
+          if (student && pin && currentLoadedLogs.length) {
+            fetchHistory({ silent: true });
+          }
         }
-      }, 25000);
+      }, 60000);
     }
 
     function updateSyncIndicator() {
@@ -1796,15 +2042,17 @@
 
     // Auto-update history when user switches tabs or returns to Moodle iframe
     window.addEventListener("focus", () => {
-      const student = document.getElementById("studentSelect").value;
-      const pin = document.getElementById("studentPin").value.trim();
-      if (student && pin && currentLoadedLogs.length) {
-        fetchHistory({ silent: true });
+      if (document.visibilityState === "visible" && !isFetchingHistory) {
+        const student = document.getElementById("studentSelect").value;
+        const pin = document.getElementById("studentPin").value.trim();
+        if (student && pin && currentLoadedLogs.length) {
+          fetchHistory({ silent: true });
+        }
       }
     });
 
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
+      if (document.visibilityState === "visible" && !isFetchingHistory) {
         const student = document.getElementById("studentSelect").value;
         const pin = document.getElementById("studentPin").value.trim();
         if (student && pin && currentLoadedLogs.length) {
@@ -1815,6 +2063,7 @@
 
     // Auto-restore session from sessionStorage on page reload & check connection
     window.addEventListener("DOMContentLoaded", () => {
+      initDraftListeners();
       checkConnection();
       updateChecklist();
 
@@ -1828,6 +2077,8 @@
           pinInput.value = savedPin;
           fetchHistory({ silent: false });
         }
+      } else {
+        restoreDraft();
       }
     });
 
@@ -1840,11 +2091,13 @@
 
       sessionStorage.removeItem("gsea_student");
       sessionStorage.removeItem("gsea_pin");
+      clearDraft();
 
       if (autoSyncTimer) {
         clearInterval(autoSyncTimer);
         autoSyncTimer = null;
       }
+      isFetchingHistory = false;
 
       currentLoadedLogs = [];
       currentStudentName = "";
