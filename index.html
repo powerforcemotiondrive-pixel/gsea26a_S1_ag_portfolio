@@ -241,7 +241,7 @@
       transform: translateY(0);
     }
 
-    /* Module Filter Pills in Section 3 */
+    /* Module Filter Pills in Section 4 */
     .filter-pill {
       font-size: 0.75rem;
       font-weight: 500;
@@ -724,7 +724,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--box-border)] pb-3">
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="section-title text-sm m-0">Portfolio Completion Checklist</h2>
+            <h2 class="section-title text-sm m-0">3. Portfolio Completion Checklist</h2>
             <span id="checklistStatusPill" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 / 15 completed</span>
           </div>
           <p class="text-xs text-[var(--text-muted)] mt-1.5">
@@ -750,10 +750,10 @@
     </div>
 
     <!-- Student Portfolio History Section -->
-    <div class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <div class="drop-shadow-box p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--box-border)] pb-3">
         <div class="flex items-center gap-2">
-          <h2 class="section-title text-sm m-0">3. Logged Entries History</h2>
+          <h2 class="section-title text-sm m-0">4. Logged Entries History</h2>
           <span id="entryCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-claret">0 entries</span>
         </div>
         <div class="no-print flex items-center gap-2 self-end sm:self-auto">
@@ -771,11 +771,8 @@
       </div>
 
       <!-- Module Selector Bar (Filter History by Module) -->
-      <div id="moduleFilterBar" class="no-print flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-[var(--box-bg)] border border-[var(--box-border)] shadow-sm">
-        <button type="button" onclick="setModuleFilter('All')" id="btnFilterAll" class="filter-pill active">
-          All Modules
-        </button>
-        <button type="button" onclick="setModuleFilter('Module 1')" id="btnFilterM1" class="filter-pill">
+      <div id="moduleFilterBar" class="no-print flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-black/30 border border-[var(--box-border)] shadow-sm">
+        <button type="button" onclick="setModuleFilter('Module 1')" id="btnFilterM1" class="filter-pill active">
           Module 1
         </button>
         <button type="button" onclick="setModuleFilter('Module 2')" id="btnFilterM2" class="filter-pill">
@@ -789,7 +786,7 @@
         </button>
       </div>
 
-      <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]">
+      <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20">
         Please authenticate above to view your saved portfolio entries.
       </div>
     </div>
@@ -1090,7 +1087,7 @@
     let autoSyncTimer = null;
     let currentLoadedLogs = [];
     let currentStudentName = "";
-    let activeModuleFilter = "All";
+    let activeModuleFilter = "Module 1";
 
     async function fetchHistory(options = {}) {
       const silent = options && options.silent === true;
@@ -1603,7 +1600,6 @@
       pills.forEach(p => p.classList.remove("active"));
 
       const btnMap = {
-        "All": "btnFilterAll",
         "Module 1": "btnFilterM1",
         "Module 2": "btnFilterM2",
         "Module 3": "btnFilterM3",
@@ -1624,29 +1620,25 @@
 
       if (!currentLoadedLogs.length) {
         count.innerText = "0 entries";
-        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
-        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
+        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
+        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-4 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
         updateSessionAvailability();
         updateChecklist();
         return;
       }
 
       // Filter entries based on selected Module
-      const filtered = activeModuleFilter === "All"
-        ? currentLoadedLogs
-        : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
+      const filtered = currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
 
-      count.innerText = activeModuleFilter === "All"
-        ? `${currentLoadedLogs.length} / 17 entries`
-        : `${filtered.length} of ${currentLoadedLogs.length} entries (${activeModuleFilter})`;
+      count.innerText = `${filtered.length} of ${currentLoadedLogs.length} entries (${activeModuleFilter})`;
 
       if (!filtered.length) {
-        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
-        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-6 text-center">No entries recorded yet for ${escapeHtml(activeModuleFilter)}. Click "All Modules" to view all records.</p>`;
+        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
+        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-4 text-center">No entries recorded yet for ${escapeHtml(activeModuleFilter)}.</p>`;
         return;
       }
 
-      feed.className = "space-y-4 text-left";
+      feed.className = "space-y-4 text-left pt-2";
 
       feed.innerHTML = filtered.map(log => {
         const evalRating = log.evalRating || log.formativeRating || log.evalPrepRating || log.rating1 || "";
@@ -1697,9 +1689,7 @@
       const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "") || "Student";
 
       // Filter entries according to active filter
-      const filtered = activeModuleFilter === "All"
-        ? currentLoadedLogs.slice()
-        : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
+      const filtered = currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
 
       // Sort logs chronologically by Module and Session
       const sortedLogs = filtered.slice().sort((a, b) => {
@@ -1768,18 +1758,16 @@
         return;
       }
 
-      const filtered = activeModuleFilter === "All"
-        ? currentLoadedLogs.slice()
-        : currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
+      const filtered = currentLoadedLogs.filter(log => matchesModule(log.module, activeModuleFilter));
 
       if (filtered.length === 0) {
-        showStatus(`No entries found for ${activeModuleFilter} to generate a PDF. Switch to "All Modules" or choose another module.`, true);
+        showStatus(`No entries found for ${activeModuleFilter} to generate a PDF. Choose another module with logged entries.`, true);
         return;
       }
 
       const printHtml = populatePrintSection();
       const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "") || "Student";
-      const filterLabel = activeModuleFilter === "All" ? "All Modules" : activeModuleFilter;
+      const filterLabel = activeModuleFilter;
       const title = `${studentName}_Portfolio_Entries`;
 
       // Method 1: Clean popup window for SCORM Iframe Isolation
@@ -2016,9 +2004,10 @@
             body: formBody.toString()
           });
 
-          // Optimistically append to history array & reset filter to All Modules
+          // Optimistically append to history array & switch filter to submitted module
           currentLoadedLogs.push(optimisticEntry);
-          setModuleFilter("All");
+          const submittedMod = getModuleKey(payload.module) || "Module 1";
+          setModuleFilter(submittedMod);
           showStatus("Portfolio entry submitted successfully via Google Forms!", false);
           resetFormInputs(true);
           // Silently re-sync with Google Sheet in background
@@ -2042,9 +2031,10 @@
           }
 
           if (result.success) {
-            // Optimistically append to history array & reset filter to All Modules
+            // Optimistically append to history array & switch filter to submitted module
             currentLoadedLogs.push(optimisticEntry);
-            setModuleFilter("All");
+            const submittedMod = getModuleKey(payload.module) || "Module 1";
+            setModuleFilter(submittedMod);
             showStatus(result.message || "Portfolio entry submitted successfully!", false);
             resetFormInputs(true);
             setConnectionStatus(true, "Live");
@@ -2067,7 +2057,8 @@
                 try { retryResult = JSON.parse(retryText); } catch(e) {}
                 if (retryResult && retryResult.success) {
                   currentLoadedLogs.push(optimisticEntry);
-                  setModuleFilter("All");
+                  const submittedMod = getModuleKey(payload.module) || "Module 1";
+                  setModuleFilter(submittedMod);
                   showStatus(retryResult.message || "Portfolio entry submitted successfully!", false);
                   resetFormInputs(true);
                   setConnectionStatus(true, "Live");
@@ -2194,20 +2185,20 @@
 
       currentLoadedLogs = [];
       currentStudentName = "";
-      activeModuleFilter = "All";
+      activeModuleFilter = "Module 1";
 
       const syncInd = document.getElementById("syncIndicator");
       if (syncInd) syncInd.classList.add("hidden");
 
       const feed = document.getElementById("logsFeed");
       if (feed) {
-        feed.className = "text-sm text-[var(--text-muted)] italic drop-shadow-box p-8 text-center border-dashed border-[var(--box-border)]";
+        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
         feed.innerHTML = "Please authenticate above to view your saved portfolio entries.";
       }
 
       const count = document.getElementById("entryCount");
       if (count) count.innerText = "0 entries";
-      setModuleFilter("All");
+      setModuleFilter("Module 1");
 
       updateChecklist();
 
