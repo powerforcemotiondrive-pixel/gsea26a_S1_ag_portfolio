@@ -253,14 +253,27 @@ function handleLogin(studentName, studentPin) {
 
 /**
  * Handles Portfolio Entry Submission
- * Concurrency Protection: Uses LockService.getScriptLock() with a 15-second wait
+ * Concurrency Protection: Uses LockService.getScriptLock() with a 30-second wait
  * to prevent simultaneous student writes from colliding, overwriting rows, or timing out.
  */
 function handleSubmit(d) {
+  var student = String(d.student || "").trim();
+  var pin = String(d.pin || "").trim();
+
+  if (!student || !pin) {
+    return {
+      success: false,
+      message: "Submission rejected: Student name and 4-digit PIN are required."
+    };
+  }
+
   var lock = LockService.getScriptLock();
+  var acquired = false;
   try {
-    lock.waitLock(15000); // Wait up to 15s for other student writes to complete
-  } catch (lockErr) {
+    acquired = lock.tryLock(25000); // Wait up to 25s in queue for other student writes to complete
+  } catch (lockErr) {}
+
+  if (!acquired) {
     return {
       success: false,
       message: "Server is busy recording other submissions. Please submit again in a few seconds."

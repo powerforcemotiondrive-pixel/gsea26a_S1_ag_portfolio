@@ -556,7 +556,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>
           <label class="field-label">Student Name</label>
-          <select id="studentSelect" class="form-input">
+          <select id="studentSelect" onchange="handleStudentSelectChange()" class="form-input">
             <option value="">-- Choose Name --</option>
             <option value="Dave">Dave</option>
             <option value="Steve">Steve</option>
@@ -859,14 +859,25 @@
     }
 
     // =========================================================================
-    // AUTO-DRAFT PROTECTION (SessionStorage Draft Backup Against Reloads/Timeouts)
+    // AUTO-DRAFT PROTECTION (Scoped per student to prevent lab terminal leakage)
     // =========================================================================
-    const DRAFT_STORAGE_KEY = "gsea_portfolio_draft";
     let draftSavedTimer = null;
+
+    function getDraftStorageKey(studentName) {
+      const name = String(studentName || "").trim().toLowerCase();
+      return name ? `gsea_portfolio_draft_${name}` : null;
+    }
 
     function saveDraft() {
       try {
         const student = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+        if (!student) {
+          // Do not save draft if no student is selected (prevents unassigned text bleeding into other students)
+          return;
+        }
+        const storageKey = getDraftStorageKey(student);
+        if (!storageKey) return;
+
         const draft = {
           student: student,
           module: document.getElementById("moduleSelect") ? document.getElementById("moduleSelect").value : "",
@@ -880,11 +891,11 @@
           toeicRating: document.getElementById("toeicRating") ? document.getElementById("toeicRating").value : "7",
           savedAt: Date.now()
         };
-        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        sessionStorage.setItem(storageKey, JSON.stringify(draft));
 
         const ind = document.getElementById("draftSavedIndicator");
         if (ind) {
-          ind.innerHTML = "<span>💾</span> Draft auto-saved";
+          ind.innerHTML = `<span>💾</span> Draft auto-saved (${escapeHtml(student)})`;
           ind.classList.remove("hidden");
           clearTimeout(draftSavedTimer);
           draftSavedTimer = setTimeout(() => {
@@ -896,12 +907,23 @@
       }
     }
 
-    function restoreDraft() {
+    function restoreDraft(targetStudent = null) {
       try {
-        const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+        const currentStudent = targetStudent || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "");
+        if (!currentStudent) return;
+
+        const storageKey = getDraftStorageKey(currentStudent);
+        if (!storageKey) return;
+
+        const raw = sessionStorage.getItem(storageKey);
         if (!raw) return;
         const draft = JSON.parse(raw);
         if (!draft) return;
+
+        // Strict verification: draft must belong to the active student
+        if (String(draft.student || "").toLowerCase() !== currentStudent.toLowerCase()) {
+          return;
+        }
 
         const hasText = (draft.vocab && draft.vocab.trim()) ||
                         (draft.contentReview && draft.contentReview.trim()) ||
@@ -909,11 +931,6 @@
                         (draft.evalHelp && draft.evalHelp.trim()) ||
                         (draft.toeicPrep && draft.toeicPrep.trim());
         if (!hasText) return;
-
-        const currentStudent = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
-        if (draft.student && currentStudent && draft.student !== currentStudent) {
-          return;
-        }
 
         if (draft.module && document.getElementById("moduleSelect")) {
           document.getElementById("moduleSelect").value = draft.module;
@@ -948,7 +965,7 @@
 
         const ind = document.getElementById("draftSavedIndicator");
         if (ind) {
-          ind.innerHTML = "<span>📋</span> Draft restored";
+          ind.innerHTML = `<span>📋</span> Draft restored (${escapeHtml(currentStudent)})`;
           ind.classList.remove("hidden");
           setTimeout(() => { ind.classList.add("hidden"); }, 3000);
         }
@@ -957,12 +974,33 @@
       }
     }
 
-    function clearDraft() {
+    function clearDraft(targetStudent = null) {
       try {
-        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+        const student = targetStudent || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "");
+        if (student) {
+          const key = getDraftStorageKey(student);
+          if (key) sessionStorage.removeItem(key);
+        }
+        sessionStorage.removeItem("gsea_portfolio_draft"); // Cleanup any legacy un-scoped key
         const ind = document.getElementById("draftSavedIndicator");
         if (ind) ind.classList.add("hidden");
       } catch (e) {}
+    }
+
+    function handleStudentSelectChange() {
+      const student = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+      const pinInput = document.getElementById("studentPin");
+      if (pinInput) pinInput.value = "";
+
+      // Clear input fields so previous student text is not visible on shared lab computers
+      resetFormInputs(false);
+
+      const authBox = document.getElementById("authStatus");
+      if (authBox) authBox.classList.add("hidden");
+
+      if (student) {
+        restoreDraft(student);
+      }
     }
 
     function initDraftListeners() {
@@ -1656,7 +1694,7 @@
       const printSec = document.getElementById("printSection");
       if (!printSec) return;
 
-      const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "Student");
+      const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "") || "Student";
 
       // Filter entries according to active filter
       const filtered = activeModuleFilter === "All"
@@ -1740,7 +1778,7 @@
       }
 
       const printHtml = populatePrintSection();
-      const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "Student");
+      const studentName = currentStudentName || (document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "") || "Student";
       const filterLabel = activeModuleFilter === "All" ? "All Modules" : activeModuleFilter;
       const title = `${studentName}_Portfolio_Entries`;
 
@@ -1843,6 +1881,14 @@
 </body>
 </html>`);
           popup.document.close();
+          showStatus(`
+            <div class="space-y-1">
+              <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+                <span>📄</span> Print View Opened
+              </div>
+              <p>A new window has opened to export your portfolio. If your browser or Moodle blocked it, right-click anywhere inside this portfolio and select <strong>"Print..."</strong> (or press <strong>Ctrl+P / Cmd+P</strong>).</p>
+            </div>
+          `, false, true);
           return;
         } catch (popupErr) {
           console.warn("Popup write error:", popupErr);
@@ -1861,6 +1907,22 @@
           document.title = prevTitle;
         }, 1000);
       }
+
+      // Inform the student clearly if Moodle sandbox blocked the popup/print dialogue
+      showStatus(`
+        <div class="space-y-2">
+          <div class="font-bold text-amber-300 flex items-center gap-1.5 text-sm">
+            <span>📄</span> PDF Print Dialog Triggered
+          </div>
+          <p class="text-xs text-slate-200 leading-relaxed">
+            If your browser or Moodle LMS blocked the print window inside this iframe:
+          </p>
+          <div class="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 space-y-1">
+            <div>👉 <strong>Right-click anywhere inside this portfolio and select "Print..."</strong> (or press <strong>Ctrl+P</strong> / <strong>Cmd+P</strong>).</div>
+            <div class="text-[11px] text-amber-300/80">All navigation elements are automatically hidden, formatting your entries into a clean PDF.</div>
+          </div>
+        </div>
+      `, false, true);
     }
 
     window.addEventListener("beforeprint", () => {
@@ -1930,7 +1992,7 @@
       }
 
       try {
-        const hasConfiguredEntries = Object.values(GOOGLE_FORM_ENTRIES).some(val => val && !val.includes("XXXXXXX"));
+        const hasConfiguredEntries = Object.values(GOOGLE_FORM_ENTRIES).every(val => val && !val.includes("XXXXXXX"));
 
         // --- ROUTE 1: GOOGLE FORMS SUBMISSION ---
         if (GOOGLE_FORM_ACTION_URL && !GOOGLE_FORM_ACTION_URL.includes("YOUR_FORM_ID") && hasConfiguredEntries) {
@@ -1958,16 +2020,16 @@
           currentLoadedLogs.push(optimisticEntry);
           setModuleFilter("All");
           showStatus("Portfolio entry submitted successfully via Google Forms!", false);
-          resetFormInputs();
-          clearDraft();
+          resetFormInputs(true);
           // Silently re-sync with Google Sheet in background
           setTimeout(() => fetchHistory({ silent: true }), 1500);
 
         } else {
           // --- ROUTE 2: APPS SCRIPT WEB APP DIRECT SUBMISSION ---
-          // Plain string body without custom headers to avoid CORS OPTIONS preflights
+          // Explicit text/plain;charset=utf-8 header bypasses browser CORS OPTIONS preflight
           const response = await fetch(SCRIPT_URL, {
             method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload),
             redirect: "follow"
           });
@@ -1984,12 +2046,36 @@
             currentLoadedLogs.push(optimisticEntry);
             setModuleFilter("All");
             showStatus(result.message || "Portfolio entry submitted successfully!", false);
-            resetFormInputs();
-            clearDraft();
+            resetFormInputs(true);
             setConnectionStatus(true, "Live");
             // Silently re-sync with Google Sheet in background to confirm server timestamps
             setTimeout(() => fetchHistory({ silent: true }), 600);
           } else {
+            // Collision retry: if server lock was busy during a burst of simultaneous submits, retry once automatically
+            if (result.message && result.message.toLowerCase().includes("busy")) {
+              btn.innerText = "Queue busy, retrying in 2s...";
+              await new Promise(r => setTimeout(r, 2000 + Math.random() * 1000));
+              try {
+                const retryRes = await fetch(SCRIPT_URL, {
+                  method: "POST",
+                  headers: { "Content-Type": "text/plain;charset=utf-8" },
+                  body: JSON.stringify(payload),
+                  redirect: "follow"
+                });
+                const retryText = await retryRes.text();
+                let retryResult;
+                try { retryResult = JSON.parse(retryText); } catch(e) {}
+                if (retryResult && retryResult.success) {
+                  currentLoadedLogs.push(optimisticEntry);
+                  setModuleFilter("All");
+                  showStatus(retryResult.message || "Portfolio entry submitted successfully!", false);
+                  resetFormInputs(true);
+                  setConnectionStatus(true, "Live");
+                  setTimeout(() => fetchHistory({ silent: true }), 600);
+                  return;
+                }
+              } catch (retryErr) {}
+            }
             showStatus(result.message || "Submission was not processed.", true);
           }
         }
@@ -2002,7 +2088,7 @@
       }
     }
 
-    function resetFormInputs() {
+    function resetFormInputs(clearStorage = true) {
       document.getElementById("vocab").value = "";
       document.getElementById("contentReview").value = "";
       document.getElementById("workOn").value = "";
@@ -2012,7 +2098,10 @@
       syncRating("evalRating", 7);
       document.getElementById("toeicRating").value = 7;
       syncRating("toeicRating", 7);
-      clearDraft();
+      if (clearStorage) {
+        const student = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+        clearDraft(student);
+      }
     }
 
     function startAutoSync() {
@@ -2078,7 +2167,9 @@
           fetchHistory({ silent: false });
         }
       } else {
-        restoreDraft();
+        // If no active auth session, check if a student was selected previously and restore their draft
+        const currentSelected = document.getElementById("studentSelect") ? document.getElementById("studentSelect").value : "";
+        if (currentSelected) restoreDraft(currentSelected);
       }
     });
 
@@ -2091,7 +2182,9 @@
 
       sessionStorage.removeItem("gsea_student");
       sessionStorage.removeItem("gsea_pin");
-      clearDraft();
+
+      // Clear on-screen inputs so the next student sitting at a shared lab computer starts clean
+      resetFormInputs(false);
 
       if (autoSyncTimer) {
         clearInterval(autoSyncTimer);
@@ -2116,7 +2209,6 @@
       if (count) count.innerText = "0 entries";
       setModuleFilter("All");
 
-      resetFormInputs();
       updateChecklist();
 
       // Reset module dropdown to Module 1 and sync session options
