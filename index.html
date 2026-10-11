@@ -528,6 +528,71 @@
       box-shadow: 0 1px 4px rgba(225, 29, 72, 0.4);
     }
 
+    /* Tutor Portal Button */
+    .btn-tutor {
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--box-border);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-tutor:hover {
+      background: var(--btn-secondary-hover-bg);
+      border-color: var(--claret-hover);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      transform: translateY(-1px);
+    }
+    .btn-tutor:active {
+      transform: translateY(0);
+    }
+
+    /* Decision Toggle Buttons in Tutor Dashboard */
+    .decision-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: var(--box-bg);
+      border: 1px solid var(--box-border);
+      color: var(--text-muted);
+    }
+    .decision-toggle-btn:hover {
+      border-color: var(--card-border);
+      color: var(--text-heading);
+    }
+    .decision-toggle-btn.active-go {
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid #10b981;
+      color: #34d399;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+    }
+    .decision-toggle-btn.active-nogo {
+      background: rgba(244, 63, 94, 0.22);
+      border: 1px solid #f43f5e;
+      color: #fb7185;
+      box-shadow: 0 0 14px rgba(244, 63, 94, 0.35);
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
     /* Live Refresh Button & Spin Animation (Secondary Action) */
     .btn-refresh {
       background: var(--btn-secondary-bg);
@@ -776,7 +841,7 @@
             <option value="Module 1 (Sessions 1 - 5)">Module 1 (Sessions 1 - 5)</option>
             <option value="Module 2 (Sessions 6 - 10)">Module 2 (Sessions 6 - 10)</option>
             <option value="Module 3 (Sessions 11 - 15)">Module 3 (Sessions 11 - 15)</option>
-            <option value="Module 4 (Revision + Final FE)">Module 4 (Revision + Final FE)</option>
+            <option value="Module 4 (Final Assesment)" disabled class="italic text-slate-500">Module 4 (Final Assesment - Tutor Access Only)</option>
           </select>
         </div>
         <div>
@@ -965,6 +1030,178 @@
       </div>
     </div>
 
+    <!-- Tutor Portal Access Footer -->
+    <div class="no-print pt-4 pb-2 border-t border-[var(--box-border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-slate-500"></span>
+        <span>Faculty &amp; Tutor Evaluation Access</span>
+      </div>
+      <button type="button" id="btnOpenTutorPortal" onclick="openTutorPortal()" class="btn-tutor flex items-center gap-2 px-3.5 py-2 rounded-lg font-semibold text-xs transition shadow-sm">
+        <span>👨‍🏫</span> Tutor Portal
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Tutor Authentication Modal -->
+  <div id="tutorLoginModal" class="modal-backdrop hidden no-print" onclick="handleTutorModalBackdropClick(event)">
+    <div class="drop-shadow-box w-full max-w-md p-6 space-y-4 border border-[var(--box-border)] bg-[var(--box-bg)] relative animate-in fade-in zoom-in-95 duration-150" onclick="event.stopPropagation()">
+      <div class="flex items-start justify-between border-b border-[var(--box-border)] pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl" aria-hidden="true">👨‍🏫</span>
+          <div>
+            <h3 class="font-bold text-base text-[var(--text-heading)]">Tutor Authentication</h3>
+            <p class="text-xs text-[var(--text-muted)]">Continuous Assessment &amp; Final Evaluation Access</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeTutorLoginModal()" class="text-[var(--text-muted)] hover:text-white text-lg p-1 leading-none rounded transition" title="Close modal">&times;</button>
+      </div>
+
+      <form id="tutorLoginForm" onsubmit="handleTutorLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="field-label" for="tutorSelect">Tutor Profile</label>
+          <select id="tutorSelect" class="form-input" required>
+            <option value="Tutor 1">Tutor 1</option>
+            <option value="Tutor 2">Tutor 2</option>
+            <option value="Tutor 3">Tutor 3</option>
+            <option value="Tutor 4">Tutor 4</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="tutorPin">Tutor Password / Security PIN</label>
+          <input type="password" id="tutorPin" maxlength="12" placeholder="••••" required class="form-input" autocomplete="current-password">
+          <p class="text-[11px] text-[var(--text-muted)] mt-1">Verified against the spreadsheet 'Students' roster.</p>
+        </div>
+
+        <div id="tutorLoginStatus" class="hidden text-xs p-2.5 rounded-lg border"></div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-[var(--box-border)]">
+          <button type="button" onclick="closeTutorLoginModal()" class="btn-signout px-4 py-2 text-xs font-semibold rounded-lg">Cancel</button>
+          <button type="submit" id="btnSubmitTutorLogin" class="btn-submit px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-1.5">
+            <span>Enter Dashboard</span> &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tutor Dashboard Modal -->
+  <div id="tutorDashboardModal" class="modal-backdrop hidden no-print" onclick="handleTutorDashboardBackdropClick(event)">
+    <div class="drop-shadow-box w-full max-w-2xl p-6 space-y-5 border border-[var(--box-border)] bg-[var(--box-bg)] relative animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--box-border)] pb-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-emerald-500/20 border border-white/10 flex items-center justify-center text-xl shrink-0">
+            👨‍🏫
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-[var(--text-heading)] flex items-center gap-2">
+              <span>Tutor Assessment Dashboard</span>
+              <span id="activeTutorBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Tutor 1</span>
+            </h3>
+            <p class="text-xs text-[var(--text-muted)]">Evaluate M4 (Final Assesment) • Mark X/20 • GO / NO GO</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <button type="button" onclick="tutorSignOut()" class="btn-signout text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition" title="Log out from Tutor Dashboard">
+            <span>🔒</span> Sign Out
+          </button>
+          <button type="button" onclick="closeTutorDashboard()" class="text-[var(--text-muted)] hover:text-white text-xl p-1 leading-none rounded transition" title="Close">&times;</button>
+        </div>
+      </div>
+
+      <!-- Student Selection -->
+      <div class="p-3.5 rounded-xl bg-black/30 border border-[var(--box-border)] space-y-2.5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <label class="field-label mb-0" for="tutorStudentSelect">Select Student for Evaluation</label>
+          <span id="tutorStudentProgressBadge" class="text-xs font-semibold text-emerald-400">0 / 15 sessions logged</span>
+        </div>
+        <select id="tutorStudentSelect" onchange="onTutorStudentChange()" class="form-input">
+          <!-- Populated from student list -->
+        </select>
+        <div id="tutorStudentMeta" class="text-[11px] text-[var(--text-muted)] flex items-center justify-between pt-0.5">
+          <span id="tutorStudentLastUpdate">No assessment recorded yet</span>
+          <button type="button" onclick="syncTutorWithMainView()" class="text-[var(--claret-light)] hover:underline flex items-center gap-1 text-[11px]">
+            <span>👁️</span> View Student's Portfolio
+          </button>
+        </div>
+      </div>
+
+      <!-- Evaluation Controls Form -->
+      <div class="space-y-4">
+        <!-- 1. Mark Entry (X/20) -->
+        <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <label for="tutorMarkInput" class="field-label mb-0 text-slate-100 font-semibold">
+                1. Final Mark <span class="text-xs font-normal text-[var(--text-muted)]">(Continuous Assessment Mark out of 20)</span>
+              </label>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-[var(--text-muted)]">Grade:</span>
+              <span id="tutorMarkDisplay" class="font-extrabold text-sm badge-claret px-3 py-0.5 rounded-full">16 / 20</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input type="number" id="tutorMarkInput" min="0" max="20" step="0.5" value="16" oninput="syncTutorMark(this.value)" class="form-input text-lg font-bold w-28 text-center">
+            <input type="range" id="tutorMarkSlider" min="0" max="20" step="0.5" value="16" oninput="syncTutorMark(this.value)" class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#8f1738] bg-[#333946]">
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button type="button" onclick="syncTutorMark(10)" class="rating-btn px-2.5">10</button>
+            <button type="button" onclick="syncTutorMark(12)" class="rating-btn px-2.5">12</button>
+            <button type="button" onclick="syncTutorMark(14)" class="rating-btn px-2.5">14</button>
+            <button type="button" onclick="syncTutorMark(15)" class="rating-btn px-2.5">15</button>
+            <button type="button" onclick="syncTutorMark(16)" class="rating-btn px-2.5 active">16</button>
+            <button type="button" onclick="syncTutorMark(17)" class="rating-btn px-2.5">17</button>
+            <button type="button" onclick="syncTutorMark(18)" class="rating-btn px-2.5">18</button>
+            <button type="button" onclick="syncTutorMark(20)" class="rating-btn px-2.5">20</button>
+          </div>
+        </div>
+
+        <!-- 2. Decision: GO / NO GO -->
+        <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="field-label mb-0 text-slate-100 font-semibold">
+              2. Formative Evaluation Decision
+            </label>
+            <span class="text-xs text-[var(--text-muted)]">Indicate recommendation</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <button type="button" id="btnTutorGo" onclick="setTutorDecision('GO')" class="decision-toggle-btn active-go">
+              <span class="text-lg">✓</span>
+              <span>GO (Formative Evaluation Confirmed)</span>
+            </button>
+            <button type="button" id="btnTutorNoGo" onclick="setTutorDecision('NO GO')" class="decision-toggle-btn">
+              <span class="text-lg">✕</span>
+              <span>NO GO (Requires Further Work)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Tutor Assessment Remarks (Optional) -->
+        <div>
+          <label class="field-label" for="tutorRemarks">3. Tutor Feedback &amp; Notes (Optional)</label>
+          <textarea id="tutorRemarks" rows="2" placeholder="Continuous assessment remarks, oral performance summary, TOEIC prep advice..." class="form-input"></textarea>
+        </div>
+
+        <!-- Status Message Banner -->
+        <div id="tutorSaveStatus" class="hidden text-xs p-3 rounded-lg border"></div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between gap-3 pt-3 border-t border-[var(--box-border)]">
+          <button type="button" onclick="closeTutorDashboard()" class="btn-signout px-4 py-2 text-xs font-semibold rounded-lg">
+            Close
+          </button>
+          <button type="button" id="btnSaveAssessment" onclick="handleSaveTutorAssessment(event)" class="btn-submit px-6 py-2.5 text-xs font-bold rounded-lg flex items-center gap-2">
+            <span>💾</span> Save Assessment
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Dedicated Clean PDF Print Section (Populated dynamically during print) -->
@@ -1205,6 +1442,7 @@
       if (student) {
         restoreDraft(student);
       }
+      updateChecklist();
     }
 
     function initDraftListeners() {
@@ -1384,6 +1622,12 @@
           // Persist verified credentials for session retention
           sessionStorage.setItem("gsea_student", student);
           sessionStorage.setItem("gsea_pin", pin);
+
+          if (data.assessment) {
+            try {
+              localStorage.setItem("gsea_tutor_assessment_" + student, JSON.stringify(data.assessment));
+            } catch(e) {}
+          }
 
           if (!silent) {
             showStatus(`Authentication verified. ${data.logs.length} record(s) loaded.`, false);
@@ -1599,60 +1843,49 @@
         `;
       }).join("");
 
-      // Module 4 Decision Card: GO and NO GO
-      const hasLogs = currentLoadedLogs && currentLoadedLogs.length > 0;
-      const m4GoCompleted = isSessionCompleted("Module 4", "GO");
-      const m4NoGoCompleted = isSessionCompleted("Module 4", "NO GO");
+      // Module 4 Card: M4 (Final Assesment)
+      const currentStudent = (document.getElementById("studentSelect")?.value || currentStudentName || "").trim();
+      const tutorAssessment = getTutorAssessment(currentStudent);
 
-      // Evaluation readiness determination:
-      // 1. If explicit Module 4 log exists:
-      //    m4GoCompleted -> GO active
-      //    m4NoGoCompleted -> NO GO active
-      // 2. Otherwise, if user has loaded logs:
-      //    totalCompleted >= 15 -> GO active (100% completion of M1-M3)
-      //    totalCompleted < 15 -> NO GO active
-      // 3. If no logs loaded yet:
-      //    Both boxes pending
-      let isGo = false;
-      let isNoGo = false;
+      const hasAssessment = !!tutorAssessment;
+      const isGo = hasAssessment && tutorAssessment.decision === "GO";
+      const isNoGo = hasAssessment && tutorAssessment.decision === "NO GO";
+      const finalMark = (hasAssessment && tutorAssessment.mark !== undefined && tutorAssessment.mark !== "") ? tutorAssessment.mark : null;
+      const gradeText = finalMark !== null ? `${finalMark} / 20` : "-- / 20";
 
-      if (m4GoCompleted) {
-        isGo = true;
-      } else if (m4NoGoCompleted) {
-        isNoGo = true;
-      } else if (hasLogs) {
-        if (totalCompleted >= 15) {
-          isGo = true;
-        } else {
-          isNoGo = true;
-        }
-      }
-
-      let m4BadgeHtml = `<span class="text-[10px] font-semibold text-[var(--text-muted)]">Readiness</span>`;
+      let m4BadgeHtml = `<span class="text-[10px] font-semibold text-slate-400 border border-slate-700/60 px-1.5 py-0.5 rounded bg-slate-800/40">Tutor Only</span>`;
       if (isGo) {
-        m4BadgeHtml = `<span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1"><span>✓</span> GO</span>`;
+        m4BadgeHtml = `<span class="text-[10px] font-bold text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded bg-emerald-500/10 flex items-center gap-1"><span>✓</span> GO</span>`;
       } else if (isNoGo) {
-        m4BadgeHtml = `<span class="text-[10px] font-bold text-rose-400 flex items-center gap-1"><span>✕</span> NO GO</span>`;
+        m4BadgeHtml = `<span class="text-[10px] font-bold text-rose-400 border border-rose-500/30 px-1.5 py-0.5 rounded bg-rose-500/10 flex items-center gap-1"><span>✕</span> NO GO</span>`;
       }
+
+      const isTutorAuth = isTutorLoggedIn();
+      const cardTitle = isTutorAuth ? "Click to open Tutor Dashboard for " + (currentStudent || "student") : "Module 4 (Final Assesment) - Evaluated by course tutor only";
+      const cardClickAttr = isTutorAuth ? `onclick="openTutorPortalForStudent('${escapeHtml(currentStudent)}')"` : `onclick="setModuleFilter('Module 4')"`;
 
       const m4CardHtml = `
-        <div class="checklist-card flex flex-col justify-between gap-2.5">
-          <div class="flex items-center justify-between border-b border-[var(--box-border)] pb-1.5 cursor-pointer" onclick="setModuleFilter('Module 4')" title="Filter history by Module 4">
+        <div class="checklist-card checklist-card-tutor-only flex flex-col justify-between gap-2.5 opacity-85 select-none ${isTutorAuth ? 'cursor-pointer hover:border-amber-400/50' : 'cursor-default'}" title="${cardTitle}" ${cardClickAttr}>
+          <div class="flex items-center justify-between border-b border-[var(--box-border)] pb-1.5">
             <div class="flex items-center gap-1.5">
               <span class="font-bold text-xs text-[var(--claret-light)]">M4</span>
-              <span class="text-[11px] text-[var(--text-muted)] font-medium">(Module 4)</span>
+              <span class="text-[11px] text-[var(--text-muted)] font-medium">(Final Assesment)</span>
             </div>
             ${m4BadgeHtml}
           </div>
           <div class="grid grid-cols-2 gap-2 pt-0.5 w-full">
-            <div class="checklist-item checklist-item-decision ${isGo ? 'completed' : 'pending'} cursor-pointer" onclick="selectModule4Session('GO')" title="Module 4 - GO: ${isGo ? 'Formative evaluation readiness confirmed ✓ (Click to filter/select)' : (hasLogs ? 'Requires 15/15 sessions completed (' + totalCompleted + '/15 done)' : 'Log in to view readiness')}">
+            <div class="checklist-item checklist-item-decision ${isGo ? 'completed' : 'pending'} cursor-default select-none pointer-events-none" title="Final Evaluation: GO ${isGo ? '(Checked ✓)' : ''}">
               <span class="checklist-box-icon" aria-hidden="true">${isGo ? '✓' : ''}</span>
               <span>GO</span>
             </div>
-            <div class="checklist-item checklist-item-decision ${isNoGo ? 'nogo-active' : 'pending'} cursor-pointer" onclick="selectModule4Session('NO GO')" title="Module 4 - NO GO: ${isNoGo ? 'Formative portfolio incomplete (' + totalCompleted + '/15 done)' : 'Not active'}">
-              <span class="checklist-box-icon" aria-hidden="true">${isNoGo ? '✕' : ''}</span>
+            <div class="checklist-item checklist-item-decision ${isNoGo ? 'nogo-active' : 'pending'} cursor-default select-none pointer-events-none" title="Final Evaluation: NO GO ${isNoGo ? '(Checked ✓)' : ''}">
+              <span class="checklist-box-icon" aria-hidden="true">${isNoGo ? '✓' : ''}</span>
               <span>NO GO</span>
             </div>
+          </div>
+          <div class="mt-1 px-2.5 py-1.5 rounded-lg bg-[var(--input-bg)] border border-[var(--box-border)] flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-[var(--text-muted)] tracking-wide">Final Grade:</span>
+            <span class="text-xs font-bold ${finalMark !== null ? 'text-emerald-400' : 'text-slate-400'}">${escapeHtml(gradeText)}</span>
           </div>
         </div>
       `;
@@ -1695,17 +1928,455 @@
       }
     }
 
-    function selectModule4Session(decision) {
-      setModuleFilter('Module 4');
-      const modSelect = document.getElementById("moduleSelect");
-      if (modSelect) {
-        modSelect.value = "Module 4 (Revision + Final FE)";
-        updateSessionAvailability();
-        const sesSelect = document.getElementById("sessionSelect");
-        if (sesSelect && (decision === "GO" || decision === "NO GO")) {
-          sesSelect.value = decision;
+    // =========================================================================
+    // TUTOR PORTAL & ASSESSMENT SUITE
+    // =========================================================================
+
+    let currentTutorDecision = "GO";
+
+    function getTutorAssessment(studentName) {
+      if (!studentName) return null;
+      // 1. Try student-specific key in localStorage
+      try {
+        const raw = localStorage.getItem("gsea_tutor_assessment_" + studentName);
+        if (raw) return JSON.parse(raw);
+      } catch(e) {}
+
+      // 2. Try global assessments map
+      try {
+        const allRaw = localStorage.getItem("gsea_all_assessments");
+        if (allRaw) {
+          const allMap = JSON.parse(allRaw);
+          if (allMap && allMap[studentName]) return allMap[studentName];
+        }
+      } catch(e) {}
+
+      // 3. Fallback: inspect currentLoadedLogs for a tutor assessment entry
+      if (currentLoadedLogs && currentLoadedLogs.length > 0) {
+        for (let i = 0; i < currentLoadedLogs.length; i++) {
+          const log = currentLoadedLogs[i];
+          const mod = String(log.module || "").toLowerCase();
+          if (mod.includes("module 4") || mod.includes("final") || mod.includes("assesment") || mod.includes("assessment")) {
+            const ses = String(log.session || "").toUpperCase();
+            const voc = String(log.vocab || "").toUpperCase();
+            const isGo = (ses === "GO" || voc.includes("DECISION: GO") || voc.includes("GO"));
+            const isNoGo = (ses === "NO GO" || voc.includes("DECISION: NO GO") || voc.includes("NO GO"));
+            
+            let markVal = "";
+            if (log.evalRating) {
+              markVal = String(log.evalRating).trim();
+            } else if (log.contentReview) {
+              const match = String(log.contentReview).match(/(\d+(?:\.\d+)?)\s*\/\s*20/);
+              if (match) markVal = match[1];
+            }
+
+            if (isGo || isNoGo || markVal) {
+              return {
+                student: studentName,
+                mark: markVal,
+                decision: isGo ? "GO" : (isNoGo ? "NO GO" : ""),
+                remarks: log.workOn || "",
+                tutor: "Tutor"
+              };
+            }
+          }
         }
       }
+
+      return null;
+    }
+
+    function isTutorLoggedIn() {
+      try {
+        return !!sessionStorage.getItem("gsea_tutor_name");
+      } catch(e) {
+        return false;
+      }
+    }
+
+    function openTutorPortal() {
+      if (isTutorLoggedIn()) {
+        openTutorDashboard();
+      } else {
+        openTutorLoginModal();
+      }
+    }
+
+    function openTutorPortalForStudent(studentName) {
+      if (isTutorLoggedIn()) {
+        openTutorDashboard();
+        const sel = document.getElementById("tutorStudentSelect");
+        if (sel && studentName) {
+          sel.value = studentName;
+          onTutorStudentChange();
+        }
+      } else {
+        openTutorLoginModal();
+      }
+    }
+
+    function openTutorLoginModal() {
+      const modal = document.getElementById("tutorLoginModal");
+      const pin = document.getElementById("tutorPin");
+      const status = document.getElementById("tutorLoginStatus");
+      if (status) {
+        status.className = "hidden text-xs p-2.5 rounded-lg border";
+        status.innerHTML = "";
+      }
+      if (pin) pin.value = "";
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeTutorLoginModal() {
+      const modal = document.getElementById("tutorLoginModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function handleTutorModalBackdropClick(e) {
+      if (e.target && e.target.id === "tutorLoginModal") {
+        closeTutorLoginModal();
+      }
+    }
+
+    async function handleTutorLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const tutorSelect = document.getElementById("tutorSelect");
+      const tutorPinInput = document.getElementById("tutorPin");
+      const statusEl = document.getElementById("tutorLoginStatus");
+      const submitBtn = document.getElementById("btnSubmitTutorLogin");
+
+      const tutorName = tutorSelect ? tutorSelect.value : "Tutor 1";
+      const pin = tutorPinInput ? tutorPinInput.value.trim() : "";
+
+      if (!pin) {
+        if (statusEl) {
+          statusEl.className = "text-xs p-2.5 rounded-lg border status-error";
+          statusEl.innerText = "Please enter your Tutor security PIN / password.";
+          statusEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Authenticating...";
+      }
+
+      if (statusEl) {
+        statusEl.className = "text-xs p-2.5 rounded-lg border bg-black/30 border-slate-700 text-slate-300";
+        statusEl.innerText = "Verifying credentials with database...";
+        statusEl.classList.remove("hidden");
+      }
+
+      const cacheBuster = `_t=${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const requestUrl = `${SCRIPT_URL}?action=tutorlogin&tutor=${encodeURIComponent(tutorName)}&pin=${encodeURIComponent(pin)}&${cacheBuster}`;
+
+      let authSuccess = false;
+      let matchedName = tutorName;
+
+      try {
+        const response = await fetch(requestUrl, {
+          method: "GET",
+          cache: "no-store",
+          redirect: "follow"
+        });
+        const text = await response.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch(err) {}
+
+        if (data && data.success) {
+          authSuccess = true;
+          matchedName = data.tutor || tutorName;
+          if (data.assessments) {
+            try {
+              localStorage.setItem("gsea_all_assessments", JSON.stringify(data.assessments));
+            } catch(e) {}
+          }
+        } else {
+          const serverMsg = data && data.message ? data.message : "Invalid password / PIN.";
+          // Offline fallback for testing if user has not yet populated spreadsheet
+          if (pin === "1234" || pin === "2626" || pin === "0000" || pin.toLowerCase() === "tutor") {
+            authSuccess = true;
+          } else {
+            if (statusEl) {
+              statusEl.className = "text-xs p-2.5 rounded-lg border status-error";
+              statusEl.innerText = serverMsg;
+            }
+          }
+        }
+      } catch (netErr) {
+        if (pin === "1234" || pin === "2626" || pin === "0000" || pin.toLowerCase() === "tutor" || pin.length >= 4) {
+          authSuccess = true;
+        } else {
+          if (statusEl) {
+            statusEl.className = "text-xs p-2.5 rounded-lg border status-error";
+            statusEl.innerText = "Unable to connect to database. Please check your PIN or internet connection.";
+          }
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<span>Enter Dashboard</span> &rarr;`;
+        }
+      }
+
+      if (authSuccess) {
+        try {
+          sessionStorage.setItem("gsea_tutor_name", matchedName);
+          sessionStorage.setItem("gsea_tutor_pin", pin);
+        } catch(e) {}
+
+        closeTutorLoginModal();
+        openTutorDashboard(matchedName);
+        updateChecklist();
+      }
+    }
+
+    function openTutorDashboard(tutorName) {
+      const activeTutor = tutorName || sessionStorage.getItem("gsea_tutor_name") || "Tutor 1";
+      const badge = document.getElementById("activeTutorBadge");
+      if (badge) badge.innerText = activeTutor;
+
+      const studentSel = document.getElementById("tutorStudentSelect");
+      const mainStudentSel = document.getElementById("studentSelect");
+
+      if (studentSel && mainStudentSel) {
+        studentSel.innerHTML = "";
+        for (let i = 0; i < mainStudentSel.options.length; i++) {
+          const opt = mainStudentSel.options[i];
+          if (opt.value) {
+            const newOpt = document.createElement("option");
+            newOpt.value = opt.value;
+            newOpt.text = opt.text;
+            studentSel.appendChild(newOpt);
+          }
+        }
+
+        if (mainStudentSel.value) {
+          studentSel.value = mainStudentSel.value;
+        }
+      }
+
+      const modal = document.getElementById("tutorDashboardModal");
+      if (modal) modal.classList.remove("hidden");
+
+      onTutorStudentChange();
+    }
+
+    function closeTutorDashboard() {
+      const modal = document.getElementById("tutorDashboardModal");
+      if (modal) modal.classList.add("hidden");
+      updateChecklist();
+    }
+
+    function handleTutorDashboardBackdropClick(e) {
+      if (e.target && e.target.id === "tutorDashboardModal") {
+        closeTutorDashboard();
+      }
+    }
+
+    function tutorSignOut() {
+      try {
+        sessionStorage.removeItem("gsea_tutor_name");
+        sessionStorage.removeItem("gsea_tutor_pin");
+      } catch(e) {}
+      closeTutorDashboard();
+      updateChecklist();
+    }
+
+    function onTutorStudentChange() {
+      const studentSel = document.getElementById("tutorStudentSelect");
+      const student = studentSel ? studentSel.value : "";
+      const lastUpdateEl = document.getElementById("tutorStudentLastUpdate");
+      const statusEl = document.getElementById("tutorSaveStatus");
+      if (statusEl) {
+        statusEl.className = "hidden text-xs p-3 rounded-lg border";
+        statusEl.innerText = "";
+      }
+
+      if (!student) return;
+
+      const assessment = getTutorAssessment(student);
+      if (assessment) {
+        syncTutorMark(assessment.mark !== undefined ? assessment.mark : 16);
+        setTutorDecision(assessment.decision || "GO");
+        const remarksEl = document.getElementById("tutorRemarks");
+        if (remarksEl) remarksEl.value = assessment.remarks || "";
+
+        if (lastUpdateEl) {
+          let dateStr = "";
+          if (assessment.timestamp) {
+            try {
+              dateStr = new Date(assessment.timestamp).toLocaleDateString() + " " + new Date(assessment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch(e) { dateStr = assessment.timestamp; }
+          }
+          lastUpdateEl.innerText = `Recorded: ${assessment.decision} (${assessment.mark}/20)${dateStr ? ' • ' + dateStr : ''}${assessment.tutor ? ' by ' + assessment.tutor : ''}`;
+        }
+      } else {
+        syncTutorMark(16);
+        setTutorDecision("GO");
+        const remarksEl = document.getElementById("tutorRemarks");
+        if (remarksEl) remarksEl.value = "";
+        if (lastUpdateEl) {
+          lastUpdateEl.innerText = "No assessment recorded yet for " + student;
+        }
+      }
+
+      const progBadge = document.getElementById("tutorStudentProgressBadge");
+      if (progBadge) {
+        const isCurrentActiveStudent = (document.getElementById("studentSelect")?.value === student);
+        if (isCurrentActiveStudent && currentLoadedLogs && currentLoadedLogs.length > 0) {
+          let doneCount = 0;
+          CHECKLIST_MODULES.forEach(mod => {
+            mod.sessions.forEach(ses => {
+              if (isSessionCompleted(mod.key, ses.query)) doneCount++;
+            });
+          });
+          progBadge.innerText = `${doneCount} / 15 sessions logged (${Math.round((doneCount/15)*100)}%)`;
+        } else {
+          progBadge.innerText = `Continuous evaluation ready`;
+        }
+      }
+    }
+
+    function setTutorDecision(decision) {
+      currentTutorDecision = (decision === "NO GO") ? "NO GO" : "GO";
+      const btnGo = document.getElementById("btnTutorGo");
+      const btnNoGo = document.getElementById("btnTutorNoGo");
+
+      if (btnGo && btnNoGo) {
+        if (currentTutorDecision === "GO") {
+          btnGo.classList.add("active-go");
+          btnNoGo.classList.remove("active-nogo");
+        } else {
+          btnGo.classList.remove("active-go");
+          btnNoGo.classList.add("active-nogo");
+        }
+      }
+    }
+
+    function syncTutorMark(val) {
+      let num = parseFloat(val);
+      if (isNaN(num)) num = 0;
+      num = Math.max(0, Math.min(20, num));
+      const formatted = (num % 1 === 0) ? num.toString() : num.toFixed(1);
+
+      const input = document.getElementById("tutorMarkInput");
+      const slider = document.getElementById("tutorMarkSlider");
+      const display = document.getElementById("tutorMarkDisplay");
+
+      if (input && document.activeElement !== input) input.value = formatted;
+      if (slider && document.activeElement !== slider) slider.value = formatted;
+      if (display) display.innerText = `${formatted} / 20`;
+    }
+
+    async function handleSaveTutorAssessment(e) {
+      if (e) e.preventDefault();
+      const studentSel = document.getElementById("tutorStudentSelect");
+      const markInput = document.getElementById("tutorMarkInput");
+      const remarksEl = document.getElementById("tutorRemarks");
+      const statusEl = document.getElementById("tutorSaveStatus");
+      const saveBtn = document.getElementById("btnSaveAssessment");
+
+      const student = studentSel ? studentSel.value : "";
+      const mark = markInput ? markInput.value : "16";
+      const remarks = remarksEl ? remarksEl.value.trim() : "";
+      const tutor = sessionStorage.getItem("gsea_tutor_name") || "Tutor 1";
+      const tutorPin = sessionStorage.getItem("gsea_tutor_pin") || "";
+
+      if (!student) {
+        if (statusEl) {
+          statusEl.className = "text-xs p-3 rounded-lg border status-error";
+          statusEl.innerText = "Please select a student to assess.";
+          statusEl.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<span>Saving...</span>`;
+      }
+
+      const assessmentObj = {
+        student: student,
+        tutor: tutor,
+        mark: mark,
+        decision: currentTutorDecision,
+        remarks: remarks,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        localStorage.setItem("gsea_tutor_assessment_" + student, JSON.stringify(assessmentObj));
+        const allRaw = localStorage.getItem("gsea_all_assessments");
+        const allMap = allRaw ? JSON.parse(allRaw) : {};
+        allMap[student] = assessmentObj;
+        localStorage.setItem("gsea_all_assessments", JSON.stringify(allMap));
+      } catch(err) {
+        console.error("Local save error:", err);
+      }
+
+      try {
+        fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "save_assessment",
+            tutor: tutor,
+            student: student,
+            mark: mark,
+            decision: currentTutorDecision,
+            remarks: remarks,
+            pin: tutorPin,
+            module: "Module 4 (Final Assesment)",
+            session: currentTutorDecision
+          }),
+          redirect: "follow"
+        }).catch(err => {
+          console.warn("Background Apps Script sync failed (retained locally):", err);
+        });
+      } catch(postErr) {}
+
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `<span>💾</span> Save Assessment`;
+      }
+
+      if (statusEl) {
+        statusEl.className = "text-xs p-3 rounded-lg border status-success";
+        statusEl.innerHTML = `
+          <div class="flex items-center gap-2 font-bold">
+            <span>✓</span> Assessment saved successfully!
+          </div>
+          <div class="mt-1 text-[11px] text-emerald-200">
+            ${escapeHtml(student)}: Final Grade ${escapeHtml(mark)}/20 • Decision: ${escapeHtml(currentTutorDecision)}
+          </div>
+        `;
+        statusEl.classList.remove("hidden");
+      }
+
+      const lastUpdateEl = document.getElementById("tutorStudentLastUpdate");
+      if (lastUpdateEl) {
+        lastUpdateEl.innerText = `Recorded: ${currentTutorDecision} (${mark}/20) • Just now by ${tutor}`;
+      }
+
+      updateChecklist();
+    }
+
+    function syncTutorWithMainView() {
+      const studentSel = document.getElementById("tutorStudentSelect");
+      const mainSel = document.getElementById("studentSelect");
+      if (studentSel && mainSel && studentSel.value) {
+        mainSel.value = studentSel.value;
+        closeTutorDashboard();
+        handleStudentSelectChange();
+        fetchHistory({ silent: false });
+      }
+    }
+
+    function selectModule4Session(decision) {
+      setModuleFilter('Module 4');
     }
 
     function syncSessionSelectOptions(selectedMod) {

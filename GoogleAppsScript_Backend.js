@@ -97,9 +97,16 @@ function handleAction(data) {
   
   // Login detection: explicit action 'login' OR presence of student and pin (without submission content)
   var isLogin = action === "login" || (data.student && data.pin && !isSubmit);
+  // Tutor actions
+  var isTutorLogin = action === "tutorlogin";
+  var isTutorAssessment = action === "save_assessment" || action === "tutorsubmit" || (data.tutor && data.mark !== undefined);
 
-  if (isSubmit) {
+  if (isTutorAssessment) {
+    return handleSaveAssessment(data);
+  } else if (isSubmit) {
     return handleSubmit(data);
+  } else if (isTutorLogin) {
+    return handleTutorLogin(data.student || data.tutor, data.pin);
   } else if (isLogin) {
     return handleLogin(data.student, data.pin);
   } else if (action === "ping" || (!data.student && !data.pin)) {
@@ -109,6 +116,180 @@ function handleAction(data) {
       return { success: false, message: "Please provide both student name and 4-digit PIN." };
     }
     return { success: false, message: "Unrecognized request action: '" + action + "'" };
+  }
+}
+
+/**
+ * Handles Tutor Authentication via Students Sheet Tab
+ */
+function handleTutorLogin(tutorName, tutorPin) {
+  var pin = String(tutorPin || "").trim();
+  var name = String(tutorName || "").trim();
+  if (!pin) {
+    return { success: false, message: "Please provide the Tutor password/PIN." };
+  }
+
+  var ss = getSpreadsheet();
+  var studentsSheet = getStudentsSheet(ss);
+  if (!studentsSheet) {
+    return { success: false, message: "Database Error: 'Students' tab not found in spreadsheet." };
+  }
+
+  var studentsData = studentsSheet.getDataRange().getValues();
+  var authorized = false;
+  var matchedTutor = "";
+
+  for (var i = 1; i < studentsData.length; i++) {
+    var row = studentsData[i];
+    var sName = String(row[0] || "").trim();
+    var sPin = String(row[1] != null ? row[1] : "").trim().replace(/\.0+$/, "");
+    if (/^\d{1,3}$/.test(sPin) && pin.length === 4) sPin = sPin.padStart(4, "0");
+
+    if (name && sName.toLowerCase() === name.toLowerCase()) {
+      if (sPin === pin) {
+        authorized = true;
+        matchedTutor = sName;
+        break;
+      }
+    } else if (!name || sName.toLowerCase().indexOf("tutor") !== -1) {
+      if (sPin === pin) {
+        authorized = true;
+        matchedTutor = sName;
+        break;
+      }
+    }
+  }
+
+  if (authorized) {
+    var studentList = [];
+    for (var j = 1; j < studentsData.length; j++) {
+      var nameVal = String(studentsData[j][0] || "").trim();
+      if (nameVal && nameVal.toLowerCase().indexOf("tutor") === -1) {
+        studentList.push(nameVal);
+      }
+    }
+
+    var assessmentsMap = {};
+    var assessSheet = ss.getSheetByName("Assessments") || ss.getSheetByName("TutorAssessments");
+    if (assessSheet && assessSheet.getLastRow() > 1) {
+      var aData = assessSheet.getDataRange().getValues();
+      for (var a = 1; a < aData.length; a++) {
+        var aStudent = String(aData[a][2] || "").trim();
+        if (aStudent) {
+          assessmentsMap[aStudent] = {
+            timestamp: aData[a][0] ? String(aData[a][0]) : "",
+            tutor: String(aData[a][1] || ""),
+            student: aStudent,
+            mark: aData[a][3] !== undefined ? String(aData[a][3]) : "",
+            decision: String(aData[a][4] || ""),
+            remarks: String(aData[a][5] || "")
+          };
+        }
+      }
+    }
+
+    return {
+      success: true,
+      message: "Tutor authenticated successfully.",
+      tutor: matchedTutor || name || "Tutor",
+      students: studentList,
+      assessments: assessmentsMap
+    };
+  } else {
+    return {
+      success: false,
+      message: "Invalid Tutor password/PIN. Please check the 'Students' sheet."
+    };
+  }
+}
+
+/**
+ * Handles Saving Tutor Assessment (Mark X/20 and GO/NO GO)
+ */
+function handleSaveAssessment(data) {
+  var tutor = String(data.tutor || "Tutor").trim();
+  var student = String(data.student || "").trim();
+  var mark = data.mark !== undefined ? String(data.mark).trim() : "";
+  var decision = String(data.decision || "GO").trim().toUpperCase();
+  var remarks = String(data.remarks || "").trim();
+
+  if (!student) {
+    return { success: false, message: "Student name is required for assessment." };
+  }
+
+  var lock = LockService.getScriptLock();
+  var acquired = false;
+  try {
+    acquired = lock.tryLock(20000);
+  } catch (e) {}
+
+  if (!acquired) {
+    return { success: false, message: "Server busy recording another entry. Please try again." };
+  }
+
+  try {
+    var ss = getSpreadsheet();
+    
+    // 1. Record or update in Assessments tab
+    var assessSheet = ss.getSheetByName("Assessments") || ss.getSheetByName("TutorAssessments");
+    if (!assessSheet) {
+      assessSheet = ss.insertSheet("Assessments");
+      assessSheet.appendRow(["Timestamp", "Tutor", "Student", "Mark", "Decision", "Remarks"]);
+    }
+    
+    var aData = assessSheet.getDataRange().getValues();
+    var existingRow = -1;
+    for (var i = 1; i < aData.length; i++) {
+      if (String(aData[i][2] || "").trim().toLowerCase() === student.toLowerCase()) {
+        existingRow = i + 1;
+        break;
+      }
+    }
+    
+    var nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm");
+    if (existingRow > 0) {
+      assessSheet.getRange(existingRow, 1, 1, 6).setValues([[nowStr, tutor, student, mark, decision, remarks]]);
+    } else {
+      assessSheet.appendRow([nowStr, tutor, student, mark, decision, remarks]);
+    }
+
+    // 2. Also log in logsSheet as a Module 4 entry so student logs reflect it
+    var logsSheet = getLogsSheet(ss);
+    if (logsSheet) {
+      logsSheet.appendRow([
+        new Date(),
+        student,
+        "TUTOR",
+        "Module 4 (Final Assesment)",
+        decision,
+        "Decision: " + decision,
+        "Final Assessment Mark: " + mark + "/20",
+        remarks,
+        "Assessed by " + tutor,
+        mark,
+        "",
+        ""
+      ]);
+    }
+
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+      message: "Tutor assessment recorded successfully for " + student + ".",
+      assessment: {
+        student: student,
+        tutor: tutor,
+        mark: mark,
+        decision: decision,
+        remarks: remarks,
+        timestamp: nowStr
+      }
+    };
+  } catch (err) {
+    return { success: false, message: "Error saving assessment: " + err.message };
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
   }
 }
 
@@ -243,10 +424,31 @@ function handleLogin(studentName, studentPin) {
     }
   }
 
+  // Look for tutor assessment for this student
+  var studentAssessment = null;
+  var assessSheet = ss.getSheetByName("Assessments") || ss.getSheetByName("TutorAssessments");
+  if (assessSheet && assessSheet.getLastRow() > 1) {
+    var aData = assessSheet.getDataRange().getValues();
+    for (var a = 1; a < aData.length; a++) {
+      if (String(aData[a][2] || "").trim().toLowerCase() === student.toLowerCase()) {
+        studentAssessment = {
+          timestamp: aData[a][0] ? String(aData[a][0]) : "",
+          tutor: String(aData[a][1] || ""),
+          student: String(aData[a][2] || ""),
+          mark: aData[a][3] !== undefined ? String(aData[a][3]) : "",
+          decision: String(aData[a][4] || ""),
+          remarks: String(aData[a][5] || "")
+        };
+        break;
+      }
+    }
+  }
+
   return {
     success: true,
     student: student,
     logs: logs,
+    assessment: studentAssessment,
     serverTime: Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "Europe/Paris", "yyyy-MM-dd HH:mm:ss")
   };
 }
