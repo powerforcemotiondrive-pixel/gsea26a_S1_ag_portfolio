@@ -1,17 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="claret">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GSEA Semester 1 General English Portfolio</title>
   <link rel="stylesheet" href="output.css">
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem("gsea_theme_scheme") || "claret";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      } catch(e) {}
+    })();
+  </script>
   <style>
-    :root {
-      /* Graphite & Claret Dark Palette (Default) */
+    :root,
+    [data-theme="claret"] {
+      /* 1. Graphite & Claret Dark Palette (Default) */
       --bg-canvas: #15181e;
-      --ambient-claret-top: rgba(127, 23, 52, 0.38);
-      --ambient-claret-bottom: rgba(127, 23, 52, 0.16);
-      --ambient-claret-side: rgba(127, 23, 52, 0.10);
+      --ambient-top: rgba(127, 23, 52, 0.38);
+      --ambient-bottom: rgba(127, 23, 52, 0.16);
+      --ambient-side: rgba(127, 23, 52, 0.10);
       --mesh-dot: rgba(255, 255, 255, 0.07);
       --mesh-line: rgba(255, 255, 255, 0.035);
       --mesh-diag: rgba(255, 255, 255, 0.018);
@@ -36,6 +45,29 @@
       --claret-badge-bg: rgba(127, 23, 52, 0.24);
       --claret-badge-text: #f28da5;
       --claret-badge-border: rgba(127, 23, 52, 0.45);
+
+      --btn-submit-from: #871637;
+      --btn-submit-to: #610d23;
+      --btn-submit-border: #a62046;
+      --btn-submit-hover-from: #9c1b40;
+      --btn-submit-hover-to: #74102b;
+      --btn-submit-shadow: rgba(135, 22, 55, 0.56);
+      --btn-submit-shadow-hover: rgba(156, 27, 64, 0.66);
+
+      --banner-bg: linear-gradient(135deg, #78152e 0%, #540d1e 60%, #3e0915 100%);
+      --banner-border: rgba(255, 255, 255, 0.18);
+      --banner-shadow-accent: rgba(120, 21, 46, 0.20);
+      --banner-subtitle: rgba(254, 205, 211, 0.9);
+      --banner-icon-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 100%);
+      --banner-icon-border: rgba(255, 255, 255, 0.25);
+      --banner-icon-color: #ffe4e6;
+
+      --btn-secondary-bg: var(--input-bg);
+      --btn-secondary-border: var(--box-border);
+      --btn-secondary-text: var(--text-heading);
+      --btn-secondary-hover-bg: rgba(143, 23, 56, 0.18);
+      --btn-secondary-hover-border: var(--claret-hover);
+      --btn-secondary-hover-text: #ffffff;
       
       --box-shadow: 
         0 22px 38px -10px rgba(0, 0, 0, 0.78),
@@ -47,15 +79,107 @@
         0 14px 26px -6px rgba(0, 0, 0, 0.68),
         0 6px 12px -2px rgba(0, 0, 0, 0.46),
         inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+      --box-hover-shadow-accent: rgba(127, 23, 52, 0.22);
+      --card-hover-shadow-accent: rgba(127, 23, 52, 0.26);
+      --input-focus-shadow: rgba(127, 23, 52, 0.35);
+
+      --btn-pdf-bg: linear-gradient(135deg, rgba(127, 23, 52, 0.35) 0%, rgba(92, 15, 34, 0.45) 100%);
+      --btn-pdf-border: rgba(179, 57, 91, 0.5);
+      --btn-pdf-hover-bg: linear-gradient(135deg, rgba(143, 23, 56, 0.65) 0%, rgba(112, 19, 43, 0.75) 100%);
+      --btn-pdf-hover-border: #d44d72;
+      --btn-pdf-shadow: rgba(127, 23, 52, 0.4);
+    }
+
+    [data-theme="emerald"] {
+      /* 2. Slate & Emerald / Sage (Calming, Growth, Academic Focus) */
+      /* Canvas Background: Zinc 950 (#09090b / bg-zinc-950) */
+      --bg-canvas: #09090b;
+      --ambient-top: rgba(5, 150, 105, 0.22);
+      --ambient-bottom: rgba(16, 185, 129, 0.10);
+      --ambient-side: rgba(5, 150, 105, 0.06);
+      --mesh-dot: rgba(255, 255, 255, 0.05);
+      --mesh-line: rgba(255, 255, 255, 0.025);
+      --mesh-diag: rgba(255, 255, 255, 0.012);
+      
+      /* Card Surface: Zinc 900 (#18181b / bg-zinc-900) with fine zinc border (border-zinc-800 / #27272a) */
+      --box-bg: #18181b;
+      --box-border: #27272a;
+      --card-bg: #202024;
+      --card-border: #27272a;
+      
+      --input-bg: #111114;
+      --input-border: #27272a;
+      --input-text: #f4f4f5;
+      
+      --text-main: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --text-heading: #ffffff;
+      
+      /* Primary Accent / Action: Emerald 600 (#059669 / bg-emerald-600 hover:bg-emerald-500 #10b981) */
+      /* Section Markers: Mint / Emerald 400 (text-emerald-400 / #34d399) */
+      --claret-primary: #059669;
+      --claret-hover: #10b981;
+      --claret-dark: #047857;
+      --claret-light: #34d399;
+      --claret-badge-bg: rgba(5, 150, 105, 0.20);
+      --claret-badge-text: #34d399;
+      --claret-badge-border: rgba(5, 150, 105, 0.45);
+
+      --btn-submit-from: #059669;
+      --btn-submit-to: #047857;
+      --btn-submit-border: #10b981;
+      --btn-submit-hover-from: #10b981;
+      --btn-submit-hover-to: #059669;
+      --btn-submit-shadow: rgba(5, 150, 105, 0.50);
+      --btn-submit-shadow-hover: rgba(16, 185, 129, 0.60);
+
+      /* Header Banner: Subtle Emerald wash (from-zinc-900 via-emerald-950/60 to-zinc-900) */
+      --banner-bg: linear-gradient(135deg, #18181b 0%, rgba(6, 78, 59, 0.60) 50%, #18181b 100%);
+      --banner-border: rgba(52, 211, 153, 0.24);
+      --banner-shadow-accent: rgba(5, 150, 105, 0.18);
+      --banner-subtitle: #a7f3d0;
+      --banner-icon-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.25) 0%, rgba(6, 78, 59, 0.40) 100%);
+      --banner-icon-border: rgba(52, 211, 153, 0.35);
+      --banner-icon-color: #6ee7b7;
+
+      /* Secondary Actions: Zinc 800 with crisp white text (border-zinc-700 hover:bg-zinc-700) */
+      --btn-secondary-bg: #27272a;
+      --btn-secondary-border: #3f3f46;
+      --btn-secondary-text: #ffffff;
+      --btn-secondary-hover-bg: #3f3f46;
+      --btn-secondary-hover-border: #52525b;
+      --btn-secondary-hover-text: #ffffff;
+      
+      --box-shadow: 
+        0 22px 38px -10px rgba(0, 0, 0, 0.85),
+        0 10px 18px -4px rgba(0, 0, 0, 0.60),
+        0 2px 8px 0 rgba(5, 150, 105, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      
+      --card-shadow: 
+        0 14px 26px -6px rgba(0, 0, 0, 0.75),
+        0 6px 12px -2px rgba(0, 0, 0, 0.50),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+      --box-hover-shadow-accent: rgba(5, 150, 105, 0.20);
+      --card-hover-shadow-accent: rgba(5, 150, 105, 0.25);
+      --input-focus-shadow: rgba(5, 150, 105, 0.35);
+
+      --btn-pdf-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.30) 0%, rgba(4, 120, 87, 0.40) 100%);
+      --btn-pdf-border: rgba(52, 211, 153, 0.45);
+      --btn-pdf-hover-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.60) 0%, rgba(5, 150, 105, 0.70) 100%);
+      --btn-pdf-hover-border: #34d399;
+      --btn-pdf-shadow: rgba(5, 150, 105, 0.35);
     }
 
     /* Mesh Textured Background */
     body {
       background-color: var(--bg-canvas);
       background-image:
-        radial-gradient(ellipse 85% 55% at 50% -10%, var(--ambient-claret-top) 0%, transparent 70%),
-        radial-gradient(circle 750px at 95% 90%, var(--ambient-claret-bottom) 0%, transparent 60%),
-        radial-gradient(circle 500px at 5% 50%, var(--ambient-claret-side) 0%, transparent 50%),
+        radial-gradient(ellipse 85% 55% at 50% -10%, var(--ambient-top) 0%, transparent 70%),
+        radial-gradient(circle 750px at 95% 90%, var(--ambient-bottom) 0%, transparent 60%),
+        radial-gradient(circle 500px at 5% 50%, var(--ambient-side) 0%, transparent 50%),
         radial-gradient(var(--mesh-dot) 1.2px, transparent 1.2px),
         linear-gradient(var(--mesh-line) 1px, transparent 1px),
         linear-gradient(90deg, var(--mesh-line) 1px, transparent 1px),
@@ -89,25 +213,25 @@
       box-shadow: 
         0 26px 44px -10px rgba(0, 0, 0, 0.82),
         0 12px 22px -4px rgba(0, 0, 0, 0.55),
-        0 3px 10px 0 rgba(127, 23, 52, 0.22),
+        0 3px 10px 0 var(--box-hover-shadow-accent),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     /* Header Banner (Sticky with Soft Diffused Rounded Shadow) */
     .header-banner {
-      background: linear-gradient(135deg, #78152e 0%, #540d1e 60%, #3e0915 100%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--banner-bg);
+      border: 1px solid var(--banner-border);
       border-radius: 1rem;
       box-shadow: 
         0 10px 25px -4px rgba(0, 0, 0, 0.30),
-        0 4px 10px -2px rgba(120, 21, 46, 0.20),
+        0 4px 10px -2px var(--banner-shadow-accent),
         inset 0 1px 0 rgba(255, 255, 255, 0.22);
       position: sticky;
       top: 0.75rem;
       z-index: 40;
       overflow: hidden;
       backdrop-filter: blur(8px);
-      transition: box-shadow 0.25s ease;
+      transition: all 0.25s ease;
     }
     .header-banner::before {
       content: "";
@@ -119,6 +243,20 @@
       background-size: 16px 16px;
       pointer-events: none;
       opacity: 0.75;
+    }
+
+    .banner-subtitle {
+      color: var(--banner-subtitle);
+      transition: color 0.25s ease;
+    }
+    .banner-icon {
+      background: var(--banner-icon-bg);
+      border: 1px solid var(--banner-icon-border);
+      transition: all 0.25s ease;
+    }
+    .banner-icon-svg {
+      color: var(--banner-icon-color);
+      transition: color 0.25s ease;
     }
 
     /* Entry Cards in History */
@@ -135,7 +273,7 @@
       border-color: var(--claret-hover);
       box-shadow: 
         0 18px 32px -6px rgba(0, 0, 0, 0.76),
-        0 8px 16px -3px rgba(127, 23, 52, 0.26),
+        0 8px 16px -3px var(--card-hover-shadow-accent),
         inset 0 1px 0 rgba(255, 255, 255, 0.09);
     }
 
@@ -171,7 +309,7 @@
     .form-input:focus {
       border-color: var(--claret-hover);
       outline: none;
-      box-shadow: 0 0 0 3px rgba(127, 23, 52, 0.35);
+      box-shadow: 0 0 0 3px var(--input-focus-shadow);
     }
     .form-input::placeholder {
       color: var(--text-muted);
@@ -189,17 +327,17 @@
       cursor: not-allowed;
     }
 
-    /* Claret Buttons */
+    /* Primary Action Buttons */
     .btn-claret {
-      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
+      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
       color: #ffffff;
-      border: 1px solid #9c2243;
-      box-shadow: 0 8px 18px -4px rgba(127, 23, 52, 0.52), 0 2px 4px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--claret-hover);
+      box-shadow: 0 8px 18px -4px var(--btn-submit-shadow), 0 2px 4px rgba(0, 0, 0, 0.3);
       transition: all 0.2s ease;
     }
     .btn-claret:hover {
-      background: linear-gradient(135deg, #961b3e 0%, #70132b 100%);
-      box-shadow: 0 10px 22px -3px rgba(150, 27, 62, 0.62), 0 3px 6px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, var(--claret-hover) 0%, var(--claret-primary) 100%);
+      box-shadow: 0 10px 22px -3px var(--btn-submit-shadow-hover), 0 3px 6px rgba(0, 0, 0, 0.4);
       transform: translateY(-1px);
     }
     .btn-claret:active {
@@ -207,34 +345,34 @@
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, #871637 0%, #610d23 100%);
+      background: linear-gradient(135deg, var(--btn-submit-from) 0%, var(--btn-submit-to) 100%);
       color: #ffffff;
-      border: 1px solid #a62046;
-      box-shadow: 0 10px 22px -4px rgba(135, 22, 55, 0.56), 0 3px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--btn-submit-border);
+      box-shadow: 0 10px 22px -4px var(--btn-submit-shadow), 0 3px 6px rgba(0, 0, 0, 0.3);
       transition: all 0.2s ease;
     }
     .btn-submit:hover {
-      background: linear-gradient(135deg, #9c1b40 0%, #74102b 100%);
-      box-shadow: 0 12px 26px -3px rgba(156, 27, 64, 0.66), 0 4px 8px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, var(--btn-submit-hover-from) 0%, var(--btn-submit-hover-to) 100%);
+      box-shadow: 0 12px 26px -3px var(--btn-submit-shadow-hover), 0 4px 8px rgba(0, 0, 0, 0.4);
       transform: translateY(-1px);
     }
     .btn-submit:active {
       transform: translateY(0);
     }
 
-    /* Sign Out Button */
+    /* Sign Out Button (Secondary Action) */
     .btn-signout {
-      background: var(--input-bg);
-      border: 1px solid var(--box-border);
-      color: var(--text-heading);
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-text);
       border-radius: 0.5rem;
       transition: all 0.2s ease;
       cursor: pointer;
     }
     .btn-signout:hover {
-      background: rgba(143, 23, 56, 0.18);
-      border-color: var(--claret-hover);
-      color: #ffffff;
+      background: var(--btn-secondary-hover-bg);
+      border-color: var(--btn-secondary-hover-border);
+      color: var(--btn-secondary-hover-text);
       transform: translateY(-1px);
     }
     .btn-signout:active {
@@ -258,25 +396,54 @@
       background-color: rgba(255, 255, 255, 0.06);
     }
     .filter-pill.active {
-      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
+      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
       color: #ffffff !important;
-      border-color: #9c2243;
+      border-color: var(--claret-hover);
       font-weight: 600;
-      box-shadow: 0 4px 12px -2px rgba(127, 23, 52, 0.45);
+      box-shadow: 0 4px 12px -2px var(--btn-submit-shadow);
     }
 
     /* PDF Export Button */
     .btn-pdf {
-      background: linear-gradient(135deg, rgba(127, 23, 52, 0.35) 0%, rgba(92, 15, 34, 0.45) 100%);
-      border: 1px solid rgba(179, 57, 91, 0.5);
+      background: var(--btn-pdf-bg);
+      border: 1px solid var(--btn-pdf-border);
       color: #ffffff;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
     .btn-pdf:hover {
-      background: linear-gradient(135deg, rgba(143, 23, 56, 0.65) 0%, rgba(112, 19, 43, 0.75) 100%);
-      border-color: #d44d72;
+      background: var(--btn-pdf-hover-bg);
+      border-color: var(--btn-pdf-hover-border);
       color: #ffffff;
-      box-shadow: 0 2px 10px rgba(127, 23, 52, 0.4);
+      box-shadow: 0 2px 10px var(--btn-pdf-shadow);
+    }
+
+    /* Theme Switcher Button in Header Banner */
+    .theme-toggle-btn {
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-text);
+      padding: 0.45rem 0.75rem;
+      border-radius: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.75rem;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    .theme-toggle-btn:hover {
+      background: var(--btn-secondary-hover-bg);
+      border-color: var(--btn-secondary-hover-border);
+      color: var(--btn-secondary-hover-text);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    }
+    .theme-toggle-btn:active {
+      transform: translateY(0);
     }
 
     /* Checklist Card & Item Styles */
@@ -361,15 +528,16 @@
       box-shadow: 0 1px 4px rgba(225, 29, 72, 0.4);
     }
 
-    /* Live Refresh Button & Spin Animation */
+    /* Live Refresh Button & Spin Animation (Secondary Action) */
     .btn-refresh {
-      background: var(--input-bg);
-      border: 1px solid var(--box-border);
-      color: var(--text-heading);
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-text);
       cursor: pointer;
+      transition: all 0.2s ease;
     }
     .btn-refresh:hover {
-      background: var(--card-bg);
+      background: var(--btn-secondary-hover-bg);
       border-color: var(--claret-hover);
       color: var(--claret-light);
     }
@@ -437,10 +605,10 @@
       color: var(--text-heading);
     }
     .rating-btn.active {
-      background: linear-gradient(135deg, #7f1734 0%, #5c0f22 100%);
-      border-color: #9c2243;
+      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
+      border-color: var(--claret-hover);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(127, 23, 52, 0.4);
+      box-shadow: 0 2px 8px var(--btn-submit-shadow);
     }
 
     .section-title {
@@ -460,7 +628,7 @@
       height: 0.5rem;
       border-radius: 9999px;
       background-color: var(--claret-primary);
-      box-shadow: 0 0 6px rgba(127, 23, 52, 0.6);
+      box-shadow: 0 0 6px var(--claret-primary);
     }
 
     .field-label {
@@ -528,8 +696,8 @@
     <div class="header-banner p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative z-40">
       <div class="flex items-center gap-3.5">
         <!-- Pen Badge Icon -->
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/25 shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
-          <svg class="w-6 h-6 text-rose-100 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div id="headerBannerIconBox" class="w-12 h-12 rounded-xl banner-icon shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
+          <svg id="headerBannerIconSvg" class="w-6 h-6 banner-icon-svg drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
             <path d="m15 5 4 4"/>
           </svg>
@@ -538,10 +706,16 @@
           <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
             <span>GSEA Semester 1 General English Portfolio</span>
           </h1>
-          <p class="text-rose-200/90 text-sm mt-1">15 Sessions • 4 Modules • Formative Evaluation Record</p>
+          <p id="headerBannerSubtitle" class="banner-subtitle text-sm mt-1">15 Sessions • 4 Modules • Formative Evaluation Record</p>
         </div>
       </div>
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Palette Switcher Button -->
+        <button id="themeToggleBtn" type="button" onclick="toggleTheme()" class="theme-toggle-btn no-print" title="Switch color scheme to Slate & Emerald / Sage">
+          <span id="themeToggleIcon" class="text-sm">🌿</span>
+          <span id="themeToggleLabel" class="text-xs font-semibold tracking-wide">Slate &amp; Emerald</span>
+        </button>
+
         <!-- Live / Disconnected Indicator Light -->
         <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
           <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
@@ -823,11 +997,44 @@
       toeicRating: "entry.XXXXXXX"     // TOEIC test preparedness (out of 10)
     };
 
-    // Pure Dark Mode Enforced
-    document.documentElement.setAttribute("data-theme", "dark");
-    try {
-      localStorage.removeItem("gsea_portfolio_theme");
-    } catch(e) {}
+    // Palette / Theme Switcher Management (Graphite & Claret vs Slate & Emerald / Sage)
+    function applyTheme(theme) {
+      const targetTheme = (theme === "emerald") ? "emerald" : "claret";
+      document.documentElement.setAttribute("data-theme", targetTheme);
+      try {
+        localStorage.setItem("gsea_theme_scheme", targetTheme);
+      } catch(e) {}
+
+      const toggleIcon = document.getElementById("themeToggleIcon");
+      const toggleLabel = document.getElementById("themeToggleLabel");
+      const toggleBtn = document.getElementById("themeToggleBtn");
+
+      if (targetTheme === "emerald") {
+        if (toggleIcon) toggleIcon.innerText = "🍇";
+        if (toggleLabel) toggleLabel.innerText = "Graphite & Claret";
+        if (toggleBtn) toggleBtn.title = "Switch color scheme to Graphite & Claret";
+      } else {
+        if (toggleIcon) toggleIcon.innerText = "🌿";
+        if (toggleLabel) toggleLabel.innerText = "Slate & Emerald";
+        if (toggleBtn) toggleBtn.title = "Switch color scheme to Slate & Emerald / Sage";
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "claret";
+      const nextTheme = (current === "emerald") ? "claret" : "emerald";
+      applyTheme(nextTheme);
+    }
+
+    // Initialize Active Palette
+    const initialScheme = (function() {
+      try {
+        return localStorage.getItem("gsea_theme_scheme") || "claret";
+      } catch(e) {
+        return "claret";
+      }
+    })();
+    applyTheme(initialScheme);
 
     // Rating Scales Management
     function setRating(id, val) {
@@ -2143,6 +2350,7 @@
 
     // Auto-restore session from sessionStorage on page reload & check connection
     window.addEventListener("DOMContentLoaded", () => {
+      applyTheme(document.documentElement.getAttribute("data-theme") || "claret");
       initDraftListeners();
       checkConnection();
       updateChecklist();
