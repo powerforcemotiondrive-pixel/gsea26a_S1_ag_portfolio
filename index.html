@@ -1,23 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="flightdeck">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GSEA 26A Semester 1 General English Portfolio</title>
   <link rel="stylesheet" href="output.css">
-  <script>
-    (function() {
-      try {
-        var savedTheme = localStorage.getItem("gsea_theme_scheme") || "flightdeck";
-        document.documentElement.setAttribute("data-theme", savedTheme);
-      } catch(e) {}
-    })();
-  </script>
   <style>
-    :root,
-    [data-theme="flightdeck"],
-    [data-theme="claret"],
-    [data-theme="emerald"] {
+    :root {
       /* Signature Institutional Course Deck Palette */
       --bg-canvas: #f1f5f9;
       --bg-canvas-pattern: rgba(0, 0, 0, 0.085);
@@ -296,21 +285,6 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    /* Theme Switcher Button in Header Banner (Preserved for compatibility) */
-    .theme-toggle-btn {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      color: #334155;
-      padding: 0.45rem 0.75rem;
-      border-radius: 0.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
 
     /* Checklist Card & Item Styles */
     .checklist-card {
@@ -576,11 +550,6 @@
         </div>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap shrink-0 self-end md:self-auto">
-        <!-- Hidden theme toggle button to preserve JS event handlers -->
-        <button id="themeToggleBtn" type="button" onclick="toggleTheme()" class="theme-toggle-btn no-print hidden" title="Toggle theme">
-          <span id="themeToggleIcon" class="text-sm">🌿</span>
-          <span id="themeToggleLabel" class="text-xs font-semibold tracking-wide">Flight Deck</span>
-        </button>
 
         <!-- Center HUD Callsign Badge (Link to e-Campus in New Tab) -->
         <a id="promo-callsign-badge"
@@ -881,44 +850,6 @@
       toeicRating: "entry.1244476891"    // How well prepared do you think you currently are for your TOEIC test? (Rate out of 10)
     };
 
-    // Palette / Theme Switcher Management (Graphite & Claret vs Slate & Emerald / Sage)
-    function applyTheme(theme) {
-      const targetTheme = (theme === "emerald") ? "emerald" : "claret";
-      document.documentElement.setAttribute("data-theme", targetTheme);
-      try {
-        localStorage.setItem("gsea_theme_scheme", targetTheme);
-      } catch(e) {}
-
-      const toggleIcon = document.getElementById("themeToggleIcon");
-      const toggleLabel = document.getElementById("themeToggleLabel");
-      const toggleBtn = document.getElementById("themeToggleBtn");
-
-      if (targetTheme === "emerald") {
-        if (toggleIcon) toggleIcon.innerText = "🍇";
-        if (toggleLabel) toggleLabel.innerText = "Graphite & Claret";
-        if (toggleBtn) toggleBtn.title = "Switch color scheme to Graphite & Claret";
-      } else {
-        if (toggleIcon) toggleIcon.innerText = "🌿";
-        if (toggleLabel) toggleLabel.innerText = "Slate & Emerald";
-        if (toggleBtn) toggleBtn.title = "Switch color scheme to Slate & Emerald / Sage";
-      }
-    }
-
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute("data-theme") || "claret";
-      const nextTheme = (current === "emerald") ? "claret" : "emerald";
-      applyTheme(nextTheme);
-    }
-
-    // Initialize Active Palette
-    const initialScheme = (function() {
-      try {
-        return localStorage.getItem("gsea_theme_scheme") || "claret";
-      } catch(e) {
-        return "claret";
-      }
-    })();
-    applyTheme(initialScheme);
 
     // Rating Scales Management
     function setRating(id, val) {
@@ -2224,7 +2155,6 @@
 
     // Auto-restore session from sessionStorage on page reload & check connection
     window.addEventListener("DOMContentLoaded", () => {
-      applyTheme(document.documentElement.getAttribute("data-theme") || "claret");
       initDraftListeners();
       checkConnection();
       updateChecklist();
