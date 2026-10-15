@@ -1,6 +1,6 @@
 # GSEA English Learning Portfolio
 
-A formative assessment portfolio application designed with a graphite and claret color scheme, tactile mesh background texture, and elevated drop shadow boxes.
+A formative assessment portfolio application designed with the signature GSEA Semester 1 Flight-Deck aesthetic, precision CAD textured header, and clean institutional canvas.
 
 ## Project Structure
 

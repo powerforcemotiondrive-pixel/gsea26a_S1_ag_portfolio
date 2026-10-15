@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="claret">
+<html lang="en" data-theme="flightdeck">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,281 +8,158 @@
   <script>
     (function() {
       try {
-        var savedTheme = localStorage.getItem("gsea_theme_scheme") || "claret";
+        var savedTheme = localStorage.getItem("gsea_theme_scheme") || "flightdeck";
         document.documentElement.setAttribute("data-theme", savedTheme);
       } catch(e) {}
     })();
   </script>
   <style>
     :root,
-    [data-theme="claret"] {
-      /* 1. Graphite & Claret Dark Palette (Default) */
-      --bg-canvas: #15181e;
-      --ambient-top: rgba(127, 23, 52, 0.38);
-      --ambient-bottom: rgba(127, 23, 52, 0.16);
-      --ambient-side: rgba(127, 23, 52, 0.10);
-      --mesh-dot: rgba(255, 255, 255, 0.07);
-      --mesh-line: rgba(255, 255, 255, 0.035);
-      --mesh-diag: rgba(255, 255, 255, 0.018);
-      
-      --box-bg: #20242c;
-      --box-border: #313745;
-      --card-bg: #242933;
-      --card-border: #343b4a;
-      
-      --input-bg: #181b22;
-      --input-border: #363d4c;
-      --input-text: #f0f3f8;
-      
-      --text-main: #dce1eb;
-      --text-muted: #959ead;
-      --text-heading: #ffffff;
-      
-      --claret-primary: #7f1734;
-      --claret-hover: #961b3e;
-      --claret-dark: #580e21;
-      --claret-light: #f08ba2;
-      --claret-badge-bg: rgba(127, 23, 52, 0.24);
-      --claret-badge-text: #f28da5;
-      --claret-badge-border: rgba(127, 23, 52, 0.45);
-
-      --btn-submit-from: #871637;
-      --btn-submit-to: #610d23;
-      --btn-submit-border: #a62046;
-      --btn-submit-hover-from: #9c1b40;
-      --btn-submit-hover-to: #74102b;
-      --btn-submit-shadow: rgba(135, 22, 55, 0.56);
-      --btn-submit-shadow-hover: rgba(156, 27, 64, 0.66);
-
-      --banner-bg: linear-gradient(135deg, #78152e 0%, #540d1e 60%, #3e0915 100%);
-      --banner-border: rgba(255, 255, 255, 0.18);
-      --banner-shadow-accent: rgba(120, 21, 46, 0.20);
-      --banner-subtitle: rgba(254, 205, 211, 0.9);
-      --banner-icon-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 100%);
-      --banner-icon-border: rgba(255, 255, 255, 0.25);
-      --banner-icon-color: #ffe4e6;
-
-      --btn-secondary-bg: var(--input-bg);
-      --btn-secondary-border: var(--box-border);
-      --btn-secondary-text: var(--text-heading);
-      --btn-secondary-hover-bg: rgba(143, 23, 56, 0.18);
-      --btn-secondary-hover-border: var(--claret-hover);
-      --btn-secondary-hover-text: #ffffff;
-      
-      --box-shadow: 
-        0 22px 38px -10px rgba(0, 0, 0, 0.78),
-        0 10px 18px -4px rgba(0, 0, 0, 0.52),
-        0 2px 8px 0 rgba(127, 23, 52, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      
-      --card-shadow: 
-        0 14px 26px -6px rgba(0, 0, 0, 0.68),
-        0 6px 12px -2px rgba(0, 0, 0, 0.46),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-      --box-hover-shadow-accent: rgba(127, 23, 52, 0.22);
-      --card-hover-shadow-accent: rgba(127, 23, 52, 0.26);
-      --input-focus-shadow: rgba(127, 23, 52, 0.35);
-
-      --btn-pdf-bg: linear-gradient(135deg, rgba(127, 23, 52, 0.35) 0%, rgba(92, 15, 34, 0.45) 100%);
-      --btn-pdf-border: rgba(179, 57, 91, 0.5);
-      --btn-pdf-hover-bg: linear-gradient(135deg, rgba(143, 23, 56, 0.65) 0%, rgba(112, 19, 43, 0.75) 100%);
-      --btn-pdf-hover-border: #d44d72;
-      --btn-pdf-shadow: rgba(127, 23, 52, 0.4);
-    }
-
+    [data-theme="flightdeck"],
+    [data-theme="claret"],
     [data-theme="emerald"] {
-      /* 2. Slate & Emerald / Sage (Calming, Growth, Academic Focus) */
-      /* Canvas Background: Zinc 950 (#09090b / bg-zinc-950) */
-      --bg-canvas: #09090b;
-      --ambient-top: rgba(5, 150, 105, 0.22);
-      --ambient-bottom: rgba(16, 185, 129, 0.10);
-      --ambient-side: rgba(5, 150, 105, 0.06);
-      --mesh-dot: rgba(255, 255, 255, 0.05);
-      --mesh-line: rgba(255, 255, 255, 0.025);
-      --mesh-diag: rgba(255, 255, 255, 0.012);
+      /* Signature Institutional Course Deck Palette */
+      --bg-canvas: #f1f5f9;
+      --bg-canvas-pattern: rgba(0, 0, 0, 0.085);
       
-      /* Card Surface: Zinc 900 (#18181b / bg-zinc-900) with fine zinc border (border-zinc-800 / #27272a) */
-      --box-bg: #18181b;
-      --box-border: #27272a;
-      --card-bg: #202024;
-      --card-border: #27272a;
+      --box-bg: #ffffff;
+      --box-border: #e2e8f0;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
       
-      --input-bg: #111114;
-      --input-border: #27272a;
-      --input-text: #f4f4f5;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-text: #0f172a;
       
-      --text-main: #e4e4e7;
-      --text-muted: #a1a1aa;
-      --text-heading: #ffffff;
+      --text-main: #334155;
+      --text-muted: #64748b;
+      --text-heading: #0f172a;
       
-      /* Primary Accent / Action: Emerald 600 (#059669 / bg-emerald-600 hover:bg-emerald-500 #10b981) */
-      /* Section Markers: Mint / Emerald 400 (text-emerald-400 / #34d399) */
-      --claret-primary: #059669;
-      --claret-hover: #10b981;
-      --claret-dark: #047857;
-      --claret-light: #34d399;
-      --claret-badge-bg: rgba(5, 150, 105, 0.20);
-      --claret-badge-text: #34d399;
-      --claret-badge-border: rgba(5, 150, 105, 0.45);
+      --claret-primary: #ea580c;
+      --claret-hover: #c2410c;
+      --claret-dark: #9a3412;
+      --claret-light: #ea580c;
+      --claret-badge-bg: #fff7ed;
+      --claret-badge-text: #c2410c;
+      --claret-badge-border: #ffedd5;
 
-      --btn-submit-from: #059669;
-      --btn-submit-to: #047857;
-      --btn-submit-border: #10b981;
-      --btn-submit-hover-from: #10b981;
-      --btn-submit-hover-to: #059669;
-      --btn-submit-shadow: rgba(5, 150, 105, 0.50);
-      --btn-submit-shadow-hover: rgba(16, 185, 129, 0.60);
+      --btn-submit-from: #ea580c;
+      --btn-submit-to: #c2410c;
+      --btn-submit-border: #c2410c;
+      --btn-submit-hover-from: #f97316;
+      --btn-submit-hover-to: #ea580c;
+      --btn-submit-shadow: rgba(234, 88, 12, 0.25);
+      --btn-submit-shadow-hover: rgba(234, 88, 12, 0.38);
 
-      /* Header Banner: Subtle Emerald wash (from-zinc-900 via-emerald-950/60 to-zinc-900) */
-      --banner-bg: linear-gradient(135deg, #18181b 0%, rgba(6, 78, 59, 0.60) 50%, #18181b 100%);
-      --banner-border: rgba(52, 211, 153, 0.24);
-      --banner-shadow-accent: rgba(5, 150, 105, 0.18);
-      --banner-subtitle: #a7f3d0;
-      --banner-icon-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.25) 0%, rgba(6, 78, 59, 0.40) 100%);
-      --banner-icon-border: rgba(52, 211, 153, 0.35);
-      --banner-icon-color: #6ee7b7;
+      --banner-bg: #374151;
+      --banner-border: #1f2937;
+      --banner-shadow-accent: rgba(0, 0, 0, 0.15);
+      --banner-subtitle: #cbd5e1;
+      --banner-icon-bg: #ea580c;
+      --banner-icon-border: #ea580c;
+      --banner-icon-color: #ffffff;
 
-      /* Secondary Actions: Zinc 800 with crisp white text (border-zinc-700 hover:bg-zinc-700) */
-      --btn-secondary-bg: #27272a;
-      --btn-secondary-border: #3f3f46;
-      --btn-secondary-text: #ffffff;
-      --btn-secondary-hover-bg: #3f3f46;
-      --btn-secondary-hover-border: #52525b;
-      --btn-secondary-hover-text: #ffffff;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-border: #cbd5e1;
+      --btn-secondary-text: #334155;
+      --btn-secondary-hover-bg: #f8fafc;
+      --btn-secondary-hover-border: #94a3b8;
+      --btn-secondary-hover-text: #0f172a;
       
       --box-shadow: 
-        0 22px 38px -10px rgba(0, 0, 0, 0.85),
-        0 10px 18px -4px rgba(0, 0, 0, 0.60),
-        0 2px 8px 0 rgba(5, 150, 105, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 1px 3px 0 rgba(0, 0, 0, 0.05),
+        0 1px 2px -1px rgba(0, 0, 0, 0.05);
       
       --card-shadow: 
-        0 14px 26px -6px rgba(0, 0, 0, 0.75),
-        0 6px 12px -2px rgba(0, 0, 0, 0.50),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        0 1px 3px 0 rgba(0, 0, 0, 0.04);
 
-      --box-hover-shadow-accent: rgba(5, 150, 105, 0.20);
-      --card-hover-shadow-accent: rgba(5, 150, 105, 0.25);
-      --input-focus-shadow: rgba(5, 150, 105, 0.35);
+      --box-hover-shadow-accent: rgba(0, 0, 0, 0.08);
+      --card-hover-shadow-accent: rgba(0, 0, 0, 0.08);
+      --input-focus-shadow: rgba(234, 88, 12, 0.18);
 
-      --btn-pdf-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.30) 0%, rgba(4, 120, 87, 0.40) 100%);
-      --btn-pdf-border: rgba(52, 211, 153, 0.45);
-      --btn-pdf-hover-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.60) 0%, rgba(5, 150, 105, 0.70) 100%);
-      --btn-pdf-hover-border: #34d399;
-      --btn-pdf-shadow: rgba(5, 150, 105, 0.35);
+      --btn-pdf-bg: #ffffff;
+      --btn-pdf-border: #cbd5e1;
+      --btn-pdf-hover-bg: #f8fafc;
+      --btn-pdf-hover-border: #94a3b8;
+      --btn-pdf-shadow: rgba(0, 0, 0, 0.04);
     }
 
-    /* Mesh Textured Background */
+    /* Tactile Blueprint Dot Background (Matching Course Deck Canvas) */
     body {
       background-color: var(--bg-canvas);
-      background-image:
-        radial-gradient(ellipse 85% 55% at 50% -10%, var(--ambient-top) 0%, transparent 70%),
-        radial-gradient(circle 750px at 95% 90%, var(--ambient-bottom) 0%, transparent 60%),
-        radial-gradient(circle 500px at 5% 50%, var(--ambient-side) 0%, transparent 50%),
-        radial-gradient(var(--mesh-dot) 1.2px, transparent 1.2px),
-        linear-gradient(var(--mesh-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--mesh-line) 1px, transparent 1px),
-        linear-gradient(45deg, var(--mesh-diag) 1px, transparent 1px),
-        linear-gradient(-45deg, var(--mesh-diag) 1px, transparent 1px);
-      background-size: 
-        100% 100%, 
-        100% 100%, 
-        100% 100%, 
-        16px 16px, 
-        24px 24px, 
-        24px 24px, 
-        16px 16px, 
-        16px 16px;
-      background-attachment: fixed;
+      background-image: radial-gradient(rgba(0, 0, 0, 0.085) 1.25px, transparent 1.25px);
+      background-size: 20px 20px;
       color: var(--text-main);
       min-height: 100vh;
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Drop Shadow Boxes */
+    /* Course Deck Institutional White Cards */
     .drop-shadow-box {
       background-color: var(--box-bg);
       border: 1px solid var(--box-border);
       border-radius: 1rem;
-      box-shadow: var(--box-shadow);
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, border-color 0.25s ease;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
     }
 
     .drop-shadow-box:hover {
-      box-shadow: 
-        0 26px 44px -10px rgba(0, 0, 0, 0.82),
-        0 12px 22px -4px rgba(0, 0, 0, 0.55),
-        0 3px 10px 0 var(--box-hover-shadow-accent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
     }
 
-    /* Header Banner (Sticky with Soft Diffused Rounded Shadow) */
+    /* Signature Precision CAD Micro-Grid Flight-Deck Header */
+    .textured-surface,
     .header-banner {
-      background: var(--banner-bg);
-      border: 1px solid var(--banner-border);
+      background-color: #374151 !important;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 75%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.16) 100%) !important;
+      background-size: 100% 100%, 16px 16px, 16px 16px, 100% 100% !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -2px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #1f2937 !important;
       border-radius: 1rem;
-      box-shadow: 
-        0 10px 25px -4px rgba(0, 0, 0, 0.30),
-        0 4px 10px -2px var(--banner-shadow-accent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.22);
       position: sticky;
       top: 0.75rem;
       z-index: 40;
       overflow: hidden;
-      backdrop-filter: blur(8px);
       transition: all 0.25s ease;
-    }
-    .header-banner::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 16px 16px;
-      pointer-events: none;
-      opacity: 0.75;
     }
 
     .banner-subtitle {
-      color: var(--banner-subtitle);
-      transition: color 0.25s ease;
+      color: #cbd5e1;
     }
     .banner-icon {
-      background: var(--banner-icon-bg);
-      border: 1px solid var(--banner-icon-border);
-      transition: all 0.25s ease;
+      background: #ea580c;
+      border: 1px solid #ea580c;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
     }
     .banner-icon-svg {
-      color: var(--banner-icon-color);
-      transition: color 0.25s ease;
+      color: #ffffff;
     }
 
     /* Entry Cards in History */
     .entry-card {
       text-align: left !important;
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 0.75rem;
-      box-shadow: var(--card-shadow);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.25s ease;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
     .entry-card:hover {
       transform: translateY(-2px);
-      border-color: var(--claret-hover);
-      box-shadow: 
-        0 18px 32px -6px rgba(0, 0, 0, 0.76),
-        0 8px 16px -3px var(--card-hover-shadow-accent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      border-color: #cbd5e1;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
     }
 
     /* Form Inputs & Selects */
     .form-input {
       width: 100%;
-      background-color: var(--input-bg);
-      border: 1px solid var(--input-border);
-      color: var(--input-text);
+      background-color: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
       border-radius: 0.5rem;
       padding: 0.625rem 0.75rem;
       font-size: 0.875rem;
@@ -299,7 +176,7 @@
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23959ead' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
       background-position: right 0.75rem center;
       background-repeat: no-repeat;
       background-size: 1.25rem 1.25rem;
@@ -307,37 +184,37 @@
       cursor: pointer;
     }
     .form-input:focus {
-      border-color: var(--claret-hover);
+      border-color: #ea580c;
       outline: none;
-      box-shadow: 0 0 0 3px var(--input-focus-shadow);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
     }
     .form-input::placeholder {
-      color: var(--text-muted);
-      opacity: 0.7;
+      color: #94a3b8;
     }
     select.form-input option {
-      background-color: var(--box-bg);
-      color: var(--input-text);
+      background-color: #ffffff;
+      color: #0f172a;
       padding: 0.5rem;
     }
     select.form-input option:disabled {
-      color: #64748b !important;
-      background-color: rgba(255, 255, 255, 0.04);
+      color: #94a3b8 !important;
+      background-color: #f8fafc;
       font-style: italic;
       cursor: not-allowed;
     }
 
     /* Primary Action Buttons */
     .btn-claret {
-      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
+      background: #1f2937;
       color: #ffffff;
-      border: 1px solid var(--claret-hover);
-      box-shadow: 0 8px 18px -4px var(--btn-submit-shadow), 0 2px 4px rgba(0, 0, 0, 0.3);
+      border: 1px solid #111827;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease;
+      cursor: pointer;
     }
     .btn-claret:hover {
-      background: linear-gradient(135deg, var(--claret-hover) 0%, var(--claret-primary) 100%);
-      box-shadow: 0 10px 22px -3px var(--btn-submit-shadow-hover), 0 3px 6px rgba(0, 0, 0, 0.4);
+      background: #111827;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
       transform: translateY(-1px);
     }
     .btn-claret:active {
@@ -345,15 +222,16 @@
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, var(--btn-submit-from) 0%, var(--btn-submit-to) 100%);
+      background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
       color: #ffffff;
-      border: 1px solid var(--btn-submit-border);
-      box-shadow: 0 10px 22px -4px var(--btn-submit-shadow), 0 3px 6px rgba(0, 0, 0, 0.3);
+      border: 1px solid #c2410c;
+      box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
       transition: all 0.2s ease;
+      cursor: pointer;
     }
     .btn-submit:hover {
-      background: linear-gradient(135deg, var(--btn-submit-hover-from) 0%, var(--btn-submit-hover-to) 100%);
-      box-shadow: 0 12px 26px -3px var(--btn-submit-shadow-hover), 0 4px 8px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      box-shadow: 0 6px 14px rgba(234, 88, 12, 0.35);
       transform: translateY(-1px);
     }
     .btn-submit:active {
@@ -362,17 +240,17 @@
 
     /* Sign Out Button (Secondary Action) */
     .btn-signout {
-      background: var(--btn-secondary-bg);
-      border: 1px solid var(--btn-secondary-border);
-      color: var(--btn-secondary-text);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
       border-radius: 0.5rem;
       transition: all 0.2s ease;
       cursor: pointer;
     }
     .btn-signout:hover {
-      background: var(--btn-secondary-hover-bg);
-      border-color: var(--btn-secondary-hover-border);
-      color: var(--btn-secondary-hover-text);
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
       transform: translateY(-1px);
     }
     .btn-signout:active {
@@ -382,47 +260,47 @@
     /* Module Filter Pills in Section 4 */
     .filter-pill {
       font-size: 0.75rem;
-      font-weight: 500;
-      padding: 0.35rem 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.85rem;
       border-radius: 0.5rem;
-      color: var(--text-muted);
+      color: #64748b;
       background-color: transparent;
       border: 1px solid transparent;
       transition: all 0.18s ease;
       cursor: pointer;
     }
     .filter-pill:hover {
-      color: var(--text-heading);
-      background-color: rgba(255, 255, 255, 0.06);
+      color: #0f172a;
+      background-color: #e2e8f0;
     }
     .filter-pill.active {
-      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
+      background: #1f2937;
       color: #ffffff !important;
-      border-color: var(--claret-hover);
-      font-weight: 600;
-      box-shadow: 0 4px 12px -2px var(--btn-submit-shadow);
+      border-color: #111827;
+      font-weight: 700;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     }
 
     /* PDF Export Button */
     .btn-pdf {
-      background: var(--btn-pdf-bg);
-      border: 1px solid var(--btn-pdf-border);
-      color: #ffffff;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     .btn-pdf:hover {
-      background: var(--btn-pdf-hover-bg);
-      border-color: var(--btn-pdf-hover-border);
-      color: #ffffff;
-      box-shadow: 0 2px 10px var(--btn-pdf-shadow);
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    /* Theme Switcher Button in Header Banner */
+    /* Theme Switcher Button in Header Banner (Preserved for compatibility) */
     .theme-toggle-btn {
-      background: var(--btn-secondary-bg);
-      border: 1px solid var(--btn-secondary-border);
-      color: var(--btn-secondary-text);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
       padding: 0.45rem 0.75rem;
       border-radius: 0.5rem;
       display: inline-flex;
@@ -432,30 +310,20 @@
       transition: all 0.2s ease;
       font-size: 0.75rem;
       font-weight: 600;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    }
-    .theme-toggle-btn:hover {
-      background: var(--btn-secondary-hover-bg);
-      border-color: var(--btn-secondary-hover-border);
-      color: var(--btn-secondary-hover-text);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-    }
-    .theme-toggle-btn:active {
-      transform: translateY(0);
     }
 
     /* Checklist Card & Item Styles */
     .checklist-card {
-      background: var(--box-bg);
-      border: 1px solid var(--box-border);
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 0.75rem;
       padding: 0.7rem 0.65rem;
       transition: all 0.2s ease;
     }
     .checklist-card:hover {
-      border-color: var(--card-border);
+      border-color: #cbd5e1;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
     .checklist-item {
       display: flex;
@@ -472,15 +340,14 @@
       user-select: none;
     }
     .checklist-item.completed {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.45);
-      color: #10b981;
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      color: #059669;
     }
     .checklist-item.pending {
-      background: var(--input-bg);
-      border: 1px solid var(--box-border);
-      color: var(--text-muted);
-      opacity: 0.65;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #94a3b8;
     }
     .checklist-box-icon {
       width: 0.95rem;
@@ -496,50 +363,48 @@
       transition: all 0.2s ease;
     }
     .checklist-item.completed .checklist-box-icon {
-      background: #10b981;
+      background: #059669;
       color: #ffffff;
-      box-shadow: 0 1px 4px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);
     }
     .checklist-item.pending .checklist-box-icon {
-      border: 1px solid var(--box-border);
+      border: 1px solid #cbd5e1;
       background: transparent;
       color: transparent;
     }
-    /* GO and NO GO decision box styles */
     .checklist-item-decision {
       padding: 0.35rem 0.5rem;
       font-size: 0.75rem;
       letter-spacing: 0.02em;
     }
     .checklist-item.nogo-active {
-      background: rgba(244, 63, 94, 0.15);
-      border: 1px solid rgba(244, 63, 94, 0.45);
-      color: #fb7185;
-      opacity: 1;
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #e11d48;
     }
     .checklist-item.nogo-active:hover {
-      background: rgba(244, 63, 94, 0.25);
-      border-color: rgba(244, 63, 94, 0.65);
+      background: #ffe4e6;
+      border-color: #fda4af;
     }
     .checklist-item.nogo-active .checklist-box-icon {
       background: #e11d48;
       border-color: #e11d48;
       color: #ffffff;
-      box-shadow: 0 1px 4px rgba(225, 29, 72, 0.4);
+      box-shadow: 0 1px 3px rgba(225, 29, 72, 0.3);
     }
 
-    /* Live Refresh Button & Spin Animation (Secondary Action) */
+    /* Live Refresh Button */
     .btn-refresh {
-      background: var(--btn-secondary-bg);
-      border: 1px solid var(--btn-secondary-border);
-      color: var(--btn-secondary-text);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     .btn-refresh:hover {
-      background: var(--btn-secondary-hover-bg);
-      border-color: var(--claret-hover);
-      color: var(--claret-light);
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
     }
     @keyframes spinAnimation {
       from { transform: rotate(0deg); }
@@ -582,38 +447,40 @@
 
     /* Badges & Accents */
     .badge-claret {
-      background-color: var(--claret-badge-bg);
-      color: var(--claret-badge-text);
-      border: 1px solid var(--claret-badge-border);
+      background-color: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #ffedd5;
     }
 
     /* Rating Scale Buttons */
     .rating-btn {
-      padding: 0.35rem 0;
+      padding: 0.4rem 0;
       font-size: 0.75rem;
       font-weight: 600;
       border-radius: 0.375rem;
-      background-color: var(--input-bg);
-      border: 1px solid var(--input-border);
-      color: var(--text-muted);
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #475569;
       transition: all 0.15s ease;
       text-align: center;
       cursor: pointer;
     }
     .rating-btn:hover {
-      border-color: var(--claret-hover);
-      color: var(--text-heading);
+      border-color: #ea580c;
+      color: #ea580c;
+      background-color: #fff7ed;
     }
     .rating-btn.active {
-      background: linear-gradient(135deg, var(--claret-primary) 0%, var(--claret-dark) 100%);
-      border-color: var(--claret-hover);
+      background: #ea580c;
+      border-color: #ea580c;
       color: #ffffff;
-      box-shadow: 0 2px 8px var(--btn-submit-shadow);
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(234, 88, 12, 0.35);
     }
 
     .section-title {
-      color: var(--claret-badge-text);
-      font-size: 0.75rem;
+      color: #0f172a;
+      font-size: 0.8125rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -627,28 +494,28 @@
       width: 0.5rem;
       height: 0.5rem;
       border-radius: 9999px;
-      background-color: var(--claret-primary);
-      box-shadow: 0 0 6px var(--claret-primary);
+      background-color: #ea580c;
+      box-shadow: 0 0 6px rgba(234, 88, 12, 0.4);
     }
 
     .field-label {
       display: block;
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--text-main);
+      color: #334155;
       margin-bottom: 0.375rem;
     }
 
     /* Status Notifications */
     .status-error {
-      background-color: rgba(75, 12, 26, 0.5);
-      border: 1px solid rgba(225, 29, 72, 0.4);
-      color: #fca5a5;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
     }
     .status-success {
-      background-color: rgba(16, 55, 35, 0.5);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      color: #6ee7b7;
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
     }
 
     /* Clean Print Styles for PDF */
@@ -663,11 +530,9 @@
         padding: 0 !important;
         margin: 0 !important;
       }
-      /* Hide all interactive elements */
       body > *:not(#printSection) {
         display: none !important;
       }
-      /* Show ONLY the clean print section */
       #printSection {
         display: block !important;
         background: #ffffff !important;
@@ -689,37 +554,50 @@
     }
   </style>
 </head>
-<body class="p-4 md:p-8 font-sans">
+<body class="p-3 sm:p-5 md:p-8 font-sans">
   <div class="max-w-5xl mx-auto space-y-6">
 
-    <!-- Header Banner (Sticky: remains visible at all times with all boxes scrolling behind it) -->
-    <div class="header-banner p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 relative z-40">
-      <div class="flex items-center gap-3.5">
-        <!-- Pen Badge Icon -->
-        <div id="headerBannerIconBox" class="w-12 h-12 rounded-xl banner-icon shadow-lg backdrop-blur-md flex items-center justify-center shrink-0" aria-hidden="true">
-          <svg id="headerBannerIconSvg" class="w-6 h-6 banner-icon-svg drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Header Banner (Sticky: remains visible at all times with Flight-Deck Styling) -->
+    <div class="header-banner p-3.5 sm:p-4 md:px-6 md:py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 relative z-40">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <!-- Flight-Deck 40px Icon Box with Pen Glyph -->
+        <div id="headerBannerIconBox" class="w-10 h-10 rounded-lg banner-icon shadow-md flex items-center justify-center shrink-0" aria-hidden="true">
+          <svg id="headerBannerIconSvg" class="w-5 h-5 banner-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
             <path d="m15 5 4 4"/>
           </svg>
         </div>
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>GSEA 26A Semester 1 General English Portfolio</span>
+        <!-- 2-Tier Header Title (Semi Bold 600, 15px uppercase, 37px height within 40px icon box boundary) -->
+        <div class="flex flex-col justify-center min-h-[40px] max-h-[40px] overflow-hidden">
+          <h1 class="text-[13.5px] sm:text-[15px] font-semibold text-white tracking-wide uppercase leading-[19px] truncate m-0">
+            <span>GSEA SEMESTER 1 GENERAL ENGLISH</span>
           </h1>
-          <p id="headerBannerSubtitle" class="banner-subtitle text-sm mt-1">3 Modules • 15 Sessions • Continuous Assessment</p>
+          <p id="headerBannerSubtitle" class="text-[11.5px] sm:text-[12px] font-medium leading-[16px] truncate text-slate-300 mt-0.5 m-0">Continuous Assessment • Student Learning Portfolio</p>
         </div>
       </div>
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <!-- Palette Switcher Button -->
-        <button id="themeToggleBtn" type="button" onclick="toggleTheme()" class="theme-toggle-btn no-print" title="Switch color scheme to Slate & Emerald / Sage">
+      <div class="flex items-center gap-2.5 flex-wrap shrink-0 self-end md:self-auto">
+        <!-- Hidden theme toggle button to preserve JS event handlers -->
+        <button id="themeToggleBtn" type="button" onclick="toggleTheme()" class="theme-toggle-btn no-print hidden" title="Toggle theme">
           <span id="themeToggleIcon" class="text-sm">🌿</span>
-          <span id="themeToggleLabel" class="text-xs font-semibold tracking-wide">Slate &amp; Emerald</span>
+          <span id="themeToggleLabel" class="text-xs font-semibold tracking-wide">Flight Deck</span>
         </button>
 
+        <!-- Center HUD Callsign Badge (Link to e-Campus in New Tab) -->
+        <a id="promo-callsign-badge"
+           href="https://e-campus.enac.fr"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/45 backdrop-blur-xs border border-white/15 shadow-inner transition-all duration-300 select-none group cursor-pointer hover:border-white/40 hover:bg-black/60 hover:-translate-y-[1px] active:translate-y-0 no-underline text-white"
+           title="Return to ENAC e-Campus (https://e-campus.enac.fr) ↗">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse transition-all duration-300"></span>
+          <span class="text-[10px] sm:text-[11px] font-mono font-black tracking-wider text-slate-100 uppercase group-hover:text-white">GSEA 26A</span>
+          <svg class="w-2.5 h-2.5 text-slate-400 group-hover:text-white opacity-0 group-hover:opacity-100 -ml-0.5 transition-all duration-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/></svg>
+        </a>
+
         <!-- Live / Disconnected Indicator Light -->
-        <div id="connectionStatusBadge" class="no-print bg-black/25 hover:bg-black/40 border border-white/20 text-white text-xs font-semibold px-2.5 py-2 rounded-lg transition flex items-center gap-2 shadow-sm cursor-pointer select-none" onclick="checkConnection(true)" title="Live database connection (Click to test)">
+        <div id="connectionStatusBadge" class="no-print inline-flex items-center gap-2 bg-black/45 hover:bg-black/60 border border-white/15 text-white text-xs font-semibold px-2.5 py-1 rounded-full transition shadow-inner cursor-pointer select-none hover:-translate-y-[1px]" onclick="checkConnection(true)" title="Live database connection (Click to test)">
           <span id="connectionLight" class="status-dot dot-live" aria-hidden="true"></span>
-          <span id="connectionText" class="tracking-wide">Live</span>
+          <span id="connectionText" class="tracking-wide text-[11px] font-mono font-bold">Live</span>
         </div>
       </div>
     </div>
@@ -816,10 +694,10 @@
       </div>
 
       <!-- Rating Scale 1: Module 1 Formative Evaluation Preparedness -->
-      <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-          <label for="evalRating" class="field-label mb-0 text-slate-100 font-semibold">
-            7. How well prepared do you think you currently are for your module 1 formative evaluation? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+          <label for="evalRating" class="field-label mb-0 text-slate-800 font-semibold">
+            7. How well prepared do you think you currently are for your module 1 formative evaluation? <span class="text-orange-600 text-xs font-normal">(Rate out of 10)</span>
           </label>
           <span id="evalRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
             7 / 10
@@ -828,7 +706,7 @@
         
         <input type="range" id="evalRating" min="1" max="10" value="7" step="1" 
                oninput="syncRating('evalRating', this.value)" 
-               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#8f1738] bg-[#333946]">
+               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#ea580c] bg-slate-200">
         
         <div class="grid grid-cols-10 gap-1 sm:gap-1.5" id="evalRatingPills">
           <button type="button" onclick="setRating('evalRating', 1)" class="rating-btn" data-val="1">1</button>
@@ -842,7 +720,7 @@
           <button type="button" onclick="setRating('evalRating', 9)" class="rating-btn" data-val="9">9</button>
           <button type="button" onclick="setRating('evalRating', 10)" class="rating-btn" data-val="10">10</button>
         </div>
-        <div class="flex justify-between text-[11px] text-[var(--text-muted)] px-0.5">
+        <div class="flex justify-between text-[11px] text-slate-500 px-0.5">
           <span>1 = Not prepared at all</span>
           <span>5 = Moderate</span>
           <span>10 = Fully prepared</span>
@@ -855,10 +733,10 @@
       </div>
 
       <!-- Rating Scale 2: TOEIC Test Preparedness -->
-      <div class="p-4 rounded-xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-3">
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-          <label for="toeicRating" class="field-label mb-0 text-slate-100 font-semibold">
-            9. How well prepared do you think you currently are for your TOEIC test? <span class="text-[var(--claret-light)] text-xs font-normal">(Rate out of 10)</span>
+          <label for="toeicRating" class="field-label mb-0 text-slate-800 font-semibold">
+            9. How well prepared do you think you currently are for your TOEIC test? <span class="text-orange-600 text-xs font-normal">(Rate out of 10)</span>
           </label>
           <span id="toeicRatingBadge" class="badge-claret font-bold text-xs px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
             7 / 10
@@ -867,7 +745,7 @@
         
         <input type="range" id="toeicRating" min="1" max="10" value="7" step="1" 
                oninput="syncRating('toeicRating', this.value)" 
-               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#8f1738] bg-[#333946]">
+               class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#ea580c] bg-slate-200">
         
         <div class="grid grid-cols-10 gap-1 sm:gap-1.5" id="toeicRatingPills">
           <button type="button" onclick="setRating('toeicRating', 1)" class="rating-btn" data-val="1">1</button>
@@ -881,7 +759,7 @@
           <button type="button" onclick="setRating('toeicRating', 9)" class="rating-btn" data-val="9">9</button>
           <button type="button" onclick="setRating('toeicRating', 10)" class="rating-btn" data-val="10">10</button>
         </div>
-        <div class="flex justify-between text-[11px] text-[var(--text-muted)] px-0.5">
+        <div class="flex justify-between text-[11px] text-slate-500 px-0.5">
           <span>1 = Not prepared at all</span>
           <span>5 = Moderate</span>
           <span>10 = Fully prepared</span>
@@ -911,8 +789,8 @@
             <span>Overall Progress</span>
             <span id="checklistProgressBadge" class="font-bold text-[var(--text-heading)]">0%</span>
           </div>
-          <div class="w-full bg-black/50 rounded-full h-2.5 border border-[var(--box-border)] overflow-hidden">
-            <div id="checklistProgressBar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400" style="width: 0%;"></div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 border border-slate-300 overflow-hidden">
+            <div id="checklistProgressBar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-500" style="width: 0%;"></div>
           </div>
         </div>
       </div>
@@ -945,7 +823,7 @@
       </div>
 
       <!-- Module Selector Bar (Filter History by Module) -->
-      <div id="moduleFilterBar" class="no-print flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-black/30 border border-[var(--box-border)] shadow-sm">
+      <div id="moduleFilterBar" class="no-print flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-slate-100 border border-slate-200 shadow-2xs">
         <button type="button" onclick="setModuleFilter('Module 1')" id="btnFilterM1" class="filter-pill active">
           Module 1
         </button>
@@ -960,10 +838,16 @@
         </button>
       </div>
 
-      <div id="logsFeed" class="text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20">
+      <div id="logsFeed" class="text-sm text-slate-500 italic p-8 text-center border border-dashed border-slate-300 rounded-xl bg-slate-50">
         Please authenticate above to view your saved portfolio entries.
       </div>
     </div>
+
+    <!-- Flight-Deck Bottom Status Footer -->
+    <footer class="bg-white border border-slate-200 px-4 py-3 text-[11px] text-slate-500 flex justify-between items-center rounded-xl shadow-2xs">
+      <span class="font-medium text-slate-700">Continuous Assessment Portfolio</span>
+      <span class="font-medium text-slate-500">GSEA Semester 1 General English (AG) • ENAC Toulouse</span>
+    </footer>
 
   </div>
 
@@ -1781,8 +1665,8 @@
 
       if (!currentLoadedLogs.length) {
         count.innerText = "0 entries";
-        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
-        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-4 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
+        feed.className = "text-sm text-slate-500 italic p-8 text-center border border-dashed border-slate-300 rounded-xl bg-slate-50";
+        feed.innerHTML = `<p class="text-slate-500 italic p-4 text-center">No portfolio logs recorded yet. Use the form above to post your first session entry.</p>`;
         updateSessionAvailability();
         updateChecklist();
         return;
@@ -1794,8 +1678,8 @@
       count.innerText = `${filtered.length} of ${currentLoadedLogs.length} entries (${activeModuleFilter})`;
 
       if (!filtered.length) {
-        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
-        feed.innerHTML = `<p class="text-[var(--text-muted)] italic p-4 text-center">No entries recorded yet for ${escapeHtml(activeModuleFilter)}.</p>`;
+        feed.className = "text-sm text-slate-500 italic p-8 text-center border border-dashed border-slate-300 rounded-xl bg-slate-50";
+        feed.innerHTML = `<p class="text-slate-500 italic p-4 text-center">No entries recorded yet for ${escapeHtml(activeModuleFilter)}.</p>`;
         return;
       }
 
@@ -1807,33 +1691,33 @@
 
         return `
         <div class="entry-card p-5 space-y-3 mb-4 text-left">
-          <div class="flex justify-between items-center border-b border-[var(--card-border)] pb-2.5 text-left">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-2.5 text-left">
             <div class="flex items-center gap-2 flex-wrap text-left">
-              <span class="font-bold text-[var(--claret-light)] text-base">${escapeHtml(log.session)}</span>
+              <span class="font-bold text-slate-900 text-base">${escapeHtml(log.session)}</span>
               <span class="text-xs badge-claret px-2 py-0.5 rounded-md font-medium">(${escapeHtml(log.module)})</span>
             </div>
-            <span class="text-xs text-[var(--text-muted)] font-mono">${escapeHtml(log.timestamp)}</span>
+            <span class="text-xs text-slate-400 font-mono">${escapeHtml(log.timestamp)}</span>
           </div>
 
           <!-- Self-Assessment Ratings (Visible to Student & Teacher) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 pb-1 text-left">
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)] text-left">
-              <span class="text-xs text-[var(--text-muted)] font-medium text-left">Module 1 Formative Eval Prep:</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
+              <span class="text-xs text-slate-500 font-medium text-left">Module 1 Formative Eval Prep:</span>
               <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${evalRating ? escapeHtml(evalRating) + (String(evalRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
             </div>
-            <div class="flex items-center justify-between p-2.5 rounded-lg bg-[var(--box-bg)] border border-[var(--card-border)] text-left">
-              <span class="text-xs text-[var(--text-muted)] font-medium text-left">TOEIC Test Prep:</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
+              <span class="text-xs text-slate-500 font-medium text-left">TOEIC Test Prep:</span>
               <span class="text-xs font-bold badge-claret px-2 py-0.5 rounded-md">${toeicRating ? escapeHtml(toeicRating) + (String(toeicRating).includes('/10') ? '' : ' / 10') : '<span class="opacity-50">Not rated</span>'}</span>
             </div>
           </div>
 
           <!-- Log Content (Strictly Left Justified) -->
-          <div class="text-xs space-y-2.5 text-left text-[var(--text-main)]">
-            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Key Vocabulary:</strong> ${escapeHtml(log.vocab)}</p>
-            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Lesson Review:</strong> ${escapeHtml(log.contentReview)}</p>
-            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Work On Next:</strong> ${escapeHtml(log.workOn)}</p>
-            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp)}</p>
-            <p class="text-left leading-relaxed m-0"><strong class="text-[var(--text-heading)] font-semibold">TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep)}</p>
+          <div class="text-xs space-y-2.5 text-left text-slate-700">
+            <p class="text-left leading-relaxed m-0"><strong class="text-slate-900 font-semibold">Key Vocabulary:</strong> ${escapeHtml(log.vocab)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-slate-900 font-semibold">Lesson Review:</strong> ${escapeHtml(log.contentReview)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-slate-900 font-semibold">Work On Next:</strong> ${escapeHtml(log.workOn)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-slate-900 font-semibold">Formative Evaluation Value:</strong> ${escapeHtml(log.evalHelp)}</p>
+            <p class="text-left leading-relaxed m-0"><strong class="text-slate-900 font-semibold">TOEIC Prep:</strong> ${escapeHtml(log.toeicPrep)}</p>
           </div>
         </div>
       `;
@@ -2390,7 +2274,7 @@
 
       const feed = document.getElementById("logsFeed");
       if (feed) {
-        feed.className = "text-sm text-[var(--text-muted)] italic p-8 text-center border border-dashed border-[var(--box-border)] rounded-xl bg-black/20";
+        feed.className = "text-sm text-slate-500 italic p-8 text-center border border-dashed border-slate-300 rounded-xl bg-slate-50";
         feed.innerHTML = "Please authenticate above to view your saved portfolio entries.";
       }
 
